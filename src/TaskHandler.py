@@ -3,6 +3,7 @@ import shutil as su
 
 import SettingsConverter as sc
 import JsonResolver as jr
+import JobFormatChecker as jc
 import serenipy as spy
 
 class TaskHandler():
@@ -63,6 +64,7 @@ class TaskHandler():
         return self.__args
 
     def enroll(self):
+        checker = jc.JobFormatChecker(self.__args)
         for outer, inner in self.__args.items():
             if (outer.upper() == "TASK"):
                 continue
