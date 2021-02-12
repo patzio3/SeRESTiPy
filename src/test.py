@@ -55,7 +55,7 @@ settingsDct = {
 }
 
 settingsDct2 = {
-                "sys0" : {"name"  : "SOOOS",
+                "sys0" : {"name"  : "SOOOS3",
                             "geometry" : "geo3.xyz",#os.path.join(parentDir, "geo1.xyz"),
                             "method" : "DFT",
                             "type" : "active",
@@ -68,7 +68,7 @@ settingsDct2 = {
                             },
                             "xyz" : data3
                 },
-                "sys1" : {"name"  : "SOOOS2",
+                "sys1" : {"name"  : "SOOOS4",
                             "geometry" : "geo4.xyz",#os.path.join(parentDir, "geo2.xyz"),
                             "method" : "DFT",
                             "type" : "environment",
