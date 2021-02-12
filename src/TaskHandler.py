@@ -74,48 +74,48 @@ class TaskHandler():
 
 
 
-            elif (inner["system"]["type"].lower() == "active" or inner["system"]["type"].lower() == "act"):
-                converter = sc.SettingsConverter(jr.dict2json(inner))
-                self.__actSettings.append(converter.getSerenipySettings())
-                #check if densityMatrix and coefficients are sent
-                if ("densityMatrix" in inner):
-                    self.__actDensityMatrix.append(inner["densityMatrix"])
-                if ("densityMatrixAlpha" in inner):
-                    self.__actDensityMatrix.append([])
-                    self.__actDensityMatrix[self.__nAct].append(inner["densityMatrixAlpha"])
-                if ("densityMatrixBeta" in inner):
-                    self.__actDensityMatrix[self.__nAct].append(inner["densityMatrixBeta"])
-                if ("coefficients" in inner):
-                    self.__actCoefficients.append(inner["coefficients"])
-                if ("coefficientsAlpha" in inner):
-                    self.__actCoefficients.append([])
-                    self.__actCoefficients[self.__nAct].append(inner["coefficientsAlpha"])
-                if ("coefficientsBeta" in inner):
-                    self.__actCoefficients[self.__nAct].append(inner["coefficientsBeta"])
-                self.__nAct += 1
+            # elif (inner["system"]["type"].lower() == "active" or inner["system"]["type"].lower() == "act"):
+            #     converter = sc.SettingsConverter(jr.dict2json(inner))
+            #     self.__actSettings.append(converter.getSerenipySettings())
+            #     #check if densityMatrix and coefficients are sent
+            #     if ("densityMatrix" in inner):
+            #         self.__actDensityMatrix.append(inner["densityMatrix"])
+            #     if ("densityMatrixAlpha" in inner):
+            #         self.__actDensityMatrix.append([])
+            #         self.__actDensityMatrix[self.__nAct].append(inner["densityMatrixAlpha"])
+            #     if ("densityMatrixBeta" in inner):
+            #         self.__actDensityMatrix[self.__nAct].append(inner["densityMatrixBeta"])
+            #     if ("coefficients" in inner):
+            #         self.__actCoefficients.append(inner["coefficients"])
+            #     if ("coefficientsAlpha" in inner):
+            #         self.__actCoefficients.append([])
+            #         self.__actCoefficients[self.__nAct].append(inner["coefficientsAlpha"])
+            #     if ("coefficientsBeta" in inner):
+            #         self.__actCoefficients[self.__nAct].append(inner["coefficientsBeta"])
+            #     self.__nAct += 1
 
-            elif (inner["system"]["type"].lower() == "environment" or inner["system"]["type"].lower() == "env"):
-                converter = sc.SettingsConverter(jr.dict2json(inner))
-                self.__envSettings.append(converter.getSerenipySettings())
-                #check if densityMatrix and coefficients are sent
-                if ("densityMatrix" in inner):
-                    self.__envDensityMatrix.append(inner["densityMatrix"])
-                if ("densityMatrixAlpha" in inner):
-                    self.__envDensityMatrix.append([])
-                    self.__envDensityMatrix[self.__nEnv].append(inner["densityMatrixAlpha"])
-                if ("densityMatrixBeta" in inner):
-                    self.__envDensityMatrix[self.__nEnv].append(inner["densityMatrixBeta"])
-                if ("coefficients" in inner):
-                    self.__envCoefficients.append(inner["coefficients"])
-                if ("coefficientsAlpha" in inner):
-                    self.__envCoefficients.append([])
-                    self.__envCoefficients[self.__nEnv].append(inner["coefficientsAlpha"])
-                if ("coefficientsBeta" in inner):
-                    self.__envCoefficients[self.__nEnv].append(inner["coefficientsBeta"])
-                self.__nEnv += 1
-            else:
-                print("System has no type! E.g. enter 'type : active' in the system block in the input!")
-                sys.exit()
+            # elif (inner["system"]["type"].lower() == "environment" or inner["system"]["type"].lower() == "env"):
+            #     converter = sc.SettingsConverter(jr.dict2json(inner))
+            #     self.__envSettings.append(converter.getSerenipySettings())
+            #     #check if densityMatrix and coefficients are sent
+            #     if ("densityMatrix" in inner):
+            #         self.__envDensityMatrix.append(inner["densityMatrix"])
+            #     if ("densityMatrixAlpha" in inner):
+            #         self.__envDensityMatrix.append([])
+            #         self.__envDensityMatrix[self.__nEnv].append(inner["densityMatrixAlpha"])
+            #     if ("densityMatrixBeta" in inner):
+            #         self.__envDensityMatrix[self.__nEnv].append(inner["densityMatrixBeta"])
+            #     if ("coefficients" in inner):
+            #         self.__envCoefficients.append(inner["coefficients"])
+            #     if ("coefficientsAlpha" in inner):
+            #         self.__envCoefficients.append([])
+            #         self.__envCoefficients[self.__nEnv].append(inner["coefficientsAlpha"])
+            #     if ("coefficientsBeta" in inner):
+            #         self.__envCoefficients[self.__nEnv].append(inner["coefficientsBeta"])
+            #     self.__nEnv += 1
+            # else:
+            #     print("System has no type! E.g. enter 'type : active' in the system block in the input!")
+            #     sys.exit()
 
         for act in self.__actSettings:
             act = spy.System(act)
