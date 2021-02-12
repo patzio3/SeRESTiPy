@@ -1,4 +1,4 @@
-import socket
+import socket, codecs
 from flask import Flask, request
 from flask_restful import Api, Resource, abort
 
@@ -43,8 +43,27 @@ class SerenityAPI(Resource):
         del jobs[job_id]
         return "", 201
 
+class JobInfo(Resource):
+    @app.route("/api/<int:job_id>/info", methods = ["GET"])
+    def getJobInfo(job_id):
+        notExist(job_id)
+        return jobs[job_id].getTaskInfo(), 201
 
+class HomePage(Resource):
+    @app.route("/", methods = ["GET"])
+    def homePageHit():
+        return "HomePage Endpoint hit!", 201
+
+class ApiPage(Resource):
+    @app.route("/api/", methods = ["GET"])
+    def apiPageHit():
+        f = codecs.open("index.html", "r")
+        return f.read(), 201
+
+api.add_resource(HomePage, "/")
+api.add_resource(ApiPage, "/api")
 api.add_resource(SerenityAPI, "/api/<int:job_id>")
+api.add_resource(JobInfo, "/api/<int:job_id>/info")
 
 if __name__ == "__main__":
 	app.run(host = socket.gethostbyname(socket.gethostname()) ,debug = False)

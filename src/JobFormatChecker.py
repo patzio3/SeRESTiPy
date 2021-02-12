@@ -1,4 +1,4 @@
-import sys
+import sys, os
 
 class JobFormatChecker():
     def __init__(self, json):
@@ -26,6 +26,7 @@ class JobFormatChecker():
         ]
         self.__allowedInnerKeys = ["NAME",
                                    "GEOMETRY",
+                                   "XYZ",
                                    "TYPE",
                                    "METHOD",
                                    "SCFMODE",
@@ -129,70 +130,3 @@ class JobFormatChecker():
                     if (sysSettings.upper() not in self.__allowedInnerKeys):
                         print(f"KeyError: Field '{sysSettings.upper()}' not allowed in settings scope! Check manual!" )
                         sys.exit()
-
-
-
-
-
-settingsDct = {
-                "sys0" : {"name"  : "SOOOS",
-                            "geometry" : "geo1",#os.path.join(parentDir, "geo1.xyz"),
-                            "method" : "DFT",
-                            "type" : "active",
-                            "scfMode" : "UNRESTRICTED",
-                            "dft"   : {"functional" : "PBE0",
-                                       "densityFitting" : "RI",
-                                       "dispersion" : "D3"
-                            },
-                            "basis" : {"label" : "def2-svp",
-                           }
-                },
-                "sys1" : {"name"  : "SOOOS2",
-                            "geometry" : "geo2",#os.path.join(parentDir, "geo2.xyz"),
-                            "method" : "DFT",
-                            "type" : "environment",
-                            "scfMode" : "UNRESTRICTED",
-                            "dft"   : {"functional" : "PBE0",
-                                       "densityFitting" : "RI",
-                                       "dispersion" : "D3"
-                             },
-                            "basis" : {"label" : "def2-svp",
-                            }
-                },
-}
-
-settingsDct2 = {
-                "sys0" : {"name"  : "SOOOS",
-                            "geometry" : "geo1",#os.path.join(parentDir, "geo1.xyz"),
-                            "method" : "DFT",
-                            "type" : "active",
-                            "scfMode" : "UNRESTRICTED",
-                            "dft"   : {"functional" : "PBE0",
-                                       "densityFitting" : "RI",
-                                       "dispersion" : "D3"
-                            },
-                            "basis" : {"label" : "def2-svp",
-                           }
-                },
-                "sys1" : {"name"  : "SOOOS2",
-                            "geometry" : "geo2",#os.path.join(parentDir, "geo2.xyz"),
-                            "method" : "DFT",
-                            "type" : "environment",
-                            "scfMode" : "UNRESTRICTED",
-                            "dft"   : {"functional" : "PBE0",
-                                       "densityFitting" : "RI",
-                                       "dispersion" : "D3"
-                             },
-                            "basis" : {"label" : "def2-svp",
-                            }
-                },
-}
-
-wholeSettings = {"TASK" : "FDE", 
-                 "STATE" : "INI",
-                 "SYSTEMSETTINGS" : settingsDct,
-                 "ENVSETTINGS" : settingsDct2
-                 }
-
-formatter = JobFormatChecker(wholeSettings)
-formatter.run()

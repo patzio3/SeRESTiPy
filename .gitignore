@@ -8,5 +8,6 @@
 !*.py
 !requirements.txt
 !src/*.py
+!src/index.html
 !.gitignore
 

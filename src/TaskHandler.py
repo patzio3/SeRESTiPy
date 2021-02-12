@@ -59,9 +59,12 @@ class TaskHandler():
     def getEnvironmentSystems(self):
         return self.__env
 
+    def getTaskInfo(self):
+        return self.__args
+
     def enroll(self):
         for outer, inner in self.__args.items():
-            if (outer == "task"):
+            if (outer.upper() == "TASK"):
                 continue
             elif (inner["system"]["type"].lower() == "active" or inner["system"]["type"].lower() == "act"):
                 converter = sc.SettingsConverter(jr.dict2json(inner))
