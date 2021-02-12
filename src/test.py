@@ -4,9 +4,23 @@ import os, requests, time
 parDir = '/scratch/p_esch01/workspace/prm21/geos/'
 geo1 = os.path.join(parDir,"geo1.xyz")
 with open(geo1, 'r') as file:
-    data = file.read()
+    data1 = file.read()
     file.close()
 
+geo2 = os.path.join(parDir,"geo2.xyz")
+with open(geo2, 'r') as file:
+    data2 = file.read()
+    file.close()
+
+geo3 = os.path.join(parDir,"geo3.xyz")
+with open(geo3, 'r') as file:
+    data3 = file.read()
+    file.close()
+
+geo4 = os.path.join(parDir,"geo4.xyz")
+with open(geo4, 'r') as file:
+    data4 = file.read()
+    file.close()
 #with open(os.path.join(parDir,'text.xyz'), "w") as file:
 #  file.write(data)
 #  file.close()
@@ -23,7 +37,7 @@ settingsDct = {
                             },
                             "basis" : {"label" : "def2-svp",
                             },
-                            "xyz" : data
+                            "xyz" : data1
                 },
                 "sys1" : {"name"  : "SOOOS2",
                             "geometry" : "geo2",#os.path.join(parentDir, "geo2.xyz"),
@@ -36,7 +50,7 @@ settingsDct = {
                              },
                             "basis" : {"label" : "def2-svp",
                             },
-                            "xyz" : ""
+                            "xyz" : data2
                 },
 }
 
@@ -52,7 +66,7 @@ settingsDct2 = {
                             },
                             "basis" : {"label" : "def2-svp",
                             },
-                            "xyz" : ""
+                            "xyz" : data3
                 },
                 "sys1" : {"name"  : "SOOOS2",
                             "geometry" : "geo4",#os.path.join(parentDir, "geo2.xyz"),
@@ -65,7 +79,7 @@ settingsDct2 = {
                              },
                             "basis" : {"label" : "def2-svp",
                              },
-                            "xyz" : ""
+                            "xyz" : data4
                 },
 }
 
