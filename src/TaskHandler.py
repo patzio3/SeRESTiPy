@@ -21,11 +21,8 @@ class TaskHandler():
         self.__envCoefficients = []
         self.__nAct = 0
         self.__nEnv = 0
-        if ("task" in args):
-            self.__taskName = args["task"]
-        else:
-            print("No 'task' was specified!")
-            sys.exit()
+        checker = jc.JobFormatChecker(self.__args)
+        checker.run()
 
     def __updateSystems(self):
         for iAct in range(len(self.__actDensityMatrix)):
@@ -64,7 +61,6 @@ class TaskHandler():
         return self.__args
 
     def enroll(self):
-        checker = jc.JobFormatChecker(self.__args)
         for outer, inner in self.__args.items():
             if (outer.upper() == "TASK"):
                 continue
