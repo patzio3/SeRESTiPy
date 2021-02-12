@@ -68,7 +68,7 @@ class TaskHandler():
         for outer, _ in self.__args.items():
             if (outer.upper() == "TASK"):
                 self.__taskName = self.__args[outer.upper()]
-            elif (outer.upper() in ["ACTIVESYSTEMSETTINGS", "ACTSETTINGS"]):
+            elif (outer.upper() in ["ACTIVESYSTEMSETTINGS", "ACTSETTINGS", "SYSTEMSETTINGS"]):
                 actSettingsDict = self.__args[outer.upper()]
                 print(actSettingsDict)
 
