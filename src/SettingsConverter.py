@@ -12,30 +12,31 @@ class SettingsConverter():
         #| Settings |
         #o----------o
         self.__sereniypySettings = Settings()
-        if ("name" in self.__jsonSettings): 
-            self.__sereniypySettings.name = self.__jsonSettings["name"]
-        if ("path" in self.__jsonSettings): 
-            self.__sereniypySettings.path = self.__jsonSettings["path"]
-        if ("charge" in self.__jsonSettings): 
-            self.__sereniypySettings.charge = self.__jsonSettings["charge"]
-        if ("spin" in self.__jsonSettings): 
-            self.__sereniypySettings.spin = self.__jsonSettings["spin"]
-        if ("geometry" in self.__jsonSettings): 
-            self.__sereniypySettings.geometry = self.__jsonSettings["geometry"]
-        if ("scfMode" in self.__jsonSettings): 
-            self.__sereniypySettings.scfMode = jr.resolveSCFMode(self.__jsonSettings["scfMode"].upper())
-        if ("method" in self.__jsonSettings): 
-            self.__sereniypySettings.method = jr.resolveElectronicStructureTheory(self.__jsonSettings["method"].upper())
+        for outer, inner in self.__jsonSettings.item():
+            if (outer.upper() == "NAME"): 
+                self.__sereniypySettings.name = self.__jsonSettings[outer]
+            if (outer.upper() == "CHARGE"): 
+                self.__sereniypySettings.charge = self.__jsonSettings[outer]
+            if (outer.upper() == "SPIN"): 
+                self.__sereniypySettings.spin = self.__jsonSettings[outer]
+            if (outer.upper() == "GEOMETRY"): 
+                self.__sereniypySettings.geometry = self.__jsonSettings[outer]
+            if (outer.upper() == "SCFMODE"): 
+                self.__sereniypySettings.scfMode = jr.resolveSCFMode(self.__jsonSettings[outer].upper())
+            if (outer.upper() == "METHOD"): 
+                self.__sereniypySettings.method = jr.resolveElectronicStructureTheory(self.__jsonSettings[outer].upper())
         #o--------------o
         #| DFT Settings |
         #o--------------o
-        if ("dft" in self.__jsonSettings):
-            if ("functional" in self.__jsonSettings["dft"]):
-                self.__sereniypySettings.dft.functional = jr.resolveFunctional(self.__jsonSettings["dft"]["functional"].upper())
-            if ("densityFitting" in self.__jsonSettings["dft"]):
-                self.__sereniypySettings.dft.densityFitting = jr.resolveDensityFitting(self.__jsonSettings["dft"]["densityFitting"].upper())
-            if ("dispersion" in self.__jsonSettings["dft"]):
-                self.__sereniypySettings.dft.dispersion = jr.resolveDispersionCorrection(self.__jsonSettings["dft"]["dispersion"].upper())
+            if (outer.upper() == "DFT"):
+                for innerinner, _ in inner.items():
+                    print("LOOOOOOOOOOOOOOOOOL", outer, "---->",inner, "---->",innerinner)
+                    if (innerinner.upper() == "FUNCTIONAL"):
+                        self.__sereniypySettings.dft.functional = jr.resolveFunctional(self.__jsonSettings[outer][innerinner].upper())
+                    if (innerinner.upper() == "DENSITYFITTING"):
+                        self.__sereniypySettings.dft.densityFitting = jr.resolveDensityFitting(self.__jsonSettings[outer][innerinner].upper())
+                    if (innerinner.upper() == "DISPERSION"):
+                        self.__sereniypySettings.dft.dispersion = jr.resolveDispersionCorrection(self.__jsonSettings[outer][innerinner].upper())
         #o--------------o
         #| SCF Settings |
         #o--------------o
