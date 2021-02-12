@@ -1,0 +1,12 @@
+# Blacklist
+*
+
+#Whitelist directories
+!*/
+
+#Whitelist files
+!*.py
+!requirements.txt
+!src/*.py
+!.gitignore
+
