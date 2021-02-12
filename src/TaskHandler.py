@@ -9,6 +9,7 @@ import serenipy as spy
 class TaskHandler():
     def __init__(self, args):
         self.__args = args
+        self.__taskName = ""
         self.__act = []
         self.__env = []
         self.__actSettings = []
@@ -63,7 +64,8 @@ class TaskHandler():
     def enroll(self):
         for outer, inner in self.__args.items():
             if (outer.upper() == "TASK"):
-                continue
+                self.__taskName = self.__args[outer.upper()]
+                print(self.__taskName)
             elif (inner["system"]["type"].lower() == "active" or inner["system"]["type"].lower() == "act"):
                 converter = sc.SettingsConverter(jr.dict2json(inner))
                 self.__actSettings.append(converter.getSerenipySettings())
