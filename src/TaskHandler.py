@@ -98,6 +98,11 @@ class TaskHandler():
                 if (outer[0:6].upper() in ["SYSTEM","SYS"] or \
                     outer[0:3].upper() in ["SYSTEM","SYS"]):
                     converter = sc.SettingsConverter(jr.dict2json(inner))
+                    #write the sent XYZ to file
+                    with open(os.path.join(os.getcwd(),inner["geometry"]), 'w') as file:
+                        file.write(inner["xyz"])
+                        file.close()
+                    inner["geometry"] = os.path.join(os.getcwd(),inner["geometry"])
                     self.__envSettings.append(converter.getSerenipySettings())
                     self.__nEnv += 1
                 else:
