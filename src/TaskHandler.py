@@ -83,10 +83,13 @@ class TaskHandler():
                 outer[0:3].upper() in ["SYSTEM","SYS"]):
                 converter = sc.SettingsConverter(jr.dict2json(inner))
                 #write the sent XYZ to file
-                with open(os.path.join(os.getcwd(),inner["geometry"]), 'w') as file:
-                    file.write(inner["xyz"])
-                    file.close()
-                inner["geometry"] = os.path.join(os.getcwd(),inner["geometry"])
+                #ToDo: create the xyz file in the a scratch directory
+                for innerinner, _ in inner.items():
+                    if (innerinner.upper() == "GEOMETRY"):
+                        with open(os.path.join(os.getcwd(),inner[innerinner]), 'w') as file:
+                            file.write(inner["XYZ"])
+                            file.close()
+                        inner[innerinner] = os.path.join(os.getcwd(),inner[innerinner])
                 self.__actSettings.append(converter.getSerenipySettings())
                 self.__nAct += 1
             else:
@@ -99,10 +102,13 @@ class TaskHandler():
                     outer[0:3].upper() in ["SYSTEM","SYS"]):
                     converter = sc.SettingsConverter(jr.dict2json(inner))
                     #write the sent XYZ to file
-                    with open(os.path.join(os.getcwd(),inner["geometry"]), 'w') as file:
-                        file.write(inner["xyz"])
-                        file.close()
-                    inner["geometry"] = os.path.join(os.getcwd(),inner["geometry"])
+                    #ToDo: create the xyz file in the a scratch directory
+                    for innerinner, _ in inner.items():
+                        if (innerinner.upper() == "GEOMETRY"):
+                            with open(os.path.join(os.getcwd(),inner[innerinner]), 'w') as file:
+                                file.write(inner["XYZ"])
+                                file.close()
+                            inner[innerinner] = os.path.join(os.getcwd(),inner[innerinner])
                     self.__envSettings.append(converter.getSerenipySettings())
                     self.__nEnv += 1
                 else:
@@ -110,9 +116,6 @@ class TaskHandler():
                     sys.exit()
             
         
-
-
-
 
             # elif (inner["system"]["type"].lower() == "active" or inner["system"]["type"].lower() == "act"):
             #     converter = sc.SettingsConverter(jr.dict2json(inner))
