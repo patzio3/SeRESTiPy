@@ -70,7 +70,22 @@ class TaskHandler():
                 self.__taskName = self.__args[outer.upper()]
             elif (outer.upper() in ["ACTIVESYSTEMSETTINGS", "ACTSETTINGS", "SYSTEMSETTINGS"]):
                 actSettingsDict = self.__args[outer.upper()]
-                print(actSettingsDict)
+            elif (outer.upper() in ["ENVIRONMENTSYSTEMSETTINGS", "ENVSETTINGS"]):
+                envSettingsDict = self.__args[outer.upper()]
+            elif (outer.upper() in ["JOBSTATE","STATE"]):
+                jobstate = self.__args[outer.upper()]
+            else:
+                print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
+                sys.exit()
+
+        for outer, _ in actSettingsDict.items():
+            if (outer[0:6].upper() in ["SYSTEM","SYS"] and \
+                outer[0:3].upper() in ["SYSTEM","SYS"]):
+                print(outer)
+                # converter = sc.SettingsConverter(jr.dict2json(outer))
+            
+        
+
 
 
 
