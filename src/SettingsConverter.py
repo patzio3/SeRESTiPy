@@ -12,7 +12,6 @@ class SettingsConverter():
         #| Settings |
         #o----------o
         self.__sereniypySettings = Settings()
-        print(self.__jsonSettings)
         if ("name" in self.__jsonSettings): 
             self.__sereniypySettings.name = self.__jsonSettings["name"]
         if ("path" in self.__jsonSettings): 
