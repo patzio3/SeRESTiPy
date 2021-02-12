@@ -62,10 +62,18 @@ class TaskHandler():
         return self.__args
 
     def enroll(self):
-        for outer, inner in self.__args.items():
+        actSettingsDict = ""
+        envSettingsDict = ""
+        jobstate = ""
+        for outer, _ in self.__args.items():
             if (outer.upper() == "TASK"):
                 self.__taskName = self.__args[outer.upper()]
-                print(self.__taskName)
+            elif (outer.upper() in ["ACTIVESYSTEMSETTINGS", "ACTSETTINGS"]):
+                actSettingsDict = self.__args[outer.upper()]
+                print(actSettingsDict)
+
+
+
             elif (inner["system"]["type"].lower() == "active" or inner["system"]["type"].lower() == "act"):
                 converter = sc.SettingsConverter(jr.dict2json(inner))
                 self.__actSettings.append(converter.getSerenipySettings())
