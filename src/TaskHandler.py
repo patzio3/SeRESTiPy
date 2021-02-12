@@ -78,11 +78,10 @@ class TaskHandler():
                 print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
                 sys.exit()
 
-        for outer, _ in actSettingsDict.items():
-            if (outer[0:6].upper() in ["SYSTEM","SYS"] and \
+        for outer, inner in actSettingsDict.items():
+            if (outer[0:6].upper() in ["SYSTEM","SYS"] or \
                 outer[0:3].upper() in ["SYSTEM","SYS"]):
-                print(outer)
-                # converter = sc.SettingsConverter(jr.dict2json(outer))
+                converter = sc.SettingsConverter(jr.dict2json(inner))
             
         
 

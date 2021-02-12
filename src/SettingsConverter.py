@@ -12,118 +12,119 @@ class SettingsConverter():
         #| Settings |
         #o----------o
         self.__sereniypySettings = Settings()
-        if ("system" not in jsonSettings):
+        print(self.__jsonSettings)
+        if ("system" not in self.__jsonSettings):
             print("Error 404: No system specified!!!")
             sys.exit()
         else:
-            if ("name" in jsonSettings["system"]): 
-                self.__sereniypySettings.name = jsonSettings["system"]["name"]
-            if ("path" in jsonSettings["system"]): 
-                self.__sereniypySettings.path = jsonSettings["system"]["path"]
-            if ("charge" in jsonSettings["system"]): 
-                self.__sereniypySettings.charge = jsonSettings["system"]["charge"]
-            if ("spin" in jsonSettings["system"]): 
-                self.__sereniypySettings.spin = jsonSettings["system"]["spin"]
-            if ("geometry" in jsonSettings["system"]): 
-                self.__sereniypySettings.geometry = jsonSettings["system"]["geometry"]
-            if ("scfMode" in jsonSettings["system"]): 
-                self.__sereniypySettings.scfMode = jr.resolveSCFMode(jsonSettings["system"]["scfMode"].upper())
-            if ("method" in jsonSettings["system"]): 
-                self.__sereniypySettings.method = jr.resolveElectronicStructureTheory(jsonSettings["system"]["method"].upper())
+            if ("name" in self.__jsonSettings["system"]): 
+                self.__sereniypySettings.name = self.__jsonSettings["system"]["name"]
+            if ("path" in self.__jsonSettings["system"]): 
+                self.__sereniypySettings.path = self.__jsonSettings["system"]["path"]
+            if ("charge" in self.__jsonSettings["system"]): 
+                self.__sereniypySettings.charge = self.__jsonSettings["system"]["charge"]
+            if ("spin" in self.__jsonSettings["system"]): 
+                self.__sereniypySettings.spin = self.__jsonSettings["system"]["spin"]
+            if ("geometry" in self.__jsonSettings["system"]): 
+                self.__sereniypySettings.geometry = self.__jsonSettings["system"]["geometry"]
+            if ("scfMode" in self.__jsonSettings["system"]): 
+                self.__sereniypySettings.scfMode = jr.resolveSCFMode(self.__jsonSettings["system"]["scfMode"].upper())
+            if ("method" in self.__jsonSettings["system"]): 
+                self.__sereniypySettings.method = jr.resolveElectronicStructureTheory(self.__jsonSettings["system"]["method"].upper())
         #o--------------o
         #| DFT Settings |
         #o--------------o
-        if ("dft" in jsonSettings):
-            if ("functional" in jsonSettings["dft"]):
-                self.__sereniypySettings.dft.functional = jr.resolveFunctional(jsonSettings["dft"]["functional"].upper())
-            if ("densityFitting" in jsonSettings["dft"]):
-                self.__sereniypySettings.dft.densityFitting = jr.resolveDensityFitting(jsonSettings["dft"]["densityFitting"].upper())
-            if ("dispersion" in jsonSettings["dft"]):
-                self.__sereniypySettings.dft.dispersion = jr.resolveDispersionCorrection(jsonSettings["dft"]["dispersion"].upper())
+        if ("dft" in self.__jsonSettings):
+            if ("functional" in self.__jsonSettings["dft"]):
+                self.__sereniypySettings.dft.functional = jr.resolveFunctional(self.__jsonSettings["dft"]["functional"].upper())
+            if ("densityFitting" in self.__jsonSettings["dft"]):
+                self.__sereniypySettings.dft.densityFitting = jr.resolveDensityFitting(self.__jsonSettings["dft"]["densityFitting"].upper())
+            if ("dispersion" in self.__jsonSettings["dft"]):
+                self.__sereniypySettings.dft.dispersion = jr.resolveDispersionCorrection(self.__jsonSettings["dft"]["dispersion"].upper())
         #o--------------o
         #| SCF Settings |
         #o--------------o
-        if ("scf" in jsonSettings):
-            if ("initialguess" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.initialguess = jr.resolveInitialGuess(jsonSettings["scf"]["initialguess"].upper())
-            if ("maxCycles" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.maxCycles = jsonSettings["scf"]["maxCycles"]
-            if ("writeRestart" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.writeRestart = jsonSettings["scf"]["writeRestart"]
-            if ("energyThreshold" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.energyThreshold = jsonSettings["scf"]["energyThreshold"]
-            if ("rmsdThreshold" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.rmsdThreshold = jsonSettings["scf"]["rmsdThreshold"]
-            if ("damping" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.damping = jr.resolveDamping(jsonSettings["scf"]["damping"].upper())
-            if ("seriesDampingStart" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.seriesDampingStart = jsonSettings["scf"]["seriesDampingStart"]
-            if ("seriesDampingEnd" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.seriesDampingEnd = jsonSettings["scf"]["seriesDampingEnd"]
-            if ("seriesDampingStep" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.seriesDampingStep = jsonSettings["scf"]["seriesDampingStep"]
-            if ("seriesDampingInitialSteps" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.seriesDampingInitialSteps = jsonSettings["scf"]["seriesDampingInitialSteps"]
-            if ("staticDampingFactor" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.staticDampingFactor = jsonSettings["scf"]["staticDampingFactor"]
-            if ("endDampErr" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.endDampErr = jsonSettings["scf"]["endDampErr"]
-            if ("useLevelshift" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.useLevelshift = jsonSettings["scf"]["useLevelshift"]
-            if ("useOffDiagLevelshift" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.useOffDiagLevelshift = jsonSettings["scf"]["useOffDiagLevelshift"]
-            if ("minimumLevelshift" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.minimumLevelshift = jsonSettings["scf"]["minimumLevelshift"]
-            if ("diisFlush" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.diisFlush = jsonSettings["scf"]["diisFlush"]
-            if ("diisStartError" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.diisStartError = jsonSettings["scf"]["diisStartError"]
-            if ("diisMaxStore" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.diisMaxStore = jsonSettings["scf"]["diisMaxStore"]
-            if ("diisThreshold" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.diisThreshold = jsonSettings["scf"]["diisThreshold"]
-            if ("useADIIS" in jsonSettings["scf"]):
-                self.__sereniypySettings.scf.useADIIS = jsonSettings["scf"]["useADIIS"]
+        if ("scf" in self.__jsonSettings):
+            if ("initialguess" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.initialguess = jr.resolveInitialGuess(self.__jsonSettings["scf"]["initialguess"].upper())
+            if ("maxCycles" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.maxCycles = self.__jsonSettings["scf"]["maxCycles"]
+            if ("writeRestart" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.writeRestart = self.__jsonSettings["scf"]["writeRestart"]
+            if ("energyThreshold" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.energyThreshold = self.__jsonSettings["scf"]["energyThreshold"]
+            if ("rmsdThreshold" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.rmsdThreshold = self.__jsonSettings["scf"]["rmsdThreshold"]
+            if ("damping" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.damping = jr.resolveDamping(self.__jsonSettings["scf"]["damping"].upper())
+            if ("seriesDampingStart" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.seriesDampingStart = self.__jsonSettings["scf"]["seriesDampingStart"]
+            if ("seriesDampingEnd" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.seriesDampingEnd = self.__jsonSettings["scf"]["seriesDampingEnd"]
+            if ("seriesDampingStep" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.seriesDampingStep = self.__jsonSettings["scf"]["seriesDampingStep"]
+            if ("seriesDampingInitialSteps" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.seriesDampingInitialSteps = self.__jsonSettings["scf"]["seriesDampingInitialSteps"]
+            if ("staticDampingFactor" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.staticDampingFactor = self.__jsonSettings["scf"]["staticDampingFactor"]
+            if ("endDampErr" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.endDampErr = self.__jsonSettings["scf"]["endDampErr"]
+            if ("useLevelshift" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.useLevelshift = self.__jsonSettings["scf"]["useLevelshift"]
+            if ("useOffDiagLevelshift" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.useOffDiagLevelshift = self.__jsonSettings["scf"]["useOffDiagLevelshift"]
+            if ("minimumLevelshift" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.minimumLevelshift = self.__jsonSettings["scf"]["minimumLevelshift"]
+            if ("diisFlush" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.diisFlush = self.__jsonSettings["scf"]["diisFlush"]
+            if ("diisStartError" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.diisStartError = self.__jsonSettings["scf"]["diisStartError"]
+            if ("diisMaxStore" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.diisMaxStore = self.__jsonSettings["scf"]["diisMaxStore"]
+            if ("diisThreshold" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.diisThreshold = self.__jsonSettings["scf"]["diisThreshold"]
+            if ("useADIIS" in self.__jsonSettings["scf"]):
+                self.__sereniypySettings.scf.useADIIS = self.__jsonSettings["scf"]["useADIIS"]
         #o----------------o
         #| BASIS Settings |
         #o----------------o
-        if ("basis" in jsonSettings):
-            if ("label" in jsonSettings["basis"]):
-                self.__sereniypySettings.basis.label = jsonSettings["basis"]["label"]
-            if ("auxCLabel" in jsonSettings["basis"]):
-                self.__sereniypySettings.basis.auxCLabel = jsonSettings["basis"]["auxCLabel"]
-            if ("auxJLabel" in jsonSettings["basis"]):
-                self.__sereniypySettings.basis.auxJLabel = jsonSettings["basis"]["auxJLabel"]
-            if ("makeSphericalBasis" in jsonSettings["basis"]):
-                self.__sereniypySettings.basis.makeSphericalBasis = jsonSettings["basis"]["makeSphericalBasis"]
-            if ("integralThreshold" in jsonSettings["basis"]):
-                self.__sereniypySettings.basis.integralThreshold = jsonSettings["basis"]["integralThreshold"]
-            if ("basisLibPath" in jsonSettings["basis"]):
-                self.__sereniypySettings.basis.basisLibPath = jsonSettings["basis"]["basisLibPath"]
+        if ("basis" in self.__jsonSettings):
+            if ("label" in self.__jsonSettings["basis"]):
+                self.__sereniypySettings.basis.label = self.__jsonSettings["basis"]["label"]
+            if ("auxCLabel" in self.__jsonSettings["basis"]):
+                self.__sereniypySettings.basis.auxCLabel = self.__jsonSettings["basis"]["auxCLabel"]
+            if ("auxJLabel" in self.__jsonSettings["basis"]):
+                self.__sereniypySettings.basis.auxJLabel = self.__jsonSettings["basis"]["auxJLabel"]
+            if ("makeSphericalBasis" in self.__jsonSettings["basis"]):
+                self.__sereniypySettings.basis.makeSphericalBasis = self.__jsonSettings["basis"]["makeSphericalBasis"]
+            if ("integralThreshold" in self.__jsonSettings["basis"]):
+                self.__sereniypySettings.basis.integralThreshold = self.__jsonSettings["basis"]["integralThreshold"]
+            if ("basisLibPath" in self.__jsonSettings["basis"]):
+                self.__sereniypySettings.basis.basisLibPath = self.__jsonSettings["basis"]["basisLibPath"]
         #o---------------o
         #| GRID Settings |
         #o---------------o
-        if ("grid" in jsonSettings):
-            if ("gridType" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.gridType = jr.resolveGridType(jsonSettings["grid"]["gridType"].upper())
-            if ("radialGridType" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.radialGridType = jr.resolveRadialGridType(jsonSettings["grid"]["radialGridType"].upper())
-            if ("sphericalGridType" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.sphericalGridType = jr.resolveSphericalGridType(jsonSettings["grid"]["sphericalGridType"].upper())
-            if ("blocksize" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.blocksize = jsonSettings["grid"]["blocksize"]
-            if ("accuracy" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.accuracy = jsonSettings["grid"]["accuracy"]
-            if ("smallGridAccuracy" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.smallGridAccuracy = jsonSettings["grid"]["smallGridAccuracy"]
-            if ("blockAveThreshold" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.blockAveThreshold = jsonSettings["grid"]["blockAveThreshold"]
-            if ("basFuncRadialThreshold" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.basFuncRadialThreshold = jsonSettings["grid"]["basFuncRadialThreshold"]
-            if ("weightThreshold" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.weightThreshold = jsonSettings["grid"]["weightThreshold"]
-            if ("smoothing" in jsonSettings["grid"]):
-                self.__sereniypySettings.grid.smoothing = jsonSettings["grid"]["smoothing"]
+        if ("grid" in self.__jsonSettings):
+            if ("gridType" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.gridType = jr.resolveGridType(self.__jsonSettings["grid"]["gridType"].upper())
+            if ("radialGridType" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.radialGridType = jr.resolveRadialGridType(self.__jsonSettings["grid"]["radialGridType"].upper())
+            if ("sphericalGridType" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.sphericalGridType = jr.resolveSphericalGridType(self.__jsonSettings["grid"]["sphericalGridType"].upper())
+            if ("blocksize" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.blocksize = self.__jsonSettings["grid"]["blocksize"]
+            if ("accuracy" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.accuracy = self.__jsonSettings["grid"]["accuracy"]
+            if ("smallGridAccuracy" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.smallGridAccuracy = self.__jsonSettings["grid"]["smallGridAccuracy"]
+            if ("blockAveThreshold" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.blockAveThreshold = self.__jsonSettings["grid"]["blockAveThreshold"]
+            if ("basFuncRadialThreshold" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.basFuncRadialThreshold = self.__jsonSettings["grid"]["basFuncRadialThreshold"]
+            if ("weightThreshold" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.weightThreshold = self.__jsonSettings["grid"]["weightThreshold"]
+            if ("smoothing" in self.__jsonSettings["grid"]):
+                self.__sereniypySettings.grid.smoothing = self.__jsonSettings["grid"]["smoothing"]
     #+------------------+
     #| Member functions |
     #+------------------+
