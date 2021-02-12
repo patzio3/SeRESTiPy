@@ -82,6 +82,22 @@ class TaskHandler():
             if (outer[0:6].upper() in ["SYSTEM","SYS"] or \
                 outer[0:3].upper() in ["SYSTEM","SYS"]):
                 converter = sc.SettingsConverter(jr.dict2json(inner))
+                self.__actSettings.append(converter.getSerenipySettings())
+                self.__nAct += 1
+            else:
+                print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
+                sys.exit()
+
+        if (envSettingsDict != ""):
+            for outer, inner in envSettingsDict.items():
+                if (outer[0:6].upper() in ["SYSTEM","SYS"] or \
+                    outer[0:3].upper() in ["SYSTEM","SYS"]):
+                    converter = sc.SettingsConverter(jr.dict2json(inner))
+                    self.__envSettings.append(converter.getSerenipySettings())
+                    self.__nEnv += 1
+                else:
+                    print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
+                    sys.exit()
             
         
 

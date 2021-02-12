@@ -13,24 +13,20 @@ class SettingsConverter():
         #o----------o
         self.__sereniypySettings = Settings()
         print(self.__jsonSettings)
-        if ("system" not in self.__jsonSettings):
-            print("Error 404: No system specified!!!")
-            sys.exit()
-        else:
-            if ("name" in self.__jsonSettings["system"]): 
-                self.__sereniypySettings.name = self.__jsonSettings["system"]["name"]
-            if ("path" in self.__jsonSettings["system"]): 
-                self.__sereniypySettings.path = self.__jsonSettings["system"]["path"]
-            if ("charge" in self.__jsonSettings["system"]): 
-                self.__sereniypySettings.charge = self.__jsonSettings["system"]["charge"]
-            if ("spin" in self.__jsonSettings["system"]): 
-                self.__sereniypySettings.spin = self.__jsonSettings["system"]["spin"]
-            if ("geometry" in self.__jsonSettings["system"]): 
-                self.__sereniypySettings.geometry = self.__jsonSettings["system"]["geometry"]
-            if ("scfMode" in self.__jsonSettings["system"]): 
-                self.__sereniypySettings.scfMode = jr.resolveSCFMode(self.__jsonSettings["system"]["scfMode"].upper())
-            if ("method" in self.__jsonSettings["system"]): 
-                self.__sereniypySettings.method = jr.resolveElectronicStructureTheory(self.__jsonSettings["system"]["method"].upper())
+        if ("name" in self.__jsonSettings): 
+            self.__sereniypySettings.name = self.__jsonSettings["name"]
+        if ("path" in self.__jsonSettings): 
+            self.__sereniypySettings.path = self.__jsonSettings["path"]
+        if ("charge" in self.__jsonSettings): 
+            self.__sereniypySettings.charge = self.__jsonSettings["charge"]
+        if ("spin" in self.__jsonSettings): 
+            self.__sereniypySettings.spin = self.__jsonSettings["spin"]
+        if ("geometry" in self.__jsonSettings): 
+            self.__sereniypySettings.geometry = self.__jsonSettings["geometry"]
+        if ("scfMode" in self.__jsonSettings): 
+            self.__sereniypySettings.scfMode = jr.resolveSCFMode(self.__jsonSettings["scfMode"].upper())
+        if ("method" in self.__jsonSettings): 
+            self.__sereniypySettings.method = jr.resolveElectronicStructureTheory(self.__jsonSettings["method"].upper())
         #o--------------o
         #| DFT Settings |
         #o--------------o
