@@ -86,6 +86,7 @@ class TaskHandler():
                 with open(os.path.join(os.getcwd(),inner["geometry"]), 'w') as file:
                     file.write(inner["xyz"])
                     file.close()
+                inner["geometry"] = os.path.join(os.getcwd(),inner["geometry"])
                 self.__actSettings.append(converter.getSerenipySettings())
                 self.__nAct += 1
             else:

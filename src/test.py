@@ -31,7 +31,7 @@ settingsDct = {
                             "method" : "DFT",
                             "type" : "active",
                             "scfMode" : "UNRESTRICTED",
-                            "dft"   : {"functional" : "PBE0",
+                            "dft"   : {"functional" : "PBE",
                                        "densityFitting" : "RI",
                                        "dispersion" : "D3"
                             },
@@ -40,11 +40,11 @@ settingsDct = {
                             "xyz" : data1
                 },
                 "sys1" : {"name"  : "SOOOS2",
-                            "geometry" : "geo2",#os.path.join(parentDir, "geo2.xyz"),
+                            "geometry" : "geo2.xyz",#os.path.join(parentDir, "geo2.xyz"),
                             "method" : "DFT",
                             "type" : "environment",
                             "scfMode" : "UNRESTRICTED",
-                            "dft"   : {"functional" : "PBE0",
+                            "dft"   : {"functional" : "PBE",
                                        "densityFitting" : "RI",
                                        "dispersion" : "D3"
                              },
@@ -56,11 +56,11 @@ settingsDct = {
 
 settingsDct2 = {
                 "sys0" : {"name"  : "SOOOS",
-                            "geometry" : "geo3",#os.path.join(parentDir, "geo1.xyz"),
+                            "geometry" : "geo3.xyz",#os.path.join(parentDir, "geo1.xyz"),
                             "method" : "DFT",
                             "type" : "active",
                             "scfMode" : "UNRESTRICTED",
-                            "dft"   : {"functional" : "PBE0",
+                            "dft"   : {"functional" : "PBE",
                                        "densityFitting" : "RI",
                                        "dispersion" : "D3"
                             },
@@ -69,11 +69,11 @@ settingsDct2 = {
                             "xyz" : data3
                 },
                 "sys1" : {"name"  : "SOOOS2",
-                            "geometry" : "geo4",#os.path.join(parentDir, "geo2.xyz"),
+                            "geometry" : "geo4.xyz",#os.path.join(parentDir, "geo2.xyz"),
                             "method" : "DFT",
                             "type" : "environment",
                             "scfMode" : "UNRESTRICTED",
-                            "dft"   : {"functional" : "PBE0",
+                            "dft"   : {"functional" : "PBE",
                                        "densityFitting" : "RI",
                                        "dispersion" : "D3"
                              },
