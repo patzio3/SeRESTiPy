@@ -30,7 +30,7 @@ settingsDct = {
                             "geometry" : "geo1.xyz",#os.path.join(parentDir, "geo1.xyz"),
                             "method" : "DFT",
                             "type" : "active",
-                            "scfMode" : "UNRESTRICTED",
+                            "scfMode" : "RESTRICTED",
                             "dft"   : {"functional" : "PBE",
                                        "densityFitting" : "RI",
                                        "dispersion" : "D3"
@@ -43,7 +43,7 @@ settingsDct = {
                             "geometry" : "geo2.xyz",#os.path.join(parentDir, "geo2.xyz"),
                             "method" : "DFT",
                             "type" : "environment",
-                            "scfMode" : "UNRESTRICTED",
+                            "scfMode" : "RESTRICTED",
                             "dft"   : {"functional" : "PBE",
                                        "densityFitting" : "RI",
                                        "dispersion" : "D3"
@@ -59,7 +59,7 @@ settingsDct2 = {
                             "geometry" : "geo3.xyz",#os.path.join(parentDir, "geo1.xyz"),
                             "method" : "DFT",
                             "type" : "active",
-                            "scfMode" : "UNRESTRICTED",
+                            "scfMode" : "RESTRICTED",
                             "dft"   : {"functional" : "PBE",
                                        "densityFitting" : "RI",
                                        "dispersion" : "D3"
@@ -72,7 +72,7 @@ settingsDct2 = {
                             "geometry" : "geo4.xyz",#os.path.join(parentDir, "geo2.xyz"),
                             "method" : "DFT",
                             "type" : "environment",
-                            "scfMode" : "UNRESTRICTED",
+                            "scfMode" : "RESTRICTED",
                             "dft"   : {"functional" : "PBE",
                                        "densityFitting" : "RI",
                                        "dispersion" : "D3"
