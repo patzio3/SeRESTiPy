@@ -2,6 +2,7 @@ import JsonResolver as jr
 import os, requests, time
 
 import BatchSender as bs
+import RequestHandler as rh
 
 parDir = '/scratch/p_esch01/workspace/prm21/geos/'
 geo1 = os.path.join(parDir,"geo1.xyz")
@@ -97,8 +98,14 @@ nJobs = 2
 inputs = [wholeSettings, wholeSettings]
 
 
-sender = bs.BatchSender(hosts, job_ids, nJobs)
-sender.sendJobs(inputs)
+handler = rh.RequestHandler(hosts[0],0)
+handler.postJob(wholeSettings)
+handler.getJob()
+handler.deleteJob()
+print(handler.getResponseContent())
+
+#sender = bs.BatchSender(hosts, job_ids, nJobs)
+#sender.sendJobs(inputs)
 
 # BASE = "http://128.176.214.100:5000/"
 # putResponse = requests.post(BASE + "api/"+str(0), json = jr.dict2json(wholeSettings))
