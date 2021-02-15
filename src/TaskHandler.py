@@ -230,7 +230,6 @@ class TaskHandler():
                 print("SCFMode invalid!")
             systemCounter += 1
         #environment systems
-        systemCounter = 0
         for env in self.__env:
             scfMode = jr.resolveSCFMode(env.getSettings().scfMode).upper()
             if (scfMode == "RESTRICTED"):
