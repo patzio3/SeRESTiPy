@@ -239,7 +239,6 @@ class TaskHandler():
                 sysresults["TOTALENERGY"] =  env.getEnergy()
                 sysresults["DENSITYMATRIX"] = jr.array2json(env.getElectronicStructure_R().getDensityMatrix().total())
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(env.getElectronicStructure_R().coeff())
-                print("SYSTEM: ", self.__envNames[systemCounter])
                 results[self.__envNames[systemCounter]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
@@ -248,6 +247,7 @@ class TaskHandler():
                 sysresults["DENSITYMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().getDensityMatrix().beta())
                 sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(env.getElectronicStructure_U().alphaCoeff())
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().betaCoeff())
+                print("SYSTEM: ", self.__envNames[systemCounter])
                 results[self.__envNames[systemCounter]] = sysresults
             else:
                 print("SCFMode invalid!")
