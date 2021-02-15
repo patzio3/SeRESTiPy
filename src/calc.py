@@ -92,19 +92,19 @@ wholeSettings = {"TASK" : "FDE",
                  "ENVSETTINGS" : settingsDct2
                  }
 
-hosts = ["http://128.176.214.100:5000", "http://128.176.214.100:5000"]
+hosts = ["http://128.176.214.100:5000", "http://128.176.214.105:5000"]
 job_ids = [0,1]
 nJobs = 2
 inputs = [wholeSettings, wholeSettings]
 
-sender = bs.BatchSender(hosts, job_ids, nJobs)
-sender.batchPost(wholeSettings, 0)
+# sender = bs.BatchSender(hosts, job_ids, nJobs)
+# sender.batchPost(wholeSettings, 0)
 
-# handler = rh.RequestHandler(hosts[0],0)
-# handler.postJob(wholeSettings)
-# handler.getJob()
-# handler.deleteJob()
-# print(handler.getResponseContent())
+handler = rh.RequestHandler(hosts[0],0)
+handler.postJob(wholeSettings)
+handler.getJob()
+handler.deleteJob()
+print(handler.getResponseContent())
 
 #sender = bs.BatchSender(hosts, job_ids, nJobs)
 #sender.sendJobs(inputs)
