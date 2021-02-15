@@ -1,7 +1,39 @@
-import JsonResolver as jr
-import os, requests, time
+import sys
+sys.path.insert(0,"/scratch/p_esch01/ownCloud/restApi/src")
+import requests, os
+import parallelFaTAsync as pFAT
+import serenipy as spy
 
-import BatchSender as bs
+import JsonResolver as jr
+import SettingsConverter as sc
+
+def checkConnection(slaveIPs):
+    hostsUP = []
+    allHostsUp = False
+    counter = 0
+    for slaveHost in locusts:
+        while True:
+            try:
+                r = requests.get(os.path.join(slaveHost, "serenityAPI"))
+                r.raise_for_status()
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                continue
+            except requests.exceptions.HTTPError:
+                hostsUP.append(slaveHost)
+                break
+        print("Locust "+str(counter)+" operational!")
+        counter += 1
+    if (len(hostsUP) == len(locusts)):
+        print("All hosts are up!\n", hostsUP)
+        allHostsUp = True
+        return allHostsUp
+    else: 
+        print("Something went wrong in swarming locusts!")
+        sys.exit()
+
+
+
+parentDir = os.getcwd()
 
 parDir = '/scratch/p_esch01/workspace/prm21/geos/'
 geo1 = os.path.join(parDir,"geo1.xyz")
@@ -90,18 +122,17 @@ wholeSettings = {"TASK" : "FDE",
                  "ACTSETTINGS" : settingsDct,
                  "ENVSETTINGS" : settingsDct2
                  }
-
-hosts = ["http://128.176.214.100:5000", "http://128.176.214.100:5000"]
-job_ids = [0,1]
-nJobs = [2]
-inputs = [wholeSettings, wholeSettings]
+                 
+locusts = ["http://128.176.214.105:5000/", "http://128.176.214.100:5000/"]
 
 
-sender = bs.BatchSender(hosts, job_ids, nJobs)
-sender.sendJobs(inputs)
+if(checkConnection(locusts)):
+    pFAT.perform(systemSettings, locusts, 15)
 
-# BASE = "http://128.176.214.100:5000/"
-# putResponse = requests.post(BASE + "api/"+str(0), json = jr.dict2json(wholeSettings))
-# _ = requests.get(BASE + "api/"+str(0))
-
-
+for iSystem in range(len(systemSettings)):
+    converter = sc.SettingsConverter(systemSettings[iSystem])
+    system = spy.System(converter.getSerenipySettings())
+    system.getElectronicStructure_R().getDensityMatrix().set(jr.json2array(systemSettings[iSystem]["densityMatrix"]))
+    task = spy.PlotTask_R([system],[])
+    task.settings.density = True
+    task.run()
