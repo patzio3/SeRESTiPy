@@ -93,7 +93,7 @@ wholeSettings = {"TASK" : "FDE",
 
 hosts = ["http://128.176.214.100:5000", "http://128.176.214.100:5000"]
 job_ids = [0,1]
-nJobs = [2]
+nJobs = 2
 inputs = [wholeSettings, wholeSettings]
 
 

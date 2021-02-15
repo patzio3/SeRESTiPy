@@ -3,7 +3,6 @@ from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
 
 import RequestHandler as rh
-import JobFormatChecker as jc
 
 def runInParallel(fns):
     proc = []
@@ -25,14 +24,11 @@ class BatchSender():
             handler = rh.RequestHandler(hosts[iJob], job_ids[iJob])
             self.__reqHandlers.append(handler)
 
-    def batchPost(self, json):
-        for ijob in range(self.__nJobs):
-            checker = jc.JobFormatChecker(json)
-            checker.run()
-            statusCode = self.__reqHandlers[ijob].postJob()
-            if (statusCode != 201):
-                print("Problem while posting your job!")
-                sys.exit()
+    def batchPost(self, json, iJob):
+        statusCode = self.__reqHandlers[iJob].postJob(json)
+        if (statusCode != 201):
+            print("Problem while posting your job!")
+            sys.exit()
 
     def batchGet(self):
         runInParallel([self.__reqHandlers[iJob].getJob() for iJob in range(self.__nJobs)])
@@ -48,7 +44,7 @@ class BatchSender():
                 loop.run_in_executor(
                     executor,
                     self.batchPost,
-                    *(jsons[iJob])
+                    *(jsons[iJob], iJob)
                 )
                 for iJob in range(self.__nJobs)
             ]
