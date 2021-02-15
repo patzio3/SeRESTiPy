@@ -230,6 +230,7 @@ class TaskHandler():
                 print("SCFMode invalid!")
             systemCounter += 1
         #environment systems
+        systemCounter = 0
         for env in self.__env:
             scfMode = jr.resolveSCFMode(env.getSettings().scfMode).upper()
             if (scfMode == "RESTRICTED"):
@@ -237,8 +238,8 @@ class TaskHandler():
                 sysresults["TOTALENERGY"] =  env.getEnergy()
                 sysresults["DENSITYMATRIX"] = jr.array2json(env.getElectronicStructure_R().getDensityMatrix().total())
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(env.getElectronicStructure_R().coeff())
-                print("SYSTEM: ", self.__envNames[systemCounter])
-                results[self.__envNames[systemCounter]] = sysresults
+                print("SYSTEM: ", self.__envNames[systemCounter + self.__nAct])
+                results[self.__envNames[systemCounter + self.__nAct]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
                 sysresults["TOTALENERGY"] =  env.getEnergy()
@@ -246,8 +247,8 @@ class TaskHandler():
                 sysresults["DENSITYMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().getDensityMatrix().beta())
                 sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(env.getElectronicStructure_U().alphaCoeff())
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().betaCoeff())
-                results[self.__envNames[systemCounter]] = sysresults
-                print(results[self.__envNames[systemCounter]])
+                results[self.__envNames[systemCounter + self.__nAct]] = sysresults
+                print(results[self.__envNames[systemCounter + self.__nAct]])
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
