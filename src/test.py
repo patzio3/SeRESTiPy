@@ -38,7 +38,10 @@ settingsDct = {
                             "basis" : {"label" : "def2-svp",
                             },
                             "xyz" : data1
-                },
+                }
+}
+
+settingsDct2 = {
                 "sys1" : {"name"  : "SOOOS2",
                             "geometry" : "geo2.xyz",#os.path.join(parentDir, "geo2.xyz"),
                             "method" : "DFT",
@@ -52,10 +55,7 @@ settingsDct = {
                             },
                             "xyz" : data2
                 },
-}
-
-settingsDct2 = {
-                "sys0" : {"name"  : "SOOOS3",
+                "sys2" : {"name"  : "SOOOS3",
                             "geometry" : "geo3.xyz",#os.path.join(parentDir, "geo1.xyz"),
                             "method" : "DFT",
                             "type" : "active",
@@ -68,7 +68,7 @@ settingsDct2 = {
                             },
                             "xyz" : data3
                 },
-                "sys1" : {"name"  : "SOOOS4",
+                "sys3" : {"name"  : "SOOOS4",
                             "geometry" : "geo4.xyz",#os.path.join(parentDir, "geo2.xyz"),
                             "method" : "DFT",
                             "type" : "environment",
@@ -85,7 +85,7 @@ settingsDct2 = {
 
 wholeSettings = {"TASK" : "FDE",
                  "STATE" : "INI",
-                 "SYSTEMSETTINGS" : settingsDct,
+                 "ACTSETTINGS" : settingsDct,
                  "ENVSETTINGS" : settingsDct2
                  }
 
