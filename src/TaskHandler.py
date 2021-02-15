@@ -248,7 +248,7 @@ class TaskHandler():
                 sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(env.getElectronicStructure_U().alphaCoeff())
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().betaCoeff())
                 results[self.__envNames[systemCounter]] = sysresults
-                print(self.__envNames[systemCounter])
+                print(results[self.__envNames[systemCounter])
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
