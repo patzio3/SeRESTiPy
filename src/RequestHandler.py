@@ -26,5 +26,5 @@ class RequestHandler():
         status = requests.delete(os.path.join(self.__host, "api", str(self.__job_id)))
         return status
 
-    def getResposeContent(self):
+    def getResponseContent(self):
         return self.__response
