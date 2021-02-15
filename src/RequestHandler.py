@@ -16,8 +16,8 @@ class RequestHandler():
     def getJob(self):
         print(os.path.join(self.__host, "api", str(self.__job_id)))
         getResponse, status = requests.get(os.path.join(self.__host, "api", str(self.__job_id)))()
-        self.__response = getResponse.json()
-        return status
+        #self.__response = getResponse.json()
+        #return status
 
     def getJobInfo(self):
         getResponse = requests.get(os.path.join(self.__host, "api", str(self.__job_id), "info"))
