@@ -92,7 +92,7 @@ wholeSettings = {"TASK" : "FDE",
                  "ENVSETTINGS" : settingsDct2
                  }
 
-hosts = ["http://128.176.214.100:5000", "http://128.176.214.105:5000"]
+hosts = ["http://128.176.214.100:5000", "http://128.176.214.100:5000"]
 job_ids = [0,1]
 nJobs = 2
 inputs = [wholeSettings, wholeSettings]

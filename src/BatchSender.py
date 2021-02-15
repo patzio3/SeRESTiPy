@@ -31,14 +31,16 @@ class BatchSender():
 
     def batchGet(self):
         runInParallel([self.__reqHandlers[iJob].getJob() for iJob in range(self.__nJobs)])
-        runInParallel([ self.__responses.append(self.__reqHandlers[iJob].getResposeContent()) for iJob in range(self.__nJobs)])
+        runInParallel([self.__responses.append(self.__reqHandlers[iJob].getResposeContent()) for iJob in range(self.__nJobs)])
 
     def batchDelete(self):
         runInParallel([self.__reqHandlers[iJob].deleteJob() for iJob in range(self.__nJobs)])
 
     async def sendJobs(self, jsons):
         with ThreadPoolExecutor(max_workers = self.__nJobs) as executor:
+            print("LOL")
             loop = asyncio.get_event_loop()
+            print("AFTER loop")
             tasks = [
                 loop.run_in_executor(
                     executor,
@@ -47,6 +49,6 @@ class BatchSender():
                 )
                 for iJob in range(self.__nJobs)
             ]
-            print(tasks)
+            print("AFTER tasks")
             for _ in await asyncio.gather(*tasks):
                 pass
