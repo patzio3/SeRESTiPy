@@ -92,5 +92,6 @@ wholeSettings = {"TASK" : "FDE",
 
 BASE = "http://128.176.214.100:5000/"
 putResponse = requests.post(BASE + "api/"+str(0), json = jr.dict2json(wholeSettings))
+_ = requests.get(BASE + "api/"+str(0))
 
 
