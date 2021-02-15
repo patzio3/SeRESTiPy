@@ -21,12 +21,12 @@ class BatchSender():
         self.__nJobs = nJobs
         self.__responses = []
         self.__reqHandlers = []
-        for iJob in range(len(nJobs)):
+        for iJob in range(nJobs):
             handler = rh.RequestHandler(hosts[iJob], job_ids[iJob])
             self.__reqHandlers.append(handler)
 
     def batchPost(self, json):
-        for ijob in range(len(self.__nJobs)):
+        for ijob in range(self.__nJobs):
             checker = jc.JobFormatChecker(json)
             checker.run()
             statusCode = self.__reqHandlers[ijob].postJob()
@@ -35,11 +35,11 @@ class BatchSender():
                 sys.exit()
 
     def batchGet(self):
-        runInParallel([self.__reqHandlers[iJob].getJob() for iJob in range(len(self.__nJobs))])
-        runInParallel([ self.__responses.append(self.__reqHandlers[iJob].getResposeContent()) for iJob in range(len(self.__nJobs))])
+        runInParallel([self.__reqHandlers[iJob].getJob() for iJob in range(self.__nJobs)])
+        runInParallel([ self.__responses.append(self.__reqHandlers[iJob].getResposeContent()) for iJob in range(self.__nJobs)])
 
     def batchDelete(self):
-        runInParallel([self.__reqHandlers[iJob].deleteJob() for iJob in range(len(self.__nJobs))])
+        runInParallel([self.__reqHandlers[iJob].deleteJob() for iJob in range(self.__nJobs)])
 
     async def sendJobs(self, jsons):
         with ThreadPoolExecutor(max_workers = self.__nJobs) as executor:
