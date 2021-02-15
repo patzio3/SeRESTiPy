@@ -1,0 +1,47 @@
++system
+name SOOOS
+geometry geo1.xyz
+scfmode restricted
+method dft
++dft
+ functional pbe0
+ densityfitting ri
+ dispersion d3
+-dft
++basis 
+ label def2-svp
+-basis
+-system
+
+
++system
+name SOOOS2
+geometry geo2.xyz
+scfmode restricted
+method dft
++dft
+ functional pbe0
+ densityfitting ri
+ dispersion d3
+-dft
++basis
+ label def2-svp
+-basis
+-system
+
+
++task fat
+act SOOOS
+act SOOOS2
+maxcycles 15
+-task
+
++task plot
+act SOOOS
+density true
+-task
+
++task plot
+act SOOOS2
+density true
+-task
