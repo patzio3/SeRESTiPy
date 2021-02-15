@@ -213,16 +213,17 @@ class TaskHandler():
             if (scfMode == "RESTRICTED"):
                 sysresults = resDummy
                 sysresults["TOTALENERGY"] =  act.getEnergy()
-                sysresults["DENSITYMATRIX"] =  jr.array2json(act.getElectronicStructure_R().getDensityMatrix().total())
-                sysresults["COEFFICIENTMATRIX"] =  jr.array2json(act.getElectronicStructure_R().coeff())
+                sysresults["DENSITYMATRIX"] = jr.array2json(act.getElectronicStructure_R().getDensityMatrix().total())
+                sysresults["COEFFICIENTMATRIX"] = jr.array2json(act.getElectronicStructure_R().coeff())
                 results[self.__actNames[systemCounter]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
                 sysresults["TOTALENERGY"] =  act.getEnergy()
-                sysresults["DENSITYMATRIXALPHA"] =  jr.array2json(act.getElectronicStructure_U().getDensityMatrix().alpha())
-                sysresults["DENSITYMATRIXBETA"] =  jr.array2json(act.getElectronicStructure_U().getDensityMatrix().beta())
-                sysresults["COEFFICIENTMATRIXALPHA"] =  jr.array2json(act.getElectronicStructure_U().alphaCoeff())
-                sysresults["COEFFICIENTMATRIXBETA"] =  jr.array2json(act.getElectronicStructure_U().betaCoeff())
+                sysresults["DENSITYMATRIXALPHA"] = jr.array2json(act.getElectronicStructure_U().getDensityMatrix().alpha())
+                sysresults["DENSITYMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().getDensityMatrix().beta())
+                sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(act.getElectronicStructure_U().alphaCoeff())
+                sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().betaCoeff())
+                print(sysresults)
                 results[self.__actNames[systemCounter]] = sysresults
             else:
                 print("SCFMode invalid!")
@@ -234,16 +235,16 @@ class TaskHandler():
             if (scfMode == "RESTRICTED"):
                 sysresults = resDummy
                 sysresults["TOTALENERGY"] =  env.getEnergy()
-                sysresults["DENSITYMATRIX"] =  jr.array2json(env.getElectronicStructure_R().getDensityMatrix().total())
-                sysresults["COEFFICIENTMATRIX"] =  jr.array2json(env.getElectronicStructure_R().coeff())
+                sysresults["DENSITYMATRIX"] = jr.array2json(env.getElectronicStructure_R().getDensityMatrix().total())
+                sysresults["COEFFICIENTMATRIX"] = jr.array2json(env.getElectronicStructure_R().coeff())
                 results[self.__envNames[systemCounter]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
                 sysresults["TOTALENERGY"] =  env.getEnergy()
-                sysresults["DENSITYMATRIXALPHA"] =  jr.array2json(env.getElectronicStructure_U().getDensityMatrix().alpha())
-                sysresults["DENSITYMATRIXBETA"] =  jr.array2json(env.getElectronicStructure_U().getDensityMatrix().beta())
-                sysresults["COEFFICIENTMATRIXALPHA"] =  jr.array2json(env.getElectronicStructure_U().alphaCoeff())
-                sysresults["COEFFICIENTMATRIXBETA"] =  jr.array2json(env.getElectronicStructure_U().betaCoeff())
+                sysresults["DENSITYMATRIXALPHA"] = jr.array2json(env.getElectronicStructure_U().getDensityMatrix().alpha())
+                sysresults["DENSITYMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().getDensityMatrix().beta())
+                sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(env.getElectronicStructure_U().alphaCoeff())
+                sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().betaCoeff())
                 results[self.__envNames[systemCounter]] = sysresults
             else:
                 print("SCFMode invalid!")
