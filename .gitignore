@@ -10,4 +10,4 @@
 !src/*.py
 !src/index.html
 !.gitignore
-
+!src/calc.py

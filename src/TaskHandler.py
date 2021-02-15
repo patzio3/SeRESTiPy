@@ -226,14 +226,11 @@ class TaskHandler():
                 sysresults["DENSITYMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().getDensityMatrix().beta())
                 sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(act.getElectronicStructure_U().alphaCoeff())
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().betaCoeff())
-                print("SYSTEM: ", self.__actNames[systemCounter], "--->", sysresults)
                 results.update({self.__actNames[systemCounter] : sysresults})
-                print("UPDATED results --->", results)
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
 
-        print("RESULTS AFTER ACT!!!!\n", results)
         #environment systems
         systemCounter = 0
         for env in self.__env:
@@ -251,14 +248,10 @@ class TaskHandler():
                 sysresults["DENSITYMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().getDensityMatrix().beta())
                 sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(env.getElectronicStructure_U().alphaCoeff())
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().betaCoeff())
-                print("SYSTEM: ", self.__envNames[systemCounter], "--->", sysresults)
                 results.update({self.__envNames[systemCounter] : sysresults})
-                print("UPDATED results --->", results)
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
-
-        print("RESULTS BEFORE RETURN!!!!\n", results)
         return results
 
     def cleanUp(self):
