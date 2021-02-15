@@ -20,9 +20,8 @@ class BatchSender():
         self.__nJobs = nJobs
         self.__responses = []
         self.__reqHandlers = []
-        for iJob in range(nJobs):
-            handler = rh.RequestHandler(hosts[iJob], job_ids[iJob])
-            self.__reqHandlers.append(handler)
+        for iJob in range(self.__nJobs):
+            self.__reqHandlers.append(rh.RequestHandler(hosts[iJob], job_ids[iJob]))
 
     def batchPost(self, json, iJob):
         statusCode = self.__reqHandlers[iJob].postJob(json)
