@@ -84,8 +84,15 @@ class TaskHandler():
                 for innerinner, _ in inner.items():
                     if (innerinner.upper() == "GEOMETRY"):
                         with open(os.path.join(os.getcwd(),inner[innerinner]), 'w') as file:
-                            file.write(inner["XYZ"])
-                            file.close()
+                            if ("XYZ" in inner):
+                                file.write(inner["XYZ"])
+                                file.close()
+                            elif ("xyz" in inner):
+                                file.write(inner["xyz"])
+                                file.close()
+                            else: 
+                                print("No XYZ file infomation present! Missing key 'xyz' or 'XYZ'!")
+                                sys.exit()
                         inner[innerinner] = os.path.join(os.getcwd(),inner[innerinner])
                     #check if any results are already present
                     if (innerinner.upper() == "RESULTS"):
@@ -127,8 +134,15 @@ class TaskHandler():
                     for innerinner, _ in inner.items():
                         if (innerinner.upper() == "GEOMETRY"):
                             with open(os.path.join(os.getcwd(),inner[innerinner]), 'w') as file:
-                                file.write(inner["XYZ"])
-                                file.close()
+                                if ("XYZ" in inner):
+                                    file.write(inner["XYZ"])
+                                    file.close()
+                                elif ("xyz" in inner):
+                                    file.write(inner["xyz"])
+                                    file.close()
+                                else: 
+                                    print("No XYZ file infomation present! Missing key 'xyz' or 'XYZ'!")
+                                    sys.exit()
                             inner[innerinner] = os.path.join(os.getcwd(),inner[innerinner])
                         #check if any results are already present
                         if (innerinner.upper() == "RESULTS"):
@@ -199,16 +213,16 @@ class TaskHandler():
             if (scfMode == "RESTRICTED"):
                 sysresults = resDummy
                 sysresults["TOTALENERGY"] =  act.getEnergy()
-                sysresults["DENSITYMATRIX"] =  act.getElectronicStructure_R().getDensityMatrix().total()
-                sysresults["COEFFICIENTMATRIX"] =  act.getElectronicStructure_R().coeff()
+                sysresults["DENSITYMATRIX"] =  jr.array2json(act.getElectronicStructure_R().getDensityMatrix().total())
+                sysresults["COEFFICIENTMATRIX"] =  jr.array2json(act.getElectronicStructure_R().coeff())
                 results[self.__actNames[systemCounter]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
                 sysresults["TOTALENERGY"] =  act.getEnergy()
-                sysresults["DENSITYMATRIXALPHA"] =  act.getElectronicStructure_U().getDensityMatrix().alpha()
-                sysresults["DENSITYMATRIXBETA"] =  act.getElectronicStructure_U().getDensityMatrix().beta()
-                sysresults["COEFFICIENTMATRIXALPHA"] =  act.getElectronicStructure_U().alphaCoeff()
-                sysresults["COEFFICIENTMATRIXBETA"] =  act.getElectronicStructure_U().betaCoeff()
+                sysresults["DENSITYMATRIXALPHA"] =  jr.array2json(act.getElectronicStructure_U().getDensityMatrix().alpha())
+                sysresults["DENSITYMATRIXBETA"] =  jr.array2json(act.getElectronicStructure_U().getDensityMatrix().beta())
+                sysresults["COEFFICIENTMATRIXALPHA"] =  jr.array2json(act.getElectronicStructure_U().alphaCoeff())
+                sysresults["COEFFICIENTMATRIXBETA"] =  jr.array2json(act.getElectronicStructure_U().betaCoeff())
                 results[self.__actNames[systemCounter]] = sysresults
             else:
                 print("SCFMode invalid!")
@@ -220,16 +234,16 @@ class TaskHandler():
             if (scfMode == "RESTRICTED"):
                 sysresults = resDummy
                 sysresults["TOTALENERGY"] =  env.getEnergy()
-                sysresults["DENSITYMATRIX"] =  env.getElectronicStructure_R().getDensityMatrix().total()
-                sysresults["COEFFICIENTMATRIX"] =  env.getElectronicStructure_R().coeff()
+                sysresults["DENSITYMATRIX"] =  jr.array2json(env.getElectronicStructure_R().getDensityMatrix().total())
+                sysresults["COEFFICIENTMATRIX"] =  jr.array2json(env.getElectronicStructure_R().coeff())
                 results[self.__envNames[systemCounter]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
                 sysresults["TOTALENERGY"] =  env.getEnergy()
-                sysresults["DENSITYMATRIXALPHA"] =  env.getElectronicStructure_U().getDensityMatrix().alpha()
-                sysresults["DENSITYMATRIXBETA"] =  env.getElectronicStructure_U().getDensityMatrix().beta()
-                sysresults["COEFFICIENTMATRIXALPHA"] =  env.getElectronicStructure_U().alphaCoeff()
-                sysresults["COEFFICIENTMATRIXBETA"] =  env.getElectronicStructure_U().betaCoeff()
+                sysresults["DENSITYMATRIXALPHA"] =  jr.array2json(env.getElectronicStructure_U().getDensityMatrix().alpha())
+                sysresults["DENSITYMATRIXBETA"] =  jr.array2json(env.getElectronicStructure_U().getDensityMatrix().beta())
+                sysresults["COEFFICIENTMATRIXALPHA"] =  jr.array2json(env.getElectronicStructure_U().alphaCoeff())
+                sysresults["COEFFICIENTMATRIXBETA"] =  jr.array2json(env.getElectronicStructure_U().betaCoeff())
                 results[self.__envNames[systemCounter]] = sysresults
             else:
                 print("SCFMode invalid!")
