@@ -226,6 +226,7 @@ class TaskHandler():
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().betaCoeff())
                 print("SYSTEM: ", self.__actNames[systemCounter], "--->", sysresults)
                 results.update({self.__actNames[systemCounter] : sysresults})
+                print("UPDATED results --->", results)
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
@@ -250,6 +251,7 @@ class TaskHandler():
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().betaCoeff())
                 print("SYSTEM: ", self.__envNames[systemCounter], "--->", sysresults)
                 results.update({self.__envNames[systemCounter] : sysresults})
+                print("UPDATED results --->", results)
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
