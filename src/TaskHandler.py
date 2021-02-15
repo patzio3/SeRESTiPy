@@ -224,6 +224,7 @@ class TaskHandler():
                 sysresults["DENSITYMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().getDensityMatrix().beta())
                 sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(act.getElectronicStructure_U().alphaCoeff())
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().betaCoeff())
+                print("SYSTEM: ", self.__actNames[systemCounter], "--->", sysresults)
                 results.update({self.__actNames[systemCounter] : sysresults})
             else:
                 print("SCFMode invalid!")
@@ -247,7 +248,7 @@ class TaskHandler():
                 sysresults["DENSITYMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().getDensityMatrix().beta())
                 sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(env.getElectronicStructure_U().alphaCoeff())
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().betaCoeff())
-                print("SYSTEM: ", self.__envNames[systemCounter])
+                print("SYSTEM: ", self.__envNames[systemCounter], "--->", sysresults)
                 results.update({self.__envNames[systemCounter] : sysresults})
             else:
                 print("SCFMode invalid!")
