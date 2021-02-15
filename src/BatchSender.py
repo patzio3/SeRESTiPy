@@ -24,10 +24,10 @@ class BatchSender():
             self.__reqHandlers.append(rh.RequestHandler(hosts[iJob], job_ids[iJob]))
 
     def batchPost(self, json, iJob):
-        statusCode = self.__reqHandlers[iJob].postJob(json)
-        if (statusCode != 201):
-            print("Problem while posting your job!")
-            sys.exit()
+        _ = self.__reqHandlers[iJob].postJob(json)
+        # if (statusCode != 201):
+        #     print("Problem while posting your job!")
+        #     sys.exit()
 
     def batchGet(self):
         runInParallel([self.__reqHandlers[iJob].getJob() for iJob in range(self.__nJobs)])
@@ -47,5 +47,6 @@ class BatchSender():
                 )
                 for iJob in range(self.__nJobs)
             ]
-            for response in await asyncio.gather(*tasks):
+            print(tasks)
+            for _ in await asyncio.gather(*tasks):
                 pass
