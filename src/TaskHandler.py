@@ -216,7 +216,7 @@ class TaskHandler():
                 sysresults["DENSITYMATRIX"] = jr.array2json(act.getElectronicStructure_R().getDensityMatrix().total())
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(act.getElectronicStructure_R().coeff())
                 print("SYSTEM: ", self.__actNames[systemCounter])
-                results[self.__actNames[systemCounter]].update(sysresults)
+                results.update({self.__actNames[systemCounter] : sysresults})
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
                 sysresults["TOTALENERGY"] =  act.getEnergy()
@@ -224,7 +224,7 @@ class TaskHandler():
                 sysresults["DENSITYMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().getDensityMatrix().beta())
                 sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(act.getElectronicStructure_U().alphaCoeff())
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().betaCoeff())
-                results[self.__actNames[systemCounter]].update(sysresults)
+                results.update({self.__actNames[systemCounter] : sysresults})
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
@@ -239,7 +239,7 @@ class TaskHandler():
                 sysresults["TOTALENERGY"] =  env.getEnergy()
                 sysresults["DENSITYMATRIX"] = jr.array2json(env.getElectronicStructure_R().getDensityMatrix().total())
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(env.getElectronicStructure_R().coeff())
-                results[self.__envNames[systemCounter]].update(sysresults)
+                results.update({self.__envNames[systemCounter] : sysresults})
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
                 sysresults["TOTALENERGY"] =  env.getEnergy()
@@ -248,7 +248,7 @@ class TaskHandler():
                 sysresults["COEFFICIENTMATRIXALPHA"] = jr.array2json(env.getElectronicStructure_U().alphaCoeff())
                 sysresults["COEFFICIENTMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().betaCoeff())
                 print("SYSTEM: ", self.__envNames[systemCounter])
-                results[self.__envNames[systemCounter]].update(sysresults)
+                results.update({self.__envNames[systemCounter] : sysresults})
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
