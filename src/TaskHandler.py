@@ -211,14 +211,16 @@ class TaskHandler():
         for act in self.__act:
             scfMode = jr.resolveSCFMode(act.getSettings().scfMode).upper()
             if (scfMode == "RESTRICTED"):
-                sysresults = resDummy
+                sysresults = resDummy.copy()
                 sysresults["TOTALENERGY"] =  act.getEnergy()
                 sysresults["DENSITYMATRIX"] = jr.array2json(act.getElectronicStructure_R().getDensityMatrix().total())
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(act.getElectronicStructure_R().coeff())
                 print("SYSTEM: ", self.__actNames[systemCounter])
                 results.update({self.__actNames[systemCounter] : sysresults})
+
+
             elif (scfMode == "UNRESTRICTED"):
-                sysresults = unresDummy
+                sysresults = unresDummy.copy()
                 sysresults["TOTALENERGY"] =  act.getEnergy()
                 sysresults["DENSITYMATRIXALPHA"] = jr.array2json(act.getElectronicStructure_U().getDensityMatrix().alpha())
                 sysresults["DENSITYMATRIXBETA"] = jr.array2json(act.getElectronicStructure_U().getDensityMatrix().beta())
@@ -237,13 +239,13 @@ class TaskHandler():
         for env in self.__env:
             scfMode = jr.resolveSCFMode(env.getSettings().scfMode).upper()
             if (scfMode == "RESTRICTED"):
-                sysresults = resDummy
+                sysresults = resDummy.copy()
                 sysresults["TOTALENERGY"] =  env.getEnergy()
                 sysresults["DENSITYMATRIX"] = jr.array2json(env.getElectronicStructure_R().getDensityMatrix().total())
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(env.getElectronicStructure_R().coeff())
                 results.update({self.__envNames[systemCounter] : sysresults})
             elif (scfMode == "UNRESTRICTED"):
-                sysresults = unresDummy
+                sysresults = unresDummy.copy()
                 sysresults["TOTALENERGY"] =  env.getEnergy()
                 sysresults["DENSITYMATRIXALPHA"] = jr.array2json(env.getElectronicStructure_U().getDensityMatrix().alpha())
                 sysresults["DENSITYMATRIXBETA"] = jr.array2json(env.getElectronicStructure_U().getDensityMatrix().beta())
