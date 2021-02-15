@@ -12,14 +12,18 @@ class TaskHandler():
         self.__taskName = ""
         self.__act = []
         self.__env = []
+        self.__actNames = []
+        self.__envNames = []
         self.__actSettings = []
         self.__envSettings = []
         self.__actDensityMatrix = []
-        self.__actnOcc = []
-        self.__envnOcc = []
+        # self.__actnOcc = []
+        # self.__envnOcc = []
         self.__actCoefficients = []
         self.__envDensityMatrix = []
         self.__envCoefficients = []
+        self.__actTotEn = []
+        self.__envTotEn = []
         self.__nAct = 0
         self.__nEnv = 0
         checker = jc.JobFormatChecker(self.__args)
@@ -30,25 +34,16 @@ class TaskHandler():
             if (jr.resolveSCFMode(self.__act[iAct].getSettings().scfMode).upper() == "RESTRICTED"):
                 self.__act[iAct].getElectronicStructure_R().getDensityMatrix().set(jr.json2array(self.__actDensityMatrix[iAct]))
             elif (jr.resolveSCFMode(self.__act[iAct].getSettings().scfMode).upper() == "UNRESTRICTED"):
-                # es = spy.ElectronicStructure_U(self.__act[iAct], jr.json2array(self.__actDensityMatrix[iAct][0]),
-                #                                jr.json2array(self.__actDensityMatrix[iAct][1]), int(self.__actnOcc[iAct][0]), int(self.__actnOcc[iAct][1]))
-                # self.__act[iAct].setElectronicStructure_U(es)
-
                 self.__act[iAct].getElectronicStructure_U().getDensityMatrix().set(jr.json2array(self.__actDensityMatrix[iAct][0]),\
-                                                                                  jr.json2array(self.__actDensityMatrix[iAct][1]))
+                                                                                   jr.json2array(self.__actDensityMatrix[iAct][1]))
             else: 
                 print("Invalid SCFMode!")
         for iEnv in range(len(self.__envDensityMatrix)):
             if (jr.resolveSCFMode(self.__env[iEnv].getSettings().scfMode).upper() == "RESTRICTED"):
                  self.__env[iEnv].getElectronicStructure_R().getDensityMatrix().set(jr.json2array(self.__envDensityMatrix[iEnv]))
-                # es = spy.ElectronicStructure_R(self.__act[iAct], jr.json2array(self.__actDensityMatrix[iAct]), int(self.__envnOcc[iEnv]))
-                # self.__act[iAct].setElectronicStructure_R(es)
             elif (jr.resolveSCFMode(self.__env[iEnv].getSettings().scfMode).upper() == "UNRESTRICTED"):
                  self.__env[iEnv].getElectronicStructure_U().getDensityMatrix().set(jr.json2array(self.__envDensityMatrix[iEnv][0]),\
                                                                                    jr.json2array(self.__envDensityMatrix[iEnv][1]))
-                # es = spy.ElectronicStructure_U(self.__act[iAct], jr.json2array(self.__actDensityMatrix[iAct][0]),
-                #                                jr.json2array(self.__actDensityMatrix[iAct][1]), int(self.__envnOcc[iEnv][0]), int(self.__envnOcc[iEnv][1]))
-                # self.__act[iAct].setElectronicStructure_U(es)
             else: 
                 print("Invalid SCFMode!")
 
@@ -64,7 +59,7 @@ class TaskHandler():
     def enroll(self):
         actSettingsDict = ""
         envSettingsDict = ""
-        jobstate = ""
+        self.__jobstate = ""
         for outer, _ in self.__args.items():
             if (outer.upper() == "TASK"):
                 self.__taskName = self.__args[outer.upper()]
@@ -73,7 +68,7 @@ class TaskHandler():
             elif (outer.upper() in ["ENVIRONMENTSYSTEMSETTINGS", "ENVSETTINGS"]):
                 envSettingsDict = self.__args[outer.upper()]
             elif (outer.upper() in ["JOBSTATE","STATE"]):
-                jobstate = self.__args[outer.upper()]
+                self.__jobstate = self.__args[outer.upper()]
             else:
                 print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
                 sys.exit()
@@ -82,6 +77,8 @@ class TaskHandler():
             if (outer[0:6].upper() in ["SYSTEM","SYS"] or \
                 outer[0:3].upper() in ["SYSTEM","SYS"]):
                 converter = sc.SettingsConverter(jr.dict2json(inner))
+                self.__actSettings.append(converter.getSerenipySettings())
+                self.__actNames.append(outer)
                 #write the sent XYZ to file
                 #ToDo: create the xyz file in the a scratch directory
                 for innerinner, _ in inner.items():
@@ -90,7 +87,29 @@ class TaskHandler():
                             file.write(inner["XYZ"])
                             file.close()
                         inner[innerinner] = os.path.join(os.getcwd(),inner[innerinner])
-                self.__actSettings.append(converter.getSerenipySettings())
+                    #check if any results are already present
+                    if (innerinner.upper() == "RESULTS"):
+                        for innerinnerinner, _ in innerinner.items():
+                            if (innerinnerinner.upper() in ["TOTALENERGY"]):
+                                self.__actTotEn.append(innerinner[innerinnerinner])
+                            #restricted case 
+                            if (jr.resolveSCFMode(self.__actSettings[self.__nAct].scfMode).upper() == "RESTRICTED"):
+                                if (innerinnerinner.upper() == "DENSITYMATRIX"):
+                                    self.__actDensityMatrix.append(innerinner[innerinnerinner])
+                                if (innerinnerinner.upper() in ["COEFFICIENTMATRIX", "COEFFICIENTS"]):
+                                    self.__actCoefficients.append(innerinner[innerinnerinner])
+                            #unrestricted case
+                            if (jr.resolveSCFMode(self.__actSettings[self.__nAct].scfMode).upper() == "UNRESTRICTED"):
+                                self.__actDensityMatrix.append(["", ""])
+                                self.__actCoefficients.append(["", ""])
+                                if (innerinnerinner.upper() in ["DENSITYMATRIXALPHA"]):
+                                    self.__actDensityMatrix[self.__nAct][0] = innerinner[innerinnerinner]
+                                if (innerinnerinner.upper() in ["DENSITYMATRIXBETA"]):
+                                    self.__actDensityMatrix[self.__nAct][1] = innerinner[innerinnerinner]
+                                if (innerinnerinner.upper() in ["COEFFICIENTMATRIXALPHA"]):
+                                    self.__actCoefficients[self.__nAct][0] = innerinner[innerinnerinner]
+                                if (innerinnerinner.upper() in ["COEFFICIENTMATRIXBETA"]):
+                                    self.__actCoefficients[self.__nAct][1] = innerinner[innerinnerinner]
                 self.__nAct += 1
             else:
                 print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
@@ -101,6 +120,8 @@ class TaskHandler():
                 if (outer[0:6].upper() in ["SYSTEM","SYS"] or \
                     outer[0:3].upper() in ["SYSTEM","SYS"]):
                     converter = sc.SettingsConverter(jr.dict2json(inner))
+                    self.__envSettings.append(converter.getSerenipySettings())
+                    self.__envNames.append(outer)
                     #write the sent XYZ to file
                     #ToDo: create the xyz file in the a scratch directory
                     for innerinner, _ in inner.items():
@@ -109,66 +130,41 @@ class TaskHandler():
                                 file.write(inner["XYZ"])
                                 file.close()
                             inner[innerinner] = os.path.join(os.getcwd(),inner[innerinner])
-                    self.__envSettings.append(converter.getSerenipySettings())
+                        #check if any results are already present
+                        if (innerinner.upper() == "RESULTS"):
+                            for innerinnerinner, _ in innerinner.items():
+                                if (innerinnerinner.upper() in ["TOTALENERGY"]):
+                                    self.__envTotEn.append(innerinner[innerinnerinner])
+                                #restricted case 
+                                if (jr.resolveSCFMode(self.__envSettings[self.__nEnv].scfMode).upper() == "RESTRICTED"):
+                                    if (innerinnerinner.upper() == "DENSITYMATRIX"):
+                                        self.__envDensityMatrix.append(innerinner[innerinnerinner])
+                                    if (innerinnerinner.upper() in ["COEFFICIENTMATRIX", "COEFFICIENTS"]):
+                                        self.__envCoefficients.append(innerinner[innerinnerinner])
+                                #unrestricted case
+                                if (jr.resolveSCFMode(self.__envSettings[self.__nEnv].scfMode).upper() == "UNRESTRICTED"):
+                                    self.__envDensityMatrix.append(["", ""])
+                                    self.__envCoefficients.append(["", ""])
+                                    if (innerinnerinner.upper() in ["DENSITYMATRIXALPHA"]):
+                                        self.__envDensityMatrix[self.__nEnv][0] = innerinner[innerinnerinner]
+                                    if (innerinnerinner.upper() in ["DENSITYMATRIXBETA"]):
+                                        self.__envDensityMatrix[self.__nEnv][1] = innerinner[innerinnerinner]
+                                    if (innerinnerinner.upper() in ["COEFFICIENTMATRIXALPHA"]):
+                                        self.__envCoefficients[self.__nEnv][0] = innerinner[innerinnerinner]
+                                    if (innerinnerinner.upper() in ["COEFFICIENTMATRIXBETA"]):
+                                        self.__envCoefficients[self.__nEnv][1] = innerinner[innerinnerinner]
                     self.__nEnv += 1
                 else:
                     print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
                     sys.exit()
-            
-        
-
-            # elif (inner["system"]["type"].lower() == "active" or inner["system"]["type"].lower() == "act"):
-            #     converter = sc.SettingsConverter(jr.dict2json(inner))
-            #     self.__actSettings.append(converter.getSerenipySettings())
-            #     #check if densityMatrix and coefficients are sent
-            #     if ("densityMatrix" in inner):
-            #         self.__actDensityMatrix.append(inner["densityMatrix"])
-            #     if ("densityMatrixAlpha" in inner):
-            #         self.__actDensityMatrix.append([])
-            #         self.__actDensityMatrix[self.__nAct].append(inner["densityMatrixAlpha"])
-            #     if ("densityMatrixBeta" in inner):
-            #         self.__actDensityMatrix[self.__nAct].append(inner["densityMatrixBeta"])
-            #     if ("coefficients" in inner):
-            #         self.__actCoefficients.append(inner["coefficients"])
-            #     if ("coefficientsAlpha" in inner):
-            #         self.__actCoefficients.append([])
-            #         self.__actCoefficients[self.__nAct].append(inner["coefficientsAlpha"])
-            #     if ("coefficientsBeta" in inner):
-            #         self.__actCoefficients[self.__nAct].append(inner["coefficientsBeta"])
-            #     self.__nAct += 1
-
-            # elif (inner["system"]["type"].lower() == "environment" or inner["system"]["type"].lower() == "env"):
-            #     converter = sc.SettingsConverter(jr.dict2json(inner))
-            #     self.__envSettings.append(converter.getSerenipySettings())
-            #     #check if densityMatrix and coefficients are sent
-            #     if ("densityMatrix" in inner):
-            #         self.__envDensityMatrix.append(inner["densityMatrix"])
-            #     if ("densityMatrixAlpha" in inner):
-            #         self.__envDensityMatrix.append([])
-            #         self.__envDensityMatrix[self.__nEnv].append(inner["densityMatrixAlpha"])
-            #     if ("densityMatrixBeta" in inner):
-            #         self.__envDensityMatrix[self.__nEnv].append(inner["densityMatrixBeta"])
-            #     if ("coefficients" in inner):
-            #         self.__envCoefficients.append(inner["coefficients"])
-            #     if ("coefficientsAlpha" in inner):
-            #         self.__envCoefficients.append([])
-            #         self.__envCoefficients[self.__nEnv].append(inner["coefficientsAlpha"])
-            #     if ("coefficientsBeta" in inner):
-            #         self.__envCoefficients[self.__nEnv].append(inner["coefficientsBeta"])
-            #     self.__nEnv += 1
-            # else:
-            #     print("System has no type! E.g. enter 'type : active' in the system block in the input!")
-            #     sys.exit()
-
+        #create systems from gathered settings            
         for act in self.__actSettings:
-            act = spy.System(act)
-            self.__act.append(act)
-
+            self.__act.append(spy.System(act))
         for env in self.__envSettings:
             self.__env.append(spy.System(env))
 
     def perform(self):
-        if (len(self.__actSettings) == 0):
+        if (len(self.__act) == 0):
             print("There is NO active system!!")
             sys.exit()
         for setting in self.__actSettings:
@@ -179,34 +175,62 @@ class TaskHandler():
             else: 
                 print("Invalid SCFMode!")
                 sys.exit()
-        if (len(self.__actDensityMatrix) > 0):
+        if (len(self.__actDensityMatrix) > 0 and self.__jobstate.upper() in ["RUNNING", "RUN", "FINISH", "FINISHED", "FIN" ]):
             self.__updateSystems()
         task = jr.resolveTask(mode, self.__taskName, self.__act, self.__env)
         task.run()
 
     def processResults(self):
         results = {}
+        resDummy = {"TOTALENERGY"      : 0,
+                    "DENSITYMATRIX"    : 0,
+                    "COEFFICIENTMATRIX": 0
+        }
+        unresDummy = {"TOTALENERGY"            : 0,
+                      "DENSITYMATRIXALPHA"     : 0,
+                      "DENSITYMATRIXBETA"      : 0,
+                      "COEFFICIENTMATRIXALPHA" : 0,
+                      "COEFFICIENTMATRIXBETA"  : 0
+        }
+        #active systems
         systemCounter = 0
         for act in self.__act:
             scfMode = jr.resolveSCFMode(act.getSettings().scfMode).upper()
             if (scfMode == "RESTRICTED"):
-                actDensityMatrix = act.getElectronicStructure_R().getDensityMatrix().total()
-                actCoefficients = act.getElectronicStructure_R().coeff()
-                actTotalEnergy = act.getEnergy()
-                results[systemCounter] = {"densityMatrix" : jr.array2json(actDensityMatrix),
-                                          "coefficients"  : jr.array2json(actCoefficients),
-                                          "totalEnergy"   : actTotalEnergy}
+                sysresults = resDummy
+                sysresults["TOTALENERGY"] =  act.getEnergy()
+                sysresults["DENSITYMATRIX"] =  act.getElectronicStructure_R().getDensityMatrix().total()
+                sysresults["COEFFICIENTMATRIX"] =  act.getElectronicStructure_R().coeff()
+                results[self.__actNames[systemCounter]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
-                actDensityMatrixAlpha = act.getElectronicStructure_U().getDensityMatrix().alpha()
-                actDensityMatrixBeta = act.getElectronicStructure_U().getDensityMatrix().beta()
-                actCoefficientsAlpha = act.getElectronicStructure_U().alphaCoeff()
-                actCoefficientsBeta = act.getElectronicStructure_U().betaCoeff()
-                actTotalEnergy = act.getEnergy()
-                results[systemCounter] = {"densityMatrixAlpha" : jr.array2json(actDensityMatrixAlpha),
-                                          "densityMatrixBeta"  : jr.array2json(actDensityMatrixBeta), 
-                                          "coefficientsAlpha"  : jr.array2json(actCoefficientsAlpha),
-                                          "coefficientsBeta"   : jr.array2json(actCoefficientsBeta),
-                                          "totalEnergy"        : actTotalEnergy}
+                sysresults = unresDummy
+                sysresults["TOTALENERGY"] =  act.getEnergy()
+                sysresults["DENSITYMATRIXALPHA"] =  act.getElectronicStructure_U().getDensityMatrix().alpha()
+                sysresults["DENSITYMATRIXBETA"] =  act.getElectronicStructure_U().getDensityMatrix().beta()
+                sysresults["COEFFICIENTMATRIXALPHA"] =  act.getElectronicStructure_U().alphaCoeff()
+                sysresults["COEFFICIENTMATRIXBETA"] =  act.getElectronicStructure_U().betaCoeff()
+                results[self.__actNames[systemCounter]] = sysresults
+            else:
+                print("SCFMode invalid!")
+            systemCounter += 1
+        #environment systems
+        systemCounter = 0
+        for env in self.__env:
+            scfMode = jr.resolveSCFMode(env.getSettings().scfMode).upper()
+            if (scfMode == "RESTRICTED"):
+                sysresults = resDummy
+                sysresults["TOTALENERGY"] =  env.getEnergy()
+                sysresults["DENSITYMATRIX"] =  env.getElectronicStructure_R().getDensityMatrix().total()
+                sysresults["COEFFICIENTMATRIX"] =  env.getElectronicStructure_R().coeff()
+                results[self.__envNames[systemCounter]] = sysresults
+            elif (scfMode == "UNRESTRICTED"):
+                sysresults = unresDummy
+                sysresults["TOTALENERGY"] =  env.getEnergy()
+                sysresults["DENSITYMATRIXALPHA"] =  env.getElectronicStructure_U().getDensityMatrix().alpha()
+                sysresults["DENSITYMATRIXBETA"] =  env.getElectronicStructure_U().getDensityMatrix().beta()
+                sysresults["COEFFICIENTMATRIXALPHA"] =  env.getElectronicStructure_U().alphaCoeff()
+                sysresults["COEFFICIENTMATRIXBETA"] =  env.getElectronicStructure_U().betaCoeff()
+                results[self.__envNames[systemCounter]] = sysresults
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
@@ -214,10 +238,10 @@ class TaskHandler():
 
     def cleanUp(self):
         for act in self.__actSettings:
-            #os.remove(act.geometry)
-            if (os.path.exists(os.path.join(act.path, act.name))):
-                su.rmtree(os.path.join(act.path, act.name))
+            os.remove(act.geometry)
+            if (os.path.exists(os.path.join(act.name))):
+                su.rmtree(os.path.join(act.name))
         for env in self.__envSettings:
-            #os.remove(env.geometry)
-            if (os.path.exists(os.path.join(env.path, env.name))):
-                su.rmtree(os.path.join(env.path, env.name))
+            os.remove(env.geometry)
+            if (os.path.exists(os.path.join(env.name))):
+                su.rmtree(os.path.join(env.name))
