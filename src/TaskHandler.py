@@ -210,7 +210,9 @@ class TaskHandler():
         #active systems
         systemCounter = 0
         for act in self.__act:
+            print("I AM IN LOOP!!!!!!!!!!!!!")
             scfMode = jr.resolveSCFMode(act.getSettings().scfMode).upper()
+            print("SCFMODE!!!!!!!!!!!!!", scfMode)
             if (scfMode == "RESTRICTED"):
                 sysresults = resDummy
                 sysresults["TOTALENERGY"] =  act.getEnergy()
@@ -218,6 +220,7 @@ class TaskHandler():
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(act.getElectronicStructure_R().coeff())
                 results[self.__actNames[systemCounter]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
+                print("I AM IN UNRES!!!!!!!!!!!!!")
                 sysresults = unresDummy
                 sysresults["TOTALENERGY"] =  act.getEnergy()
                 sysresults["DENSITYMATRIXALPHA"] = jr.array2json(act.getElectronicStructure_U().getDensityMatrix().alpha())
