@@ -215,7 +215,7 @@ class TaskHandler():
                 sysresults["TOTALENERGY"] =  act.getEnergy()
                 sysresults["DENSITYMATRIX"] = jr.array2json(act.getElectronicStructure_R().getDensityMatrix().total())
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(act.getElectronicStructure_R().coeff())
-                print("AAAAAAAAAAAAAAAACT", sysresults, self.__envNames[systemCounter])
+                print("SYSTEM: ", self.__actNames[systemCounter])
                 results[self.__actNames[systemCounter]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
@@ -237,7 +237,7 @@ class TaskHandler():
                 sysresults["TOTALENERGY"] =  env.getEnergy()
                 sysresults["DENSITYMATRIX"] = jr.array2json(env.getElectronicStructure_R().getDensityMatrix().total())
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(env.getElectronicStructure_R().coeff())
-                print("EEEEEEEEENV", sysresults, self.__envNames[systemCounter])
+                print("SYSTEM: ", self.__envNames[systemCounter])
                 results[self.__envNames[systemCounter]] = sysresults
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy
