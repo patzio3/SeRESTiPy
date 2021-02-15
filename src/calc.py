@@ -97,12 +97,14 @@ job_ids = [0,1]
 nJobs = 2
 inputs = [wholeSettings, wholeSettings]
 
+sender = bs.BatchSender(hosts, job_ids, nJobs)
+sender.batchPost(wholeSettings, 0)
 
-handler = rh.RequestHandler(hosts[0],0)
-handler.postJob(wholeSettings)
-handler.getJob()
-handler.deleteJob()
-print(handler.getResponseContent())
+# handler = rh.RequestHandler(hosts[0],0)
+# handler.postJob(wholeSettings)
+# handler.getJob()
+# handler.deleteJob()
+# print(handler.getResponseContent())
 
 #sender = bs.BatchSender(hosts, job_ids, nJobs)
 #sender.sendJobs(inputs)
