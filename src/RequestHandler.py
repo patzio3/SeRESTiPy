@@ -10,21 +10,21 @@ class RequestHandler():
     def postJob(self, requestJson):
         checker = jc.JobFormatChecker(requestJson)
         checker.run()
-        status = requests.post(os.path.join(self.__host, "api", str(self.__job_id)), json = requestJson)
+        status = requests.post(self.__host + "/api/" + str(self.__job_id), json = requestJson)
         return status
 
     def getJob(self):
-        print(os.path.join(self.__host, "api", str(self.__job_id)))
-        _ = requests.get(os.path.join(self.__host, "api", str(self.__job_id)))()
-        #self.__response = getResponse.json()
-        #return status
+        print(self.__host + "/api/" + str(self.__job_id))
+        getResponse, status = requests.get(self.__host + "/api/" + str(self.__job_id))
+        self.__response = getResponse.json()
+        return status
 
     def getJobInfo(self):
-        getResponse = requests.get(os.path.join(self.__host, "api", str(self.__job_id), "info"))
+        getResponse = requests.get(self.__host + "/api/" + str(self.__job_id) + "/info")
         return getResponse.json()
 
     def deleteJob(self):
-        status = requests.delete(os.path.join(self.__host, "api", str(self.__job_id)))
+        status = requests.delete(self.__host + "/api/" + str(self.__job_id))
         return status
 
     def getResponseContent(self):
