@@ -228,6 +228,8 @@ class TaskHandler():
             else:
                 print("SCFMode invalid!")
             systemCounter += 1
+
+        print("RESULTS AFTER ACT!!!!\n", results)
         #environment systems
         systemCounter = 0
         for env in self.__env:
