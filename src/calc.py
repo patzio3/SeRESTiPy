@@ -107,7 +107,7 @@ inputs = [wholeSettings, wholeSettings]
 #print(handler.getResponseContent())
 
 sender = bs.BatchSender(hosts, job_ids, nJobs)
-sender.batchPost(inputs)
+sender.sendJobs(inputs)
 
 # BASE = "http://128.176.214.100:5000/"
 # putResponse = requests.post(BASE + "api/"+str(0), json = jr.dict2json(wholeSettings))

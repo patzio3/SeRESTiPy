@@ -1,5 +1,5 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 from multiprocessing import Process
 
 import RequestHandler as rh
@@ -13,11 +13,6 @@ def runInParallel(fns):
     for p in proc:
         p.join()
 
-def runInParallelAsync(fns):
-    proc = []
-    for fn in fns:
-        p = Process(target = fn)
-        p.start()
 
 class BatchSender():
     def __init__(self, hosts, job_ids, nJobs):
@@ -29,8 +24,8 @@ class BatchSender():
         for iJob in range(self.__nJobs):
             self.__reqHandlers.append(rh.RequestHandler(hosts[iJob], job_ids[iJob]))
 
-    def batchPost(self, jsons):
-        runInParallelAsync([self.__reqHandlers[iJob].postJob(jsons[iJob]) for iJob in range(self.__nJobs)])
+    def batchPost(self, json, iJob):
+        _ = self.__reqHandlers[iJob].postJob(json)
 
     def batchGet(self):
         runInParallel([self.__reqHandlers[iJob].getJob() for iJob in range(self.__nJobs)])
@@ -39,16 +34,28 @@ class BatchSender():
     def batchDelete(self):
         runInParallel([self.__reqHandlers[iJob].deleteJob() for iJob in range(self.__nJobs)])
 
-    # async def sendJobs(self, jsons):
-    #     with ThreadPoolExecutor(max_workers = self.__nJobs) as executor:
-    #         loop = asyncio.get_event_loop()
-    #         tasks = [
-    #             loop.run_in_executor(
-    #                 executor,
-    #                 self.batchPost,
-    #                 *(jsons[iJob], iJob)
-    #             )
-    #             for iJob in range(self.__nJobs)
-    #         ]
-    #         for response in await asyncio.gather(*tasks):
-    #             pass
+    async def sendJobs(self, jsons):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.__nJobs) as executor:
+            future_to_job = {executor.submit(self.batchPost, jsons[iJob], iJob): iJob for iJob in range(self.__nJobs)}
+            for future in concurrent.futures.futures.as_completed(future_to_job):
+                iJob = future_to_job[future]
+                try:
+                    data = future.result()
+                except Exception as exc:
+                    print('%r generated an exception: %s' % (iJob, exc))
+                else:
+                    print('%r page is %d bytes' % (iJob, len(data)))
+
+
+        # with ThreadPoolExecutor(max_workers = self.__nJobs) as executor:
+        #     loop = asyncio.get_event_loop()
+        #     tasks = [
+        #         loop.run_in_executor(
+        #             executor,
+        #             self.batchPost,
+        #             *(jsons[iJob], iJob)
+        #         )
+        #         for iJob in range(self.__nJobs)
+        #     ]
+        #     for response in await asyncio.gather(*tasks):
+        #         pass
