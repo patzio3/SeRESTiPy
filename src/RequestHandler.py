@@ -11,7 +11,7 @@ class RequestHandler():
         checker = jc.JobFormatChecker(requestJson)
         checker.run()
         status = requests.post(self.__host + "/api/" + str(self.__job_id), json = requestJson)
-        return status
+        # return status
 
     def getJob(self):
         print(self.__host + "/api/" + str(self.__job_id))

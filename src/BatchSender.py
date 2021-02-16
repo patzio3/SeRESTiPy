@@ -13,6 +13,12 @@ def runInParallel(fns):
     for p in proc:
         p.join()
 
+def runInParallelAsync(fns):
+    proc = []
+    for fn in fns:
+        p = Process(target = fn)
+        p.start()
+
 class BatchSender():
     def __init__(self, hosts, job_ids, nJobs):
         if (len(hosts) < nJobs):
@@ -24,7 +30,7 @@ class BatchSender():
             self.__reqHandlers.append(rh.RequestHandler(hosts[iJob], job_ids[iJob]))
 
     def batchPost(self, jsons):
-        runInParallel([self.__reqHandlers[iJob].postJob(jsons[iJob]) for iJob in range(self.__nJobs)])
+        runInParallelAsync([self.__reqHandlers[iJob].postJob(jsons[iJob]) for iJob in range(self.__nJobs)])
 
     def batchGet(self):
         runInParallel([self.__reqHandlers[iJob].getJob() for iJob in range(self.__nJobs)])
