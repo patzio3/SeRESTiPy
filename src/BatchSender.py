@@ -34,7 +34,6 @@ class BatchSender():
 
     def batchGet(self, iJob):
         _ = self.__reqHandlers[iJob].getJob()
-        return self.__responses.append(self.__reqHandlers[iJob].getResponseContent())
 
     def sendJobs(self, jsons):
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.__nJobs) as executor:

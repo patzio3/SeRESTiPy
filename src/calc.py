@@ -99,7 +99,7 @@ inputs = [wholeSettings, wholeSettings]
 
 sender = bs.BatchSender(hosts, job_ids, nJobs)
 sender.sendJobs(inputs)
-print(sender.getJobs())
-#print(sender.getRequestHandler(0).getResponseContent())
-#print(sender.getRequestHandler(1).getResponseContent())
+sender.getJobs()
+print(sender.getRequestHandler(0).getResponseContent())
+print(sender.getRequestHandler(1).getResponseContent())
 sender.deleteJobs()
