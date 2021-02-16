@@ -29,6 +29,9 @@ class BatchSender():
     def batchPost(self, json, iJob):
         _ = self.__reqHandlers[iJob].postJob(json)
 
+    def batchDelete(self, iJob):
+        _ = self.__reqHandlers[iJob].deleteJob()
+
     def batchGet(self, iJob):
         _ = self.__reqHandlers[iJob].getJob()
         return self.__responses.append(self.__reqHandlers[iJob].getResponseContent())
@@ -56,7 +59,7 @@ class BatchSender():
 
     def deleteJobs(self):
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.__nJobs) as executor:
-            future_to_job = {executor.submit(self.__reqHandlers[iJob].deleteJob, iJob): iJob for iJob in range(self.__nJobs)}
+            future_to_job = {executor.submit(self.batchDelete, iJob): iJob for iJob in range(self.__nJobs)}
             for future in concurrent.futures.as_completed(future_to_job):
                 iJob = future_to_job[future]
                 try:
