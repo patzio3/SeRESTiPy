@@ -1,4 +1,4 @@
-import asyncio, sys
+import asyncio, aiohttp
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
 
@@ -23,11 +23,14 @@ class BatchSender():
         for iJob in range(self.__nJobs):
             self.__reqHandlers.append(rh.RequestHandler(hosts[iJob], job_ids[iJob]))
 
-    def batchPost(self, json, iJob):
-        _ = self.__reqHandlers[iJob].postJob(json)
-        # if (statusCode != 201):
-        #     print("Problem while posting your job!")
-        #     sys.exit()
+    # async def batchPost(self, json, iJob):
+        
+
+
+    #     _ = self.__reqHandlers[iJob].postJob(json)
+    #     # if (statusCode != 201):
+    #     #     print("Problem while posting your job!")
+    #     #     sys.exit()
 
     def batchGet(self):
         runInParallel([self.__reqHandlers[iJob].getJob() for iJob in range(self.__nJobs)])
@@ -36,19 +39,20 @@ class BatchSender():
     def batchDelete(self):
         runInParallel([self.__reqHandlers[iJob].deleteJob() for iJob in range(self.__nJobs)])
 
-    async def sendJobs(self, jsons):
-        with ThreadPoolExecutor(max_workers = self.__nJobs) as executor:
-            print("LOL")
-            loop = asyncio.get_event_loop()
-            print("AFTER loop")
-            tasks = [
-                loop.run_in_executor(
-                    executor,
-                    self.batchPost,
-                    *(jsons[iJob], iJob)
-                )
-                for iJob in range(self.__nJobs)
-            ]
-            print("AFTER tasks")
-            for _ in await asyncio.gather(*tasks):
-                pass
+    def sendJobs(self, jsons):
+        loop = asyncio.get_event_loop()
+        coroutines = [self.__reqHandlers[iJob].postJob(jsons[iJob]) for iJob in range(self.__nJobs)]
+        _ = loop.run_until_complete(asyncio.gather(*coroutines))
+
+    #     with ThreadPoolExecutor(max_workers = self.__nJobs) as executor:
+    #         loop = asyncio.get_event_loop()
+    #         tasks = [
+    #             loop.run_in_executor(
+    #                 executor,
+    #                 self.batchPost,
+    #                 *(jsons[iJob], iJob)
+    #             )
+    #             for iJob in range(self.__nJobs)
+    #         ]
+    #         for response in await asyncio.gather(*tasks):
+    #             pass
