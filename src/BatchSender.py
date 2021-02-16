@@ -1,4 +1,4 @@
-import asyncio, aiohttp
+import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Process
 
@@ -23,14 +23,8 @@ class BatchSender():
         for iJob in range(self.__nJobs):
             self.__reqHandlers.append(rh.RequestHandler(hosts[iJob], job_ids[iJob]))
 
-    # async def batchPost(self, json, iJob):
-        
-
-
-    #     _ = self.__reqHandlers[iJob].postJob(json)
-    #     # if (statusCode != 201):
-    #     #     print("Problem while posting your job!")
-    #     #     sys.exit()
+    def batchPost(self, jsons):
+        runInParallel([self.__reqHandlers[iJob].postJob(jsons[iJob]) for iJob in range(self.__nJobs)])
 
     def batchGet(self):
         runInParallel([self.__reqHandlers[iJob].getJob() for iJob in range(self.__nJobs)])
@@ -39,11 +33,7 @@ class BatchSender():
     def batchDelete(self):
         runInParallel([self.__reqHandlers[iJob].deleteJob() for iJob in range(self.__nJobs)])
 
-    def sendJobs(self, jsons):
-        loop = asyncio.get_event_loop()
-        coroutines = [self.__reqHandlers[iJob].postJob(jsons[iJob]) for iJob in range(self.__nJobs)]
-        _ = loop.run_until_complete(asyncio.gather(*coroutines))
-
+    # async def sendJobs(self, jsons):
     #     with ThreadPoolExecutor(max_workers = self.__nJobs) as executor:
     #         loop = asyncio.get_event_loop()
     #         tasks = [

@@ -100,14 +100,14 @@ inputs = [wholeSettings, wholeSettings]
 # sender = bs.BatchSender(hosts, job_ids, nJobs)
 # sender.batchPost(wholeSettings, 0)
 
-handler = rh.RequestHandler(hosts[0],0)
-handler.postJob(wholeSettings)
-handler.getJob()
-handler.deleteJob()
-print(handler.getResponseContent())
+#handler = rh.RequestHandler(hosts[0],0)
+#handler.postJob(wholeSettings)
+#handler.getJob()
+#handler.deleteJob()
+#print(handler.getResponseContent())
 
-#sender = bs.BatchSender(hosts, job_ids, nJobs)
-#sender.sendJobs(inputs)
+sender = bs.BatchSender(hosts, job_ids, nJobs)
+sender.batchPost(inputs)
 
 # BASE = "http://128.176.214.100:5000/"
 # putResponse = requests.post(BASE + "api/"+str(0), json = jr.dict2json(wholeSettings))

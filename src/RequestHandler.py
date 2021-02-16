@@ -1,6 +1,5 @@
 import requests, os
 import JobFormatChecker as jc
-import aiohttp
 
 class RequestHandler():
     def __init__(self, host, job_id):
@@ -11,13 +10,8 @@ class RequestHandler():
     def postJob(self, requestJson):
         checker = jc.JobFormatChecker(requestJson)
         checker.run()
-        status = self.post(self.__host + "/api/" + str(self.__job_id), requestJson)
+        status = requests.post(self.__host + "/api/" + str(self.__job_id), json = requestJson)
         return status
-
-    async def post(self, host, json):
-        async with aiohttp.ClientSession() as session:
-            async with session.session.post(host, data=json) as response:
-                return response
 
     def getJob(self):
         print(self.__host + "/api/" + str(self.__job_id))
