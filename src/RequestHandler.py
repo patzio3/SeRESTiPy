@@ -1,4 +1,4 @@
-import requests, os
+import requests
 import JobFormatChecker as jc
 
 class RequestHandler():
@@ -11,7 +11,6 @@ class RequestHandler():
         checker = jc.JobFormatChecker(requestJson)
         checker.run()
         _ = requests.post(self.__host + "/api/" + str(self.__job_id), json = requestJson)
-        # return status
 
     def getJob(self):
         getResponse = requests.get(self.__host + "/api/" + str(self.__job_id))
@@ -22,7 +21,7 @@ class RequestHandler():
         return getResponse.json()
 
     def deleteJob(self):
-        status = requests.delete(self.__host + "/api/" + str(self.__job_id))
+        _ = requests.delete(self.__host + "/api/" + str(self.__job_id))
 
     def getResponseContent(self):
         return self.__response
