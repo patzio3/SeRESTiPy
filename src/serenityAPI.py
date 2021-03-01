@@ -1,6 +1,7 @@
 import socket, codecs
 from flask import Flask, request
 from flask_restful import Api, Resource, abort
+from threading import Thread
 
 import TaskHandler as th
 
@@ -21,20 +22,22 @@ def exists(job_id):
 
 
 class SerenityAPI(Resource):
-
     @app.route("/api/<int:job_id>", methods = ["POST"])
     def parse_request(job_id):
         exists(job_id)
         task = th.TaskHandler(request.json)
         task.enroll()
-        task.perform()
+        Thread(target=task.perform).start()
         jobs[job_id] = task
         return "", 201
 
     @app.route("/api/<int:job_id>", methods = ["GET"])
     def get_request(job_id):
         notExist(job_id)
-        return jobs[job_id].processResults(), 201
+        finished = False
+        if(jobs[job_id].getJobState in ["FINISH", "FINISHED", "FIN"]):
+            finished = True
+        return finished, 201
 
     @app.route("/api/<int:job_id>", methods = ["DELETE"])
     def delete_request(job_id):
@@ -43,22 +46,32 @@ class SerenityAPI(Resource):
         del jobs[job_id]
         return "", 201
 
+
+
+
 class JobInfo(Resource):
     @app.route("/api/<int:job_id>/info", methods = ["GET"])
     def getJobInfo(job_id):
         notExist(job_id)
         return jobs[job_id].getTaskInfo(), 201
 
+
+
+
 class HomePage(Resource):
     @app.route("/", methods = ["GET"])
     def homePageHit():
         return "HomePage Endpoint hit!", 201
+
+
+
 
 class ApiPage(Resource):
     @app.route("/api/", methods = ["GET"])
     def apiPageHit():
         f = codecs.open("index.html", "r")
         return f.read(), 201
+
 
 api.add_resource(HomePage, "/")
 api.add_resource(ApiPage, "/api")

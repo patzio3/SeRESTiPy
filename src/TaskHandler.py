@@ -26,6 +26,9 @@ class TaskHandler():
         self.__envTotEn = []
         self.__nAct = 0
         self.__nEnv = 0
+        self.__results = {}
+        self.__jobstate = ""
+        self.__update = False
         checker = jc.JobFormatChecker(self.__args)
         checker.run()
 
@@ -59,7 +62,6 @@ class TaskHandler():
     def enroll(self):
         actSettingsDict = ""
         envSettingsDict = ""
-        self.__jobstate = ""
         for outer, _ in self.__args.items():
             if (outer.upper() == "TASK"):
                 self.__taskName = self.__args[outer.upper()]
@@ -146,6 +148,7 @@ class TaskHandler():
                             inner[innerinner] = os.path.join(os.getcwd(),inner[innerinner])
                         #check if any results are already present
                         if (innerinner.upper() == "RESULTS"):
+                            self.__update = True
                             for innerinnerinner, _ in innerinner.items():
                                 if (innerinnerinner.upper() in ["TOTALENERGY"]):
                                     self.__envTotEn.append(innerinner[innerinnerinner])
@@ -189,10 +192,14 @@ class TaskHandler():
             else: 
                 print("Invalid SCFMode!")
                 sys.exit()
-        if (len(self.__actDensityMatrix) > 0 and self.__jobstate.upper() in ["RUNNING", "RUN", "FINISH", "FINISHED", "FIN" ]):
+        if (len(self.__actDensityMatrix) > 0 and self.__update):
             self.__updateSystems()
         task = jr.resolveTask(mode, self.__taskName, self.__act, self.__env)
         task.run()
+        self.__results = self.processResults()
+        #write database entry here
+        
+        self.__jobstate = "FIN"
 
     def processResults(self):
         results = {}
@@ -215,10 +222,7 @@ class TaskHandler():
                 sysresults["TOTALENERGY"] =  act.getEnergy()
                 sysresults["DENSITYMATRIX"] = jr.array2json(act.getElectronicStructure_R().getDensityMatrix().total())
                 sysresults["COEFFICIENTMATRIX"] = jr.array2json(act.getElectronicStructure_R().coeff())
-                print("SYSTEM: ", self.__actNames[systemCounter])
                 results.update({self.__actNames[systemCounter] : sysresults})
-
-
             elif (scfMode == "UNRESTRICTED"):
                 sysresults = unresDummy.copy()
                 sysresults["TOTALENERGY"] =  act.getEnergy()
@@ -263,3 +267,6 @@ class TaskHandler():
             os.remove(env.geometry)
             if (os.path.exists(os.path.join(env.name))):
                 su.rmtree(os.path.join(env.name))
+        
+    def getJobState(self):
+        return self.__jobstate
