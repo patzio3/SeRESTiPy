@@ -4,23 +4,23 @@ import os, requests, time
 import BatchSender as bs
 import RequestHandler as rh
 
-parDir = '/scratch/p_esch01/workspace/prm21/geos/'
-geo1 = os.path.join(parDir,"geo1.xyz")
+parDir = '/home/patrick/progs/restApi/geo'
+geo1 = os.path.join(parDir,"3.xyz")
 with open(geo1, 'r') as file:
     data1 = file.read()
     file.close()
 
-geo2 = os.path.join(parDir,"geo2.xyz")
+geo2 = os.path.join(parDir,"4.xyz")
 with open(geo2, 'r') as file:
     data2 = file.read()
     file.close()
 
-geo3 = os.path.join(parDir,"geo3.xyz")
+geo3 = os.path.join(parDir,"5.xyz")
 with open(geo3, 'r') as file:
     data3 = file.read()
     file.close()
 
-geo4 = os.path.join(parDir,"geo4.xyz")
+geo4 = os.path.join(parDir,"6.xyz")
 with open(geo4, 'r') as file:
     data4 = file.read()
     file.close()
@@ -92,14 +92,14 @@ wholeSettings = {"TASK" : "FDE",
                  "ENVSETTINGS" : settingsDct2
                  }
 
-hosts = ["http://128.176.214.100:5000", "http://128.176.214.105:5000"]
-job_ids = [0,1]
-nJobs = 2
-inputs = [wholeSettings, wholeSettings]
+hosts = ["http://127.0.1.1:5000"]#, "http://128.176.214.105:5000"]
+job_ids = [0]
+nJobs = 1
+inputs = [wholeSettings]
 
 sender = bs.BatchSender(hosts, job_ids, nJobs)
-sender.sendJobs(inputs)
-sender.getJobs()
-print(sender.getRequestHandler(0).getResponseContent())
-print(sender.getRequestHandler(1).getResponseContent())
+#sender.sendJobs(inputs)
+#sender.getJobs()
+#print(sender.getRequestHandler(0).getResponseContent())
+#print(sender.getRequestHandler(1).getResponseContent())
 sender.deleteJobs()

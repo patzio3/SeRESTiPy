@@ -1,15 +1,21 @@
 import socket, codecs
 from flask import Flask, request
 from flask_restful import Api, Resource, abort
-from threading import Thread
+#from threading import Thread
+import multiprocessing as mp
+
+import random, sys
 
 import TaskHandler as th
+import DataBaseController as db
 
 
 app = Flask(__name__)
 api = Api(app)
 
 jobs = {}
+rand_ids = []
+#dbController = db.DataBaseController(".base")
 
 def notExist(job_id):
         if job_id not in jobs:
@@ -25,9 +31,23 @@ class SerenityAPI(Resource):
     @app.route("/api/<int:job_id>", methods = ["POST"])
     def parse_request(job_id):
         exists(job_id)
-        task = th.TaskHandler(request.json)
+        cycle = 0
+        while (True):
+            rand = random.randint(0, sys.maxsize)
+            if (rand not in rand_ids):
+                rand_ids.append(rand)
+                break
+            elif (cycle == sys.maxsize):
+                print("Maximum number of jobs "+str(sys.maxsize)+" reached!!!")
+                sys.exit()
+            else:
+                cycle += 1
+        task = th.TaskHandler(request.json, rand)
         task.enroll()
-        Thread(target=task.perform).start()
+        p = mp.Process(target=task.perform, args=())
+        p.daemon = True
+        p.start()
+        #Thread(target=task.perform).start()
         jobs[job_id] = task
         return "", 201
 
