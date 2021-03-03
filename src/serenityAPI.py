@@ -1,8 +1,9 @@
 import socket, codecs
 from flask import Flask, request
 from flask_restful import Api, Resource, abort
-#from threading import Thread
+from threading import Thread
 import multiprocessing as mp
+
 
 import random, sys
 
@@ -14,12 +15,19 @@ app = Flask(__name__)
 api = Api(app)
 
 jobs = {}
+manager = mp.Manager()
+jobstate_list = manager.dict()
 rand_ids = []
-#dbController = db.DataBaseController(".base")
+
+
 
 def notExist(job_id):
         if job_id not in jobs:
             abort(404, message = "Requested job not found!")
+
+def notFinished(job_id):
+        if jobstate_list[job_id] != "FIN" :
+            abort(409, message = "Job is still running!")
 
 def exists(job_id):
         if job_id in jobs:
@@ -44,24 +52,29 @@ class SerenityAPI(Resource):
                 cycle += 1
         task = th.TaskHandler(request.json, rand)
         task.enroll()
-        p = mp.Process(target=task.perform, args=())
+        p = mp.Process(target=task.perform, args=(jobstate_list,job_id))
         p.daemon = True
         p.start()
-        #Thread(target=task.perform).start()
         jobs[job_id] = task
+        return "", 201
+
+    @app.route("/api/<int:job_id>", methods = ["PATCH"])
+    def get_request(job_id):
+        notExist(job_id)
+        #
+        # HERE COMES THE UPDATED TASK HANDLER THAT RUNS ANOTHER JOB
+        #
         return "", 201
 
     @app.route("/api/<int:job_id>", methods = ["GET"])
     def get_request(job_id):
         notExist(job_id)
-        finished = False
-        if(jobs[job_id].getJobState in ["FINISH", "FINISHED", "FIN"]):
-            finished = True
-        return finished, 201
+        return jobstate_list[job_id], 201
 
     @app.route("/api/<int:job_id>", methods = ["DELETE"])
     def delete_request(job_id):
         notExist(job_id)
+        notFinished(job_id)
         jobs[job_id].cleanUp()
         del jobs[job_id]
         return "", 201

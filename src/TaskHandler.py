@@ -18,8 +18,6 @@ class TaskHandler():
         self.__actSettings = []
         self.__envSettings = []
         self.__actDensityMatrix = []
-        # self.__actnOcc = []
-        # self.__envnOcc = []
         self.__actCoefficients = []
         self.__envDensityMatrix = []
         self.__envCoefficients = []
@@ -28,10 +26,8 @@ class TaskHandler():
         self.__nAct = 0
         self.__nEnv = 0
         self.__results = {}
-        self.__jobstate = ""
         self.__update = False
-        self.__dbController = db.DataBaseController("")
-        self.__identifier = id
+        self.__dbController = db.DataBaseController(id)
         checker = jc.JobFormatChecker(self.__args)
         checker.run()
 
@@ -75,8 +71,6 @@ class TaskHandler():
                 actSettingsDict = self.__args[outer.upper()]
             elif (outer.upper() in ["ENVIRONMENTSYSTEMSETTINGS", "ENVSETTINGS"]):
                 envSettingsDict = self.__args[outer.upper()]
-            elif (outer.upper() in ["JOBSTATE","STATE"]):
-                self.__jobstate = self.__args[outer.upper()]
             else:
                 print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
                 sys.exit()
@@ -186,7 +180,7 @@ class TaskHandler():
         for env in self.__envSettings:
             self.__env.append(spy.System(env))
 
-    def perform(self):
+    def perform(self,jobstate_list, job_id):
         if (len(self.__act) == 0):
             print("There is NO active system!!")
             sys.exit()
@@ -201,14 +195,13 @@ class TaskHandler():
         if (len(self.__actDensityMatrix) > 0 and self.__update):
             self.__updateSystems()
         task = jr.resolveTask(mode, self.__taskName, self.__act, self.__env)
+        jobstate_list[job_id] = "RUN"
         task.run()
-        self.__results = self.processResults()
-        #write database entry here
-        
-        self.__jobstate = "FIN"
-        self.__dbController = db.DataBaseController(self.__identifier)
+        self.__results = self.processResults()        
         for outer, inner in self.__results.items():
             self.__dbController.writeEntry(outer, inner)
+        jobstate_list[job_id] = "FIN"
+
 
     def processResults(self):
         results = {}
@@ -269,13 +262,16 @@ class TaskHandler():
 
     def cleanUp(self):
         for act in self.__actSettings:
-            os.remove(act.geometry)
+            try:
+                os.remove(act.geometry)
+            except:
+                pass
             if (os.path.exists(os.path.join(act.name))):
                 su.rmtree(os.path.join(act.name))
         for env in self.__envSettings:
-            os.remove(env.geometry)
+            try:
+                os.remove(env.geometry)
+            except:
+                pass
             if (os.path.exists(os.path.join(env.name))):
                 su.rmtree(os.path.join(env.name))
-        
-    def getJobState(self):
-        return self.__jobstate

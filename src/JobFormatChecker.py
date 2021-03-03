@@ -58,17 +58,17 @@ class JobFormatChecker():
             if (outer.upper() not in self.__allowedOuterKeys):
                 print(f"KeyError: Field '{outer}' not allowed in outermost scope!" )
                 sys.exit()
-        #look for job state key
-        try:
-            jobstate = self.__json["JOBSTATE"]
-        except KeyError as error:
-            try:
-                jobstate = self.__json["STATE"]
-            except KeyError as errorTwo:
-                print(f"KeyError: {error} and {errorTwo} key not present, but required in JSON")
-        if (jobstate not in self.__jobstates):
-            print(f"KeyError: Field '{jobstate}' invalid jobstate! Must be 'INIT' or 'FINISH'" )
-            sys.exit()
+        # #look for job state key
+        # try:
+        #     jobstate = self.__json["JOBSTATE"]
+        # except KeyError as error:
+        #     try:
+        #         jobstate = self.__json["STATE"]
+        #     except KeyError as errorTwo:
+        #         print(f"KeyError: {error} and {errorTwo} key not present, but required in JSON")
+        # if (jobstate not in self.__jobstates):
+        #     print(f"KeyError: Field '{jobstate}' invalid jobstate! Must be 'INIT' or 'FINISH'" )
+        #     sys.exit()
 
         #look for tasks key
         try:

@@ -87,19 +87,82 @@ settingsDct2 = {
 }
 
 wholeSettings = {"TASK" : "FDE",
-                 "STATE" : "INI",
                  "ACTSETTINGS" : settingsDct,
                  "ENVSETTINGS" : settingsDct2
                  }
 
-hosts = ["http://127.0.1.1:5000"]#, "http://128.176.214.105:5000"]
-job_ids = [0]
-nJobs = 1
-inputs = [wholeSettings]
+
+settingsDct = {
+                "sys0" : {"name"  : "SOOadsfOS",
+                            "geometry" : "geo1.xyz",#os.path.join(parentDir, "geo1.xyz"),
+                            "method" : "DFT",
+                            "type" : "active",
+                            "scfMode" : "UNRESTRICTED",
+                            "dft"   : {"functional" : "PBE",
+                                       "densityFitting" : "RI",
+                                       "dispersion" : "D3"
+                            },
+                            "basis" : {"label" : "def2-svp",
+                            },
+                            "xyz" : data1
+                }
+}
+
+settingsDct2 = {
+                "sys1" : {"name"  : "SOasdfOOS2",
+                            "geometry" : "geo2.xyz",#os.path.join(parentDir, "geo2.xyz"),
+                            "method" : "DFT",
+                            "type" : "environment",
+                            "scfMode" : "UNRESTRICTED",
+                            "dft"   : {"functional" : "PBE",
+                                       "densityFitting" : "RI",
+                                       "dispersion" : "D3"
+                             },
+                            "basis" : {"label" : "def2-svp",
+                            },
+                            "xyz" : data2
+                },
+                "sys2" : {"name"  : "SOadsfOOS3",
+                            "geometry" : "geo3.xyz",#os.path.join(parentDir, "geo1.xyz"),
+                            "method" : "DFT",
+                            "type" : "active",
+                            "scfMode" : "UNRESTRICTED",
+                            "dft"   : {"functional" : "PBE",
+                                       "densityFitting" : "RI",
+                                       "dispersion" : "D3"
+                            },
+                            "basis" : {"label" : "def2-svp",
+                            },
+                            "xyz" : data3
+                },
+                "sys3" : {"name"  : "SOasdfOOS4",
+                            "geometry" : "geo4.xyz",#os.path.join(parentDir, "geo2.xyz"),
+                            "method" : "DFT",
+                            "type" : "environment",
+                            "scfMode" : "UNRESTRICTED",
+                            "dft"   : {"functional" : "PBE",
+                                       "densityFitting" : "RI",
+                                       "dispersion" : "D3"
+                             },
+                            "basis" : {"label" : "def2-svp",
+                             },
+                            "xyz" : data4
+                },
+}
+
+wholeSettings2 = {"TASK" : "FDE",
+                 "ACTSETTINGS" : settingsDct,
+                 "ENVSETTINGS" : settingsDct2
+                 }
+
+hosts = ["http://127.0.1.1:5000","http://127.0.1.1:5000"]#, "http://128.176.214.105:5000"]
+job_ids = [0,1]
+nJobs = 2
+inputs = [wholeSettings, wholeSettings2]
 
 sender = bs.BatchSender(hosts, job_ids, nJobs)
-#sender.sendJobs(inputs)
+sender.sendJobs(inputs)
 #sender.getJobs()
 #print(sender.getRequestHandler(0).getResponseContent())
 #print(sender.getRequestHandler(1).getResponseContent())
-sender.deleteJobs()
+#sender.deleteJobs()
