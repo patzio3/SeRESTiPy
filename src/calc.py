@@ -135,7 +135,7 @@ settingsDct2 = {
                             },
                             "xyz" : data3
                 },
-                "sys3" : {"name"  : "SOasdfOOS4",
+                "sys63" : {"name"  : "SOasdfOOS4",
                             "geometry" : "geo4.xyz",#os.path.join(parentDir, "geo2.xyz"),
                             "method" : "DFT",
                             "type" : "environment",
@@ -155,13 +155,14 @@ wholeSettings2 = {"TASK" : "FDE",
                  "ENVSETTINGS" : settingsDct2
                  }
 
-hosts = ["http://127.0.1.1:5000","http://127.0.1.1:5000"]#, "http://128.176.214.105:5000"]
-job_ids = [0,1]
-nJobs = 2
-inputs = [wholeSettings, wholeSettings2]
+hosts = ["http://127.0.1.1:5000"]#, "http://128.176.214.105:5000"]
+job_ids = [0]
+nJobs = 1
+inputs = [wholeSettings]
 
 sender = bs.BatchSender(hosts, job_ids, nJobs)
 sender.sendJobs(inputs)
+sender.patchJobs(inputs)
 #sender.getJobs()
 #print(sender.getRequestHandler(0).getResponseContent())
 #print(sender.getRequestHandler(1).getResponseContent())

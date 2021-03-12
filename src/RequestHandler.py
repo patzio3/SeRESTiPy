@@ -16,6 +16,11 @@ class RequestHandler():
         getResponse = requests.get(self.__host + "/api/" + str(self.__job_id))
         self.__response = getResponse.json()
 
+    def patchJob(self, requestJson):
+        checker = jc.JobFormatChecker(requestJson)
+        checker.run()
+        _ = requests.patch(self.__host + "/api/" + str(self.__job_id), json = requestJson)
+
     def getJobInfo(self):
         getResponse = requests.get(self.__host + "/api/" + str(self.__job_id) + "/info")
         return getResponse.json()

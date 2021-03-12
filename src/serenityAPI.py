@@ -1,19 +1,16 @@
-import socket, codecs
+import socket, codecs, random, sys
 from flask import Flask, request
 from flask_restful import Api, Resource, abort
-from threading import Thread
 import multiprocessing as mp
 
-
-import random, sys
-
 import TaskHandler as th
+import TaskUpdater as tu
 import DataBaseController as db
+
 
 
 app = Flask(__name__)
 api = Api(app)
-
 jobs = {}
 manager = mp.Manager()
 jobstate_list = manager.dict()
@@ -59,11 +56,17 @@ class SerenityAPI(Resource):
         return "", 201
 
     @app.route("/api/<int:job_id>", methods = ["PATCH"])
-    def get_request(job_id):
+    def patch_request(job_id):
         notExist(job_id)
-        #
-        # HERE COMES THE UPDATED TASK HANDLER THAT RUNS ANOTHER JOB
-        #
+        notFinished(job_id)
+        task = jobs[job_id]
+        updater = tu.TaskUpdater(task, request.json)
+        updater.run()
+        del updater
+        #task.update()
+        #p = mp.Process(target=task.perform, args=(jobstate_list,job_id))
+        #p.daemon = True
+        #p.start()
         return "", 201
 
     @app.route("/api/<int:job_id>", methods = ["GET"])

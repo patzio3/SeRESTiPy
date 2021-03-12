@@ -34,21 +34,22 @@ class TaskHandler():
     def __del__(self):
         self.__dbController.eradicate()
 
-    def __updateSystems(self):
-        for iAct in range(len(self.__actDensityMatrix)):
+    def updateSystemsFromDisk(self):
+        for iAct in range(len(self.__actNames)):
+            values = self.__dbController.readEntry(self.__actNames[iAct])
             if (jr.resolveSCFMode(self.__act[iAct].getSettings().scfMode).upper() == "RESTRICTED"):
-                self.__act[iAct].getElectronicStructure_R().getDensityMatrix().set(jr.json2array(self.__actDensityMatrix[iAct]))
+                self.__act[iAct].getElectronicStructure_R().getDensityMatrix().set(values["DENSITYMATRIX"])
             elif (jr.resolveSCFMode(self.__act[iAct].getSettings().scfMode).upper() == "UNRESTRICTED"):
-                self.__act[iAct].getElectronicStructure_U().getDensityMatrix().set(jr.json2array(self.__actDensityMatrix[iAct][0]),\
-                                                                                   jr.json2array(self.__actDensityMatrix[iAct][1]))
+                self.__act[iAct].getElectronicStructure_U().getDensityMatrix().set(values["DENSITYMATRIXALPHA"],\
+                                                                                   values["DENSITYMATRIXBETA"])
             else: 
                 print("Invalid SCFMode!")
         for iEnv in range(len(self.__envDensityMatrix)):
             if (jr.resolveSCFMode(self.__env[iEnv].getSettings().scfMode).upper() == "RESTRICTED"):
-                 self.__env[iEnv].getElectronicStructure_R().getDensityMatrix().set(jr.json2array(self.__envDensityMatrix[iEnv]))
+                 self.__env[iEnv].getElectronicStructure_R().getDensityMatrix().set(values["DENSITYMATRIX"])
             elif (jr.resolveSCFMode(self.__env[iEnv].getSettings().scfMode).upper() == "UNRESTRICTED"):
-                 self.__env[iEnv].getElectronicStructure_U().getDensityMatrix().set(jr.json2array(self.__envDensityMatrix[iEnv][0]),\
-                                                                                   jr.json2array(self.__envDensityMatrix[iEnv][1]))
+                 self.__env[iEnv].getElectronicStructure_U().getDensityMatrix().set(values["DENSITYMATRIXALPHA"],\
+                                                                                    values["DENSITYMATRIXBETA"])
             else: 
                 print("Invalid SCFMode!")
 
@@ -192,8 +193,6 @@ class TaskHandler():
             else: 
                 print("Invalid SCFMode!")
                 sys.exit()
-        if (len(self.__actDensityMatrix) > 0 and self.__update):
-            self.__updateSystems()
         task = jr.resolveTask(mode, self.__taskName, self.__act, self.__env)
         jobstate_list[job_id] = "RUN"
         task.run()
@@ -275,3 +274,10 @@ class TaskHandler():
                 pass
             if (os.path.exists(os.path.join(env.name))):
                 su.rmtree(os.path.join(env.name))
+
+
+    def getActNames(self):
+        return self.__actNames
+
+    def getEnvNames(self):
+        return self.__envNames

@@ -35,13 +35,16 @@ class BatchSender():
     def batchGet(self, iJob):
         _ = self.__reqHandlers[iJob].getJob()
 
+    def batchPatch(self, json, iJob):
+        _ = self.__reqHandlers[iJob].patchJob(json)
+
     def sendJobs(self, jsons):
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.__nJobs) as executor:
             future_to_job = {executor.submit(self.batchPost, jsons[iJob], iJob): iJob for iJob in range(self.__nJobs)}
             for future in concurrent.futures.as_completed(future_to_job):
                 iJob = future_to_job[future]
                 try:
-                    data = future.result()
+                    _ = future.result()
                 except Exception as exc:
                     print('%r generated an exception: %s' % (iJob, exc))
 
@@ -59,6 +62,16 @@ class BatchSender():
     def deleteJobs(self):
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.__nJobs) as executor:
             future_to_job = {executor.submit(self.batchDelete, iJob): iJob for iJob in range(self.__nJobs)}
+            for future in concurrent.futures.as_completed(future_to_job):
+                iJob = future_to_job[future]
+                try:
+                    _ = future.result()
+                except Exception as exc:
+                    print('%r generated an exception: %s' % (iJob, exc))
+
+    def patchJobs(self, jsons):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.__nJobs) as executor:
+            future_to_job = {executor.submit(self.batchPatch, jsons[iJob], iJob): iJob for iJob in range(self.__nJobs)}
             for future in concurrent.futures.as_completed(future_to_job):
                 iJob = future_to_job[future]
                 try:
