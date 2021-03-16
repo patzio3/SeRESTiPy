@@ -1,0 +1,47 @@
++system
+ name active
+ geometry mol.xyz
+ method dft
+ +dft
+  functional lda
+  densityfitting ri
+ -dft
+ +scf
+  damping static
+  staticdampingfactor 0.9
+  enddamperr 0.0
+  maxcycles 300
+ -scf
+ +basis
+  label sto-3g
+ -basis
+-system
+
++system
+ name test2
+ geometry mol.xyz
+ method dft
+ +dft
+  functional lda
+  densityfitting ri
+ -dft
+ +scf
+  damping static
+  staticdampingfactor 0.9
+  enddamperr 0.0
+  maxcycles 300
+ -scf
+ +basis
+  label sto-3g
+ -basis
+-system
+
+
++task scf
+ act active
+-task
+
++task plot
+ act active
+ density true
+-task

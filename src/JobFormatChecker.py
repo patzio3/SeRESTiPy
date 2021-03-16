@@ -27,7 +27,6 @@ class JobFormatChecker():
         self.__allowedInnerKeys = ["NAME",
                                    "GEOMETRY",
                                    "XYZ",
-                                   "TYPE",
                                    "METHOD",
                                    "SCFMODE",
                                    "CHARGE",
@@ -36,8 +35,7 @@ class JobFormatChecker():
                                    "BASIS",
                                    "SCF",
                                    "GRID",
-                                   "EFIELD",
-                                   "RESULTS"
+                                   "EFIELD"
         ]
         self.__allowedResultsKeys = ["DENSITYMATRIX",
                                      "COEFFICIENTMATRIX",
@@ -58,24 +56,18 @@ class JobFormatChecker():
             if (outer.upper() not in self.__allowedOuterKeys):
                 print(f"KeyError: Field '{outer}' not allowed in outermost scope!" )
                 sys.exit()
-        # #look for job state key
-        # try:
-        #     jobstate = self.__json["JOBSTATE"]
-        # except KeyError as error:
-        #     try:
-        #         jobstate = self.__json["STATE"]
-        #     except KeyError as errorTwo:
-        #         print(f"KeyError: {error} and {errorTwo} key not present, but required in JSON")
-        # if (jobstate not in self.__jobstates):
-        #     print(f"KeyError: Field '{jobstate}' invalid jobstate! Must be 'INIT' or 'FINISH'" )
-        #     sys.exit()
-
         #look for tasks key
         try:
             _ = self.__json["TASK"]
         except KeyError as error:
             print(f"KeyError: {error} key not present, but required in JSON")
-
+        try:
+            _ = self.__json["ID"]
+        except KeyError as errorOne:
+            try:
+                __ = self.__json["FILEID"]
+            except KeyError as errorTwo:
+                print(f"KeyError: FILEID or ID key not present, but required in JSON")
         #look for active system settings
         try:
             actSettingsDict = self.__json["ACTSETTINGS"]

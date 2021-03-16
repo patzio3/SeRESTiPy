@@ -24,9 +24,6 @@ geo4 = os.path.join(parDir,"6.xyz")
 with open(geo4, 'r') as file:
     data4 = file.read()
     file.close()
-#with open(os.path.join(parDir,'text.xyz'), "w") as file:
-#  file.write(data)
-#  file.close()
 
 settingsDct = {
                 "sys0" : {"name"  : "SOOOS",

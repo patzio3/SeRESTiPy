@@ -8,7 +8,7 @@ import DataBaseController as db
 import serenipy as spy
 
 class TaskHandler():
-    def __init__(self, args, id):
+    def __init__(self, args):
         self.__args = args
         self.__taskName = ""
         self.__act = []
@@ -27,7 +27,6 @@ class TaskHandler():
         self.__nEnv = 0
         self.__results = {}
         self.__update = False
-        self.__dbController = db.DataBaseController(id)
         checker = jc.JobFormatChecker(self.__args)
         checker.run()
 
@@ -72,6 +71,8 @@ class TaskHandler():
                 actSettingsDict = self.__args[outer.upper()]
             elif (outer.upper() in ["ENVIRONMENTSYSTEMSETTINGS", "ENVSETTINGS"]):
                 envSettingsDict = self.__args[outer.upper()]
+            elif (outer.upper() in ["FILEID", "ID"]):
+                self.__dbController = db.DataBaseController(self.__args[outer.upper()])
             else:
                 print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
                 sys.exit()
