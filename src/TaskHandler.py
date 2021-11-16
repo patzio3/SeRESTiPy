@@ -4,7 +4,7 @@ import shutil as su
 import SettingsConverter as sc
 import JsonResolver as jr
 import JobFormatChecker as jc
-import DataBaseController as db
+#import DataBaseController as db
 import serenipy as spy
 
 class TaskHandler():
@@ -30,27 +30,27 @@ class TaskHandler():
         checker = jc.JobFormatChecker(self.__args)
         checker.run()
 
-    def __del__(self):
-        self.__dbController.eradicate()
+    #def __del__(self):
+    #    self.__dbController.eradicate()
 
-    def updateSystemsFromDisk(self):
-        for iAct in range(len(self.__actNames)):
-            values = self.__dbController.readEntry(self.__actNames[iAct])
-            if (jr.resolveSCFMode(self.__act[iAct].getSettings().scfMode).upper() == "RESTRICTED"):
-                self.__act[iAct].getElectronicStructure_R().getDensityMatrix().set(values["DENSITYMATRIX"])
-            elif (jr.resolveSCFMode(self.__act[iAct].getSettings().scfMode).upper() == "UNRESTRICTED"):
-                self.__act[iAct].getElectronicStructure_U().getDensityMatrix().set(values["DENSITYMATRIXALPHA"],\
-                                                                                   values["DENSITYMATRIXBETA"])
-            else: 
-                print("Invalid SCFMode!")
-        for iEnv in range(len(self.__envDensityMatrix)):
-            if (jr.resolveSCFMode(self.__env[iEnv].getSettings().scfMode).upper() == "RESTRICTED"):
-                 self.__env[iEnv].getElectronicStructure_R().getDensityMatrix().set(values["DENSITYMATRIX"])
-            elif (jr.resolveSCFMode(self.__env[iEnv].getSettings().scfMode).upper() == "UNRESTRICTED"):
-                 self.__env[iEnv].getElectronicStructure_U().getDensityMatrix().set(values["DENSITYMATRIXALPHA"],\
-                                                                                    values["DENSITYMATRIXBETA"])
-            else: 
-                print("Invalid SCFMode!")
+    # def updateSystemsFromDisk(self):
+    #     for iAct in range(len(self.__actNames)):
+    #         values = self.__dbController.readEntry(self.__actNames[iAct])
+    #         if (jr.resolveSCFMode(self.__act[iAct].getSettings().scfMode).upper() == "RESTRICTED"):
+    #             self.__act[iAct].getElectronicStructure_R().getDensityMatrix().set(values["DENSITYMATRIX"])
+    #         elif (jr.resolveSCFMode(self.__act[iAct].getSettings().scfMode).upper() == "UNRESTRICTED"):
+    #             self.__act[iAct].getElectronicStructure_U().getDensityMatrix().set(values["DENSITYMATRIXALPHA"],\
+    #                                                                                values["DENSITYMATRIXBETA"])
+    #         else: 
+    #             print("Invalid SCFMode!")
+    #     for iEnv in range(len(self.__envDensityMatrix)):
+    #         if (jr.resolveSCFMode(self.__env[iEnv].getSettings().scfMode).upper() == "RESTRICTED"):
+    #              self.__env[iEnv].getElectronicStructure_R().getDensityMatrix().set(values["DENSITYMATRIX"])
+    #         elif (jr.resolveSCFMode(self.__env[iEnv].getSettings().scfMode).upper() == "UNRESTRICTED"):
+    #              self.__env[iEnv].getElectronicStructure_U().getDensityMatrix().set(values["DENSITYMATRIXALPHA"],\
+    #                                                                                 values["DENSITYMATRIXBETA"])
+    #         else: 
+    #             print("Invalid SCFMode!")
 
     def getActiveSystems(self):
         return self.__act
@@ -65,19 +65,23 @@ class TaskHandler():
         actSettingsDict = ""
         envSettingsDict = ""
         for outer, _ in self.__args.items():
+            print(outer)
             if (outer.upper() == "TASK"):
                 self.__taskName = self.__args[outer.upper()]
             elif (outer.upper() in ["ACTIVESYSTEMSETTINGS", "ACTSETTINGS", "SYSTEMSETTINGS"]):
                 actSettingsDict = self.__args[outer.upper()]
             elif (outer.upper() in ["ENVIRONMENTSYSTEMSETTINGS", "ENVSETTINGS"]):
                 envSettingsDict = self.__args[outer.upper()]
-            elif (outer.upper() in ["FILEID", "ID"]):
-                self.__dbController = db.DataBaseController(self.__args[outer.upper()])
+            elif (outer.upper() in ["ID"]):
+                continue
+            # elif (outer.upper() in ["FILEID", "ID"]):
+            #     self.__dbController = db.DataBaseController(self.__args[outer.upper()])
             else:
                 print("KeyError: Parsed JSON dict has not the correct form in outermost scope!")
                 sys.exit()
 
         for outer, inner in actSettingsDict.items():
+            print("LOL",outer)
             if (outer[0:6].upper() in ["SYSTEM","SYS"] or \
                 outer[0:3].upper() in ["SYSTEM","SYS"]):
                 converter = sc.SettingsConverter(jr.dict2json(inner))
@@ -182,7 +186,7 @@ class TaskHandler():
         for env in self.__envSettings:
             self.__env.append(spy.System(env))
 
-    def perform(self,jobstate_list, job_id):
+    def perform(self, job_id):
         if (len(self.__act) == 0):
             print("There is NO active system!!")
             sys.exit()
@@ -195,12 +199,12 @@ class TaskHandler():
                 print("Invalid SCFMode!")
                 sys.exit()
         task = jr.resolveTask(mode, self.__taskName, self.__act, self.__env)
-        jobstate_list[job_id] = "RUN"
+        #jobstate_list[job_id] = "RUN"
         task.run()
-        self.__results = self.processResults()        
-        for outer, inner in self.__results.items():
-            self.__dbController.writeEntry(outer, inner)
-        jobstate_list[job_id] = "FIN"
+        #self.__results = self.processResults()        
+        #for outer, inner in self.__results.items():
+        #    self.__dbController.writeEntry(outer, inner)
+        #jobstate_list[job_id] = "FIN"
 
 
     def processResults(self):

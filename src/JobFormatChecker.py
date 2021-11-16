@@ -3,9 +3,11 @@ import sys, os
 class JobFormatChecker():
     def __init__(self, json):
         self.__json = json
+        print(self.__json)
         self.__allowedOuterKeys = ["JOBSTATE",
                                    "STATE",
-                                   "TASK", 
+                                   "TASK",
+                                   "ID", 
                                    "ACTIVESYSTEMSETTINGS", 
                                    "ACTSETTINGS",
                                    "ENVIRONMENTSYSTEMSETTINGS",
