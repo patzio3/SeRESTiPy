@@ -175,20 +175,53 @@ def resolveDamping(argument):
     }
     return switcher.get(argument, "Invalid DAMPING_ALGORITHM!")
 
-def resolveTask(scfmode, task, act = [], env = []):
+def resolveTask(scfmode, task, act = [], env = [], args = []):
     if (scfmode.upper() == "RESTRICTED"):
-        if (task.upper() == "SCF"):
+        if (task.upper() in ["SCF","SCFTASK"]):
             return spy.ScfTask_R(act[0])
-        elif (task.upper() == "FDE"):
+        elif (task.upper() in ["FDE","FDETASK"]):
             return spy.FDETask_R(act[0], env)
+        elif (task.upper() in ["CC","COUPLEDCLUSTERTASK"]):
+            return spy.CoupledClusterTask_R(act[0])
+        elif (task.upper() in ["DISP","DISPERSION","DISPERSIONCORRECTIONTASK"]):
+            return spy.DispersionCorrectionTask(act[0])
+        elif (task.upper() in ["FAT","FREEZEANDTHAWTASK"]):
+            return spy.FreezeAndThawTask_R(act, env)
+        elif (task.upper() in ["GEOMETRYOPTIMIZATIONTASK","GEOOPT","OPT"]):
+            return spy.GeometryOptimizationTask_R(act, env)
+        elif (task.upper() in ["GRADIENTTASK","GRADIENT","GRAD"]):
+            return spy.GradientTask_R(act, env)
+        elif (task.upper() in ["LOCALIZATIONTASK","LOC","LOCALIZATION"]):
+            return spy.LocalizationTask(act)
+        elif (task.upper() in ["MP2TASK","MP2"]):
+            return spy.MP2Task_R(act[0], env)
+        elif (task.upper() in ["MULTIPOLEMOMENTTASK","MULTI"]):
+            return spy.MultipoleMomentTask(act)
+        elif (task.upper() in ["PLOTTASK","PLOT","CUBEFILETASK","CUBE"]):
+            return spy.PlotTask_R(act, env)
     elif (scfmode.upper() == "UNRESTRICTED"):
-        if (task.upper() == "SCF"):
+        if (task.upper() in ["SCF","SCFTASK"]):
             return spy.ScfTask_U(act[0])
-        elif (task.upper() == "FDE"):
+        elif (task.upper() in ["FDE","FDETASK"]):
             return spy.FDETask_U(act[0], env)
-    else:
-        print("Wrong SCFMode!")
-        sys.exit()
+        elif (task.upper() in ["CC","COUPLEDCLUSTERTASK"]):
+            return spy.CoupledClusterTask_U(act[0])
+        elif (task.upper() in ["DISP","DISPERSION","DISPERSIONCORRECTIONTASK"]):
+            return spy.DispersionCorrectionTask(act[0])
+        elif (task.upper() in ["FAT","FREEZEANDTHAWTASK"]):
+            return spy.FreezeAndThawTask_U(act, env)
+        elif (task.upper() in ["GEOMETRYOPTIMIZATIONTASK","GEOOPT","OPT"]):
+            return spy.GeometryOptimizationTask_U(act, env)
+        elif (task.upper() in ["GRADIENTTASK","GRADIENT","GRAD"]):
+            return spy.GradientTask_U(act, env)
+        elif (task.upper() in ["LOCALIZATIONTASK","LOC","LOCALIZATION"]):
+            return spy.LocalizationTask(act)
+        elif (task.upper() in ["MP2TASK","MP2"]):
+            return spy.MP2Task_U(act[0], env)
+        elif (task.upper() in ["MULTIPOLEMOMENTTASK","MULTI"]):
+            return spy.MultipoleMomentTask(act)
+        elif (task.upper() in ["PLOTTASK","PLOT","CUBEFILETASK","CUBE"]):
+            return spy.PlotTask_U(act, env)
     
 
 def dict2json(dct):

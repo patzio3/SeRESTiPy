@@ -34,6 +34,7 @@ class TaskHandler():
         return self.__args
 
     def enroll(self):
+        print("LOL!!!!1ELF!!")
         actSettingsDict = ""
         envSettingsDict = ""
         for outer, _ in self.__args.items():
@@ -45,7 +46,7 @@ class TaskHandler():
                 envSettingsDict = self.__args[outer.upper()]
             elif (outer.upper() in ["ID"]):
                 continue
-
+        print("LOL!!!!1ELF!!")
         for outer, inner in actSettingsDict.items():
             if (outer[0:6].upper() in ["SYSTEM", "SYS"] or
                     outer[0:3].upper() in ["SYSTEM", "SYS"]):
@@ -58,19 +59,17 @@ class TaskHandler():
                     if (innerinner.upper() == "GEOMETRY"):
                         with open(os.path.join(os.getcwd(), inner[innerinner]), 'w') as file:
                             if ("XYZ" in inner):
+                                print(inner["XYZ"])
                                 file.write(inner["XYZ"])
-                                file.close()
-                            elif ("xyz" in inner):
-                                file.write(inner["xyz"])
                                 file.close()
                         inner[innerinner] = os.path.join(
                             os.getcwd(), inner[innerinner])
                 self.__nAct += 1
-
+        print("LOL!!!!1ELF!!")
         if (envSettingsDict != ""):
             for outer, inner in envSettingsDict.items():
-                if (outer[0:6].upper() in ["SYSTEM", "SYS"] or
-                        outer[0:3].upper() in ["SYSTEM", "SYS"]):
+                if (outer[0:6].upper() in ["SYSTEM"] or
+                        outer[0:3].upper() in ["SYS"]):
                     converter = sc.SettingsConverter(jr.dict2json(inner))
                     self.__envSettings.append(converter.getSerenipySettings())
                     self.__envNames.append(outer)
@@ -80,15 +79,16 @@ class TaskHandler():
                         if (innerinner.upper() == "GEOMETRY"):
                             with open(os.path.join(os.getcwd(), inner[innerinner]), 'w') as file:
                                 if ("XYZ" in inner):
+                                    print(inner["XYZ"])
                                     file.write(inner["XYZ"])
-                                    file.close()
-                                elif ("xyz" in inner):
-                                    file.write(inner["xyz"])
                                     file.close()
                     self.__nEnv += 1
         # create systems from gathered settings
+        print("LOL!!!!1ELF!!")
         for act in self.__actSettings:
+            print(act)
             self.__act.append(spy.System(act))
+        print("LOL!!!!1ELF!!")
         for env in self.__envSettings:
             self.__env.append(spy.System(env))
 

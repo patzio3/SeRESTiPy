@@ -27,10 +27,15 @@ class ser_api(Resource):
         task = th.TaskHandler(content)
         if (task.jsonValid()):
             jobs[job_id] = task
+            print("1")
             task.enroll()
+            print("2")
             p = mp.Process(target=task.perform, args=(job_id,))
+            print("3")
             p.daemon = True
+            print("4")
             p.start()
+            print("5")
             return jsonify({"Job posted id: ": str(job_id)}), 201
         else:
             return jsonify({"Job not posted id: ": "invalid"}), 201
