@@ -24,6 +24,8 @@ class SettingsConverter():
                 self.__sereniypySettings.spin = self.__jsonSettings[outer]
             elif (outer.upper() == "GEOMETRY"):
                 self.__sereniypySettings.geometry = self.__jsonSettings[outer]
+            elif (outer.upper() == "PATH"):
+                self.__sereniypySettings.path = self.__jsonSettings[outer]
             elif (outer.upper() == "SCFMODE"):
                 self.__sereniypySettings.scfMode = jr.resolveSCFMode(
                     self.__jsonSettings[outer].upper())

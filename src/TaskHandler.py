@@ -19,6 +19,10 @@ class TaskHandler():
         self.__envSettings = []
         self.__nAct = 0
         self.__nEnv = 0
+        self.__state = "IDLE"
+
+    def getState(self):
+        return self.__state
 
     def jsonValid(self):
         checker = jc.JobFormatChecker(self.__args)
@@ -33,8 +37,9 @@ class TaskHandler():
     def getTaskInfo(self):
         return self.__args
 
-    def enroll(self):
-        print("LOL!!!!1ELF!!")
+    def enroll(self, job_id):
+        self.__state = "RUN"
+        os.mkdir(os.path.join(os.getcwd(), str(job_id)))
         actSettingsDict = ""
         envSettingsDict = ""
         for outer, _ in self.__args.items():
@@ -46,53 +51,51 @@ class TaskHandler():
                 envSettingsDict = self.__args[outer.upper()]
             elif (outer.upper() in ["ID"]):
                 continue
-        print("LOL!!!!1ELF!!")
         for outer, inner in actSettingsDict.items():
-            if (outer[0:6].upper() in ["SYSTEM", "SYS"] or
-                    outer[0:3].upper() in ["SYSTEM", "SYS"]):
+            # write the sent XYZ to file
+            # ToDo: create the xyz file in the a scratch directory
+            for innerinner, _ in inner.items():
+                if (innerinner.upper() == "GEOMETRY"):
+                    with open(os.path.join(os.getcwd(), str(job_id),inner[innerinner]), 'w') as file:
+                        if ("XYZ" in inner):
+                            file.write(inner["XYZ"])
+                            file.close()
+                    inner["GEOMETRY"] = os.path.join(os.getcwd(), str(job_id), inner[innerinner])
+            inner["PATH"] = os.path.join(os.getcwd(), str(job_id))
+            if (outer[0:6].upper() in ["SYSTEM", "SYS"] or outer[0:3].upper() in ["SYSTEM", "SYS"]):
                 converter = sc.SettingsConverter(jr.dict2json(inner))
                 self.__actSettings.append(converter.getSerenipySettings())
                 self.__actNames.append(outer)
+                self.__nAct += 1
+
+        if (envSettingsDict != ""):
+            for outer, inner in envSettingsDict.items():
                 # write the sent XYZ to file
                 # ToDo: create the xyz file in the a scratch directory
                 for innerinner, _ in inner.items():
                     if (innerinner.upper() == "GEOMETRY"):
-                        with open(os.path.join(os.getcwd(), inner[innerinner]), 'w') as file:
+                        with open(os.path.join(os.getcwd(), str(job_id),inner[innerinner]), 'w') as file:
                             if ("XYZ" in inner):
-                                print(inner["XYZ"])
                                 file.write(inner["XYZ"])
                                 file.close()
-                        inner[innerinner] = os.path.join(
-                            os.getcwd(), inner[innerinner])
-                self.__nAct += 1
-        print("LOL!!!!1ELF!!")
-        if (envSettingsDict != ""):
-            for outer, inner in envSettingsDict.items():
+                        inner["GEOMETRY"] = os.path.join(os.getcwd(), str(job_id), inner[innerinner])
+                inner["PATH"] = os.path.join(os.getcwd(), str(job_id))
                 if (outer[0:6].upper() in ["SYSTEM"] or
                         outer[0:3].upper() in ["SYS"]):
                     converter = sc.SettingsConverter(jr.dict2json(inner))
                     self.__envSettings.append(converter.getSerenipySettings())
                     self.__envNames.append(outer)
-                    # write the sent XYZ to file
-                    # ToDo: create the xyz file in the a scratch directory
-                    for innerinner, _ in inner.items():
-                        if (innerinner.upper() == "GEOMETRY"):
-                            with open(os.path.join(os.getcwd(), inner[innerinner]), 'w') as file:
-                                if ("XYZ" in inner):
-                                    print(inner["XYZ"])
-                                    file.write(inner["XYZ"])
-                                    file.close()
                     self.__nEnv += 1
         # create systems from gathered settings
-        print("LOL!!!!1ELF!!")
         for act in self.__actSettings:
-            print(act)
             self.__act.append(spy.System(act))
-        print("LOL!!!!1ELF!!")
         for env in self.__envSettings:
             self.__env.append(spy.System(env))
 
     def perform(self, job_id):
+        parent = os.getcwd()
+        os.chdir(os.path.join(parent, str(job_id)))
+        spy.takeTime("the entire run");
         for setting in self.__actSettings:
             if (jr.resolveSCFMode(setting.scfMode).upper() == "UNRESTRICTED"):
                 mode = jr.resolveSCFMode(setting.scfMode).upper()
@@ -100,6 +103,14 @@ class TaskHandler():
                 mode = jr.resolveSCFMode(setting.scfMode).upper()
         task = jr.resolveTask(mode, self.__taskName, self.__act, self.__env)
         task.run()
+        self.__state = "IDLE"
+        spy.printTimes()
+        spy.timeTaken(0, "the entire run")
+        os.chdir(parent)
+        
+        
+
+        
 
     # def processResults(self):
     #     results = {}

@@ -7,7 +7,7 @@ def upperRecursive(oldDict):
 
 class JobFormatChecker():
     def __init__(self, json):
-        self.__json = upperRecursive(json)
+        self.__json = json#upperRecursive(json)
         self.__allowedOuterKeys = ["JOBSTATE",
                                    "STATE",
                                    "TASK",
@@ -43,7 +43,8 @@ class JobFormatChecker():
                                    "SCF",
                                    "GRID",
                                    "EFIELD",
-                                   "LOAD"
+                                   "LOAD",
+                                   "PATH"
                                    ]
         # self.__allowedResultsKeys = ["DENSITYMATRIX",
         #                              "COEFFICIENTMATRIX",
