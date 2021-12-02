@@ -233,3 +233,84 @@ def array2json(dct):
 
 def json2array(dct):
     return numpy.array(json.loads(dct))
+
+
+def input2json(filename):
+    with open(filename, "r") as inp:
+        content = inp.readlines()
+    inp.close()
+    systemblock = False
+    dftblock = False
+    basisblock = False
+    scfblock = False
+    gridblock = False
+    efieldblock = False
+    taskblock = False
+    systems = {}
+    tasks = {}
+    iSys = 0
+    iTask = 0
+    for line in content:
+        values = line.strip().split()
+        #print(values)
+        if (len(values) > 0 and values[0].upper() == "+SYSTEM"):
+            systemblock = True
+            systems[iSys] = {}
+            continue
+        if (systemblock and len(values) > 0 and values[0].upper() == "-SYSTEM"):
+            systemblock = False
+            iSys += 1
+        if (len(values) > 0 and values[0].upper() == "+DFT"):
+            dftblock = True
+            continue
+        if (dftblock and len(values) > 0 and values[0].upper() == "-DFT"):
+            dftblock = False
+        if (len(values) > 0 and values[0].upper() == "+BASIS"):
+            basisblock = True
+            continue
+        if (basisblock and len(values) > 0 and values[0].upper() == "-BASIS"):
+            basisblock = False
+        if (len(values) > 0 and values[0].upper() == "+SCF"):
+            scfblock = True
+            continue
+        if (scfblock and len(values) > 0 and values[0].upper() == "-SCF"):
+            scfblock = False
+        if (len(values) > 0 and values[0].upper() == "+GRID"):
+            gridblock = True
+            continue
+        if (gridblock and len(values) > 0 and values[0].upper() == "-GRID"):
+            gridblock = False
+        if (len(values) > 0 and values[0].upper() == "+EFIELD"):
+            efieldblock = True
+            continue
+        if (efieldblock and len(values) > 0 and values[0].upper() == "-EFIELD"):
+            efieldblock = False
+        if (len(values) > 0 and values[0].upper() == "+TASK"):
+            taskblock = True
+            tasks[iTask] = {}
+            continue
+        if (taskblock and len(values) > 0 and values[0].upper() == "-TASK"):
+            taskblock = False
+            iTask += 1
+
+        
+        if (dftblock):
+            pass
+        if (basisblock):
+            pass
+        if (scfblock):
+            pass
+        if (gridblock):
+            pass
+        if (efieldblock):
+            pass
+        if (taskblock):
+            pass
+        if (systemblock):
+            #print(values)
+            if (len(values) > 1):
+                if (values[0].upper() == "GEOMETRY"):
+                    systems[iSys][values[0].upper()] = values[1]
+                else:
+                    systems[iSys][values[0].upper()] = values[1].upper()
+    print(systems)

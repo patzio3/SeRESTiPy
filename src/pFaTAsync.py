@@ -15,7 +15,7 @@ def runInParallel(fns):
     for p in proc:
         p.join()
 
-async def postFDEAsync(wholeSettings, activeSystemID, slaveHosts, load = ""):
+async def postFDEAsync(wholeSettings, activeSystemID, taskID, slaveHosts, load = ""):
     if (wholeSettings["TASK"] != "FDE"):
         print("Must specify FDE Task in input!")
         sys.exit()
@@ -25,14 +25,14 @@ async def postFDEAsync(wholeSettings, activeSystemID, slaveHosts, load = ""):
             loop.run_in_executor(
                 executor,
                 postRequest,
-                *(wholeSettings, activeSystemID[iSystem], slaveHosts[0], load[iSystem])
+                *(wholeSettings, activeSystemID[iSystem], taskID[iSystem], slaveHosts[iSystem], load[iSystem])
             )
             for iSystem in range(len(wholeSettings.items()) - 1)
         ]
         for response in await asyncio.gather(*tasks):
             pass
 
-def postRequest(wholeSettings, activeSystemID, slaveHost, load =""):
+def postRequest(wholeSettings, activeSystemID, taskID, slaveHost, load =""):
     newDict = {}
     syssettings = {}
     i = 0
@@ -40,9 +40,10 @@ def postRequest(wholeSettings, activeSystemID, slaveHost, load =""):
         if (outer == "TASK"): 
             newDict["TASK"] = inner
         if (outer == "ID"): 
-            newDict["ID"] = inner
+            newDict["ID"] = taskID
         if (outer == "ACT"):
             for _, innerinnerinner in inner.items():
+                # print(cpy["NAME"])
                 cpy = innerinnerinner.copy()
                 cpy["LOAD"] = load
                 syssettings[i] = cpy
@@ -60,16 +61,17 @@ def postRequest(wholeSettings, activeSystemID, slaveHost, load =""):
             newDict["ACT"]["SYS"+str(k)] = v
         else:
             newDict["ENV"]["SYS"+str(k)] = v
-    _ = requests.post(slaveHost + "api/"+str(activeSystemID), json = jr.dict2json(newDict))
+    # print(newDict)
+    _ = requests.post(slaveHost + "api/"+str(taskID), json = jr.dict2json(newDict))
 
 def getFDE(results, activeSystemID, slaveHost):
     while(True):
         getResponse = requests.get(slaveHost + "api/"+str(activeSystemID))
         ans = getResponse.json()
-        #_ = requests.delete(slaveHost + "api/"+str(activeSystemID))
         print(ans)
         if (ans["STATE: "] == "IDLE"):
             results[activeSystemID] = getResponse.json()
+            # _ = requests.delete(slaveHost + "api/"+str(activeSystemID))
             break
         time.sleep(5.0)
         
@@ -79,20 +81,23 @@ def perform(wholeSettings, locusts, nCycles):
         print("o--------------------o")
         print("|       Cycle %2i     |" %(iCycle+1))
         print("o--------------------o")
-        load = ["","",""]
-        if (iCycle > 0):
-            load = ["/WORK/p_esch01/progs/restApi/src"+str(activeSystemIDs[iSystem]) for iSystem in range(len(activeSystemIDs))]
-        activeSystemIDs = np.array([0,1,2]) 
+        if (iCycle == 0):
+          taskIDs = [0,1,2]
+          load = ["" for i in range(len(taskIDs))]
+        else:
+          load = [os.path.join(os.getenv('DATABASE_DIR'), str(taskIDs[i])) for i in taskIDs]
+          taskIDs = [0 + iCycle * 3, 1 + iCycle * 3, 2 + iCycle * 3]
+          
+
         #send post requests to slave nodes asynchronously
         loop = asyncio.get_event_loop()
-        future = asyncio.ensure_future(postFDEAsync(wholeSettings, activeSystemIDs, locusts, load))
+        future = asyncio.ensure_future(postFDEAsync(wholeSettings, [0,1,2], taskIDs, locusts, load))
         loop.run_until_complete(future)
 
         #get results synchronously
         results = {}
-        runInParallel([getFDE(results, activeSystemIDs[iSystem], locusts[0]) for iSystem in range(len(activeSystemIDs))])
+        runInParallel([getFDE(results, taskIDs[iSystem], locusts[iSystem]) for iSystem in range(len(taskIDs))])
 
-        activeSystemIDs += 1
     
 
 
@@ -139,7 +144,7 @@ json = {
         "label":"def2-svp",
         "densityFitting":"RI"
       },
-      "XYZ":"2 \n \nHe 0.0 0.0 0.0 \nHe 0.0 0.0 1.0 "
+      "XYZ":"2 \n \nHe 0.0 0.0 0.0 \nHe 0.0 0.0 7.0 "
     },
     "SYS1":{
       "NAME":"ENV2",
@@ -159,9 +164,9 @@ json = {
         "label":"def2-svp",
         "densityFitting":"RI"
       },
-      "XYZ":"2 \n \nHe 0.0 0.0 0.0 \nHe 0.0 0.0 2.0 "
+      "XYZ":"2 \n \nHe 0.0 0.0 0.0 \nHe 0.0 0.0 5.0 "
     }
   }
 }
 
-perform(json,["http://10.4.137.8:5000/"],2)
+perform(json,["http://10.4.137.8:5000/","http://10.4.137.8:5000/","http://10.4.137.8:5000/"],2)

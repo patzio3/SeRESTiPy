@@ -10,6 +10,7 @@ import serenipy as spy
 class TaskHandler():
     def __init__(self, args):
         self.__args = args
+        self.__id = ""
         self.__taskName = ""
         self.__act = []
         self.__env = []
@@ -17,97 +18,95 @@ class TaskHandler():
         self.__envNames = []
         self.__actSettings = []
         self.__envSettings = []
-        self.__nAct = 0
-        self.__nEnv = 0
-        self.__state = "IDLE"
+        self.__actPaths = []
+        self.__envPaths = []
 
-    def getState(self):
-        return self.__state
+    def __find(self,key,value):
+        for k, v in (value.items() if isinstance(value, dict) else
+                   enumerate(value) if isinstance(value, list) else []):
+            if k == key:
+              yield v
+            elif isinstance(v, (dict, list)):
+              for result in self.__find(key, v):
+                yield result
 
     def jsonValid(self):
         checker = jc.JobFormatChecker(self.__args)
         return checker.run()
 
-    def getActiveSystems(self):
-        return self.__act
-
-    def getEnvironmentSystems(self):
-        return self.__env
-
-    def getTaskInfo(self):
-        return self.__args
-
-    def enroll(self, job_id):
-        self.__state = "RUN"
-        os.mkdir(os.path.join(os.getcwd(), str(job_id)))
-        actSettingsDict = ""
-        envSettingsDict = ""
-        for outer, _ in self.__args.items():
-            if (outer.upper() == "TASK"):
-                self.__taskName = self.__args[outer.upper()]
-            elif (outer.upper() in ["ACTIVESYSTEMSETTINGS", "ACTSETTINGS", "ACT"]):
-                actSettingsDict = self.__args[outer.upper()]
-            elif (outer.upper() in ["ENVIRONMENTSYSTEMSETTINGS", "ENVSETTINGS", "ENV"]):
-                envSettingsDict = self.__args[outer.upper()]
-            elif (outer.upper() in ["ID"]):
-                continue
-        for outer, inner in actSettingsDict.items():
-            # write the sent XYZ to file
-            # ToDo: create the xyz file in the a scratch directory
-            for innerinner, _ in inner.items():
-                if (innerinner.upper() == "GEOMETRY"):
-                    with open(os.path.join(os.getcwd(), str(job_id),inner[innerinner]), 'w') as file:
-                        if ("XYZ" in inner):
-                            file.write(inner["XYZ"])
-                            file.close()
-                    inner["GEOMETRY"] = os.path.join(os.getcwd(), str(job_id), inner[innerinner])
-            inner["PATH"] = os.path.join(os.getcwd(), str(job_id))
-            if (outer[0:6].upper() in ["SYSTEM", "SYS"] or outer[0:3].upper() in ["SYSTEM", "SYS"]):
-                converter = sc.SettingsConverter(jr.dict2json(inner))
-                self.__actSettings.append(converter.getSerenipySettings())
-                self.__actNames.append(outer)
-                self.__nAct += 1
-
-        if (envSettingsDict != ""):
-            for outer, inner in envSettingsDict.items():
-                # write the sent XYZ to file
-                # ToDo: create the xyz file in the a scratch directory
-                for innerinner, _ in inner.items():
-                    if (innerinner.upper() == "GEOMETRY"):
-                        with open(os.path.join(os.getcwd(), str(job_id),inner[innerinner]), 'w') as file:
-                            if ("XYZ" in inner):
-                                file.write(inner["XYZ"])
-                                file.close()
-                        inner["GEOMETRY"] = os.path.join(os.getcwd(), str(job_id), inner[innerinner])
-                inner["PATH"] = os.path.join(os.getcwd(), str(job_id))
-                if (outer[0:6].upper() in ["SYSTEM"] or
-                        outer[0:3].upper() in ["SYS"]):
-                    converter = sc.SettingsConverter(jr.dict2json(inner))
-                    self.__envSettings.append(converter.getSerenipySettings())
-                    self.__envNames.append(outer)
-                    self.__nEnv += 1
-        # create systems from gathered settings
+    def enroll(self, jobstate_list, job_id):
+        jobstate_list[job_id] = "RUN"
+        self.__id = list(self.__find("ID",self.__args))[0]
+        try:
+            self.__baseDir = os.path.join(os.getenv('DATABASE_DIR'), str(self.__id))
+            if (not os.path.exists(self.__baseDir)):
+                os.mkdir(self.__baseDir)
+        except KeyError as identifier:
+            pass
+        actSettingsDict = list(self.__find("ACT",self.__args))[0]
+        try:
+            envSettingsDict = list(self.__find("ENV",self.__args))[0]
+        except:
+            envSettingsDict = {}
+        self.__taskName = list(self.__find("TASK",self.__args))[0]
+        self.__actNames = list(self.__find("NAME",actSettingsDict))
+        self.__actPaths = [os.path.join(self.__baseDir + name) for name in self.__actNames]
+        self.__envNames = list(self.__find("NAME",envSettingsDict))
+        self.__envPaths = [os.path.join(self.__baseDir + name) for name in self.__envNames]
+        geometries = list(self.__find("GEOMETRY",self.__args))
+        actGeometries = list(self.__find("GEOMETRY",actSettingsDict))
+        envGeometries = list(self.__find("GEOMETRY",envSettingsDict))
+        xyzfiles = list(self.__find("XYZ",self.__args))
+        for i in range(len(xyzfiles)):
+            with open(os.path.join(self.__baseDir,geometries[i]), "w") as inp:
+                inp.write(xyzfiles[i])
+            inp.close()
+        actSystemKeys = list(actSettingsDict.keys())
+        for i in range(len(actSystemKeys)):
+            actSettingsDict[actSystemKeys[i]]["GEOMETRY"] = os.path.join(self.__baseDir,actGeometries[i])
+            actSettingsDict[actSystemKeys[i]]["PATH"] = os.path.join(self.__baseDir) + "/"
+            converter = sc.SettingsConverter(jr.dict2json(list(self.__find(actSystemKeys[i],actSettingsDict))[0]))
+            self.__actSettings.append(converter.getSerenipySettings())
+        
+        if (envSettingsDict):
+            envSystemKeys = list(envSettingsDict.keys())
+            for i in range(len(envSystemKeys)):
+                envSettingsDict[envSystemKeys[i]]["GEOMETRY"] = os.path.join(self.__baseDir,envGeometries[i])
+                envSettingsDict[envSystemKeys[i]]["PATH"] = os.path.join(self.__baseDir) + "/"
+                converter = sc.SettingsConverter(jr.dict2json(list(self.__find(envSystemKeys[i],envSettingsDict))[0]))
+                self.__envSettings.append(converter.getSerenipySettings())
         for act in self.__actSettings:
             self.__act.append(spy.System(act))
         for env in self.__envSettings:
             self.__env.append(spy.System(env))
 
-    def perform(self, job_id):
+    def perform(self, jobstate_list, job_id):
         parent = os.getcwd()
-        os.chdir(os.path.join(parent, str(job_id)))
+        os.chdir(self.__baseDir)
         spy.takeTime("the entire run");
         for setting in self.__actSettings:
+            print("IN LOOP", setting)
             if (jr.resolveSCFMode(setting.scfMode).upper() == "UNRESTRICTED"):
                 mode = jr.resolveSCFMode(setting.scfMode).upper()
             elif (jr.resolveSCFMode(setting.scfMode).upper() == "RESTRICTED"):
                 mode = jr.resolveSCFMode(setting.scfMode).upper()
         task = jr.resolveTask(mode, self.__taskName, self.__act, self.__env)
         task.run()
-        self.__state = "IDLE"
         spy.printTimes()
         spy.timeTaken(0, "the entire run")
         os.chdir(parent)
-        
+        jobstate_list[job_id] = "IDLE"
+
+    def cleanUp(self):
+        if (os.path.exists(self.__baseDir)):
+            su.rmtree(self.__baseDir)
+
+    def getActNames(self):
+        return self.__actNames
+
+    def getEnvNames(self):
+        return self.__envNames
+
         
 
         
@@ -180,25 +179,3 @@ class TaskHandler():
     #             print("SCFMode invalid!")
     #         systemCounter += 1
     #     return results
-
-    def cleanUp(self):
-        for act in self.__actSettings:
-            try:
-                os.remove(act.geometry)
-            except:
-                pass
-            if (os.path.exists(os.path.join(act.name))):
-                su.rmtree(os.path.join(act.name))
-        for env in self.__envSettings:
-            try:
-                os.remove(env.geometry)
-            except:
-                pass
-            if (os.path.exists(os.path.join(env.name))):
-                su.rmtree(os.path.join(env.name))
-
-    def getActNames(self):
-        return self.__actNames
-
-    def getEnvNames(self):
-        return self.__envNames
