@@ -1,13 +1,10 @@
 import os
 import requests
 import time
-import json
-import sys
 from multiprocessing import Process
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import JsonResolver as jr
-import numpy as np
 import time
 import shutil as sh
 import errno
@@ -136,11 +133,12 @@ def perform(wholeSettings, locusts, nCycles):
         runInParallel([getFDE(taskIDs[iSystem], locusts[iSystem])
                        for iSystem in range(len(taskIDs))])
 
+    resultsPath = bundleResults(tasks)
     # clean-up
     for slaveHost in locusts:
         _ = [requests.delete(slaveHost + "api/"+str(i))
              for i in range(len(systemnames) * nCycles)]
-    return bundleResults(tasks)
+    return resultsPath
 
 
 json = jr.input2json(os.path.join(os.getcwd(), "inp"))[0]
