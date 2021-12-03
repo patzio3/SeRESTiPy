@@ -29,7 +29,6 @@ class ser_api(Resource):
     def parse_request(job_id):
         exists(job_id)
         content = request.get_json(force = True)
-        print(content)
         task = th.TaskHandler(content)
         if (task.jsonValid()):
             jobs[job_id] = task
@@ -37,7 +36,6 @@ class ser_api(Resource):
             p = mp.Process(target=task.perform, args=(jobstate_list,job_id,))
             p.daemon = True
             p.start()
-            print("JOOOOOOOOOBS",jobs[job_id])
             return jsonify({"Job posted id: ": str(job_id)}), 201
         else:
             return jsonify({"Job not posted id: ": "invalid"}), 201
@@ -46,7 +44,6 @@ class ser_api(Resource):
     @app.route("/api/<int:job_id>", methods = ["GET"])
     def get_request(job_id):
         notExist(job_id)
-        # notFinished(job_id)
         return jsonify({"STATE: ": jobstate_list[job_id]}), 201 
 
     @app.route("/api/<int:job_id>", methods = ["DELETE"])

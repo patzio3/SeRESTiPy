@@ -1,0 +1,44 @@
++system
+name sys_state0_1
+geometry /WORK/p_esch01/progs/serenity_intel/data/xyzfiles/water_monA.xyz
+method dft
++dft
+functional PW91
+-dft
++basis
+densityFitting ri
+label def2-tzvp
+-basis
+-system
+
++system
+name sys_state0_2
+geometry /WORK/p_esch01/progs/serenity_intel/data/xyzfiles/water_monB.xyz
+method dft
++dft
+functional PW91
+-dft
++basis
+densityFitting ri
+label def2-tzvp
+-basis
+-system
+
++system
+name sys_state0_3
+geometry /WORK/p_esch01/progs/serenity_intel/data/xyzfiles/water_monC.xyz
+method dft
++dft
+functional PW91
+-dft
++basis
+densityFitting ri
+label def2-tzvp
+-basis
+-system
+
++task fde
+act sys_state0_1
+env sys_state0_2
+env sys_state0_3
+-task
