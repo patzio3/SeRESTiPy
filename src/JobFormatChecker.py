@@ -1,13 +1,6 @@
-def upperRecursive(oldDict):
-    for k,v in oldDict.items():
-        oldDict[k.upper()] = oldDict.pop(k)
-        if isinstance(v, dict):    
-            upperRecursive(v)
-    return oldDict
-
 class JobFormatChecker():
     def __init__(self, json):
-        self.__json = json#upperRecursive(json)
+        self.__json = json
         self.__allowedOuterKeys = ["JOBSTATE",
                                    "STATE",
                                    "TASK",
@@ -19,15 +12,6 @@ class JobFormatChecker():
                                    "ACT",
                                    "ENV"
                                    ]
-        # self.__jobstates = ["INITIAL",
-        #                     "INIT",
-        #                     "INI",
-        #                     "RUNNING",
-        #                     "RUN",
-        #                     "FINISH",
-        #                     "FINISHED",
-        #                     "FIN"
-        #                     ]
         self.__allowedSystemKeys = ["SYSTEM",
                                     "SYS"
                                     ]
@@ -46,27 +30,17 @@ class JobFormatChecker():
                                    "LOAD",
                                    "PATH"
                                    ]
-        # self.__allowedResultsKeys = ["DENSITYMATRIX",
-        #                              "COEFFICIENTMATRIX",
-        #                              "COEFFICIENTS",
-        #                              "DENSITYMATRIXALPHA",
-        #                              "DENSITYMATRIXBETA",
-        #                              "COEFFICIENTMATRIXALPHA",
-        #                              "COEFFICIENTMATRIXBETA",
-        #                              "TOTALENERGY"
-        #                              ]
 
     def run(self):
         actSettingsDict = ""
         envSettingsDict = ""
-        # jobstate = ""
         # check if only allowed outer keys are present
         for outer, _ in self.__json.items():
             if (outer not in self.__allowedOuterKeys):
                 print(
                     f"KeyError: Field '{outer}' not allowed in outermost scope!")
                 return False
-        
+
         # look for tasks key
         try:
             _ = self.__json["TASK"]
@@ -78,7 +52,7 @@ class JobFormatChecker():
             _ = self.__json["ID"]
         except KeyError as errorOne:
             try:
-                __ = self.__json["FILEID"]
+                _ = self.__json["FILEID"]
             except KeyError as errorTwo:
                 print(f"KeyError: FILEID or ID key not present, but required in JSON")
                 return False
@@ -95,7 +69,7 @@ class JobFormatChecker():
                     print(
                         f"KeyError: '{errorOne}', '{errorTwo}' or '{errorThree}' key not present, but required in JSON")
                     return False
-                    
+
         # look for environment system settings, do not throw error because not always required
         try:
             envSettingsDict = self.__json["ENVSETTINGS"]
@@ -113,17 +87,7 @@ class JobFormatChecker():
                 print(
                     f"KeyError: Field '{system.upper()}' not allowed in activesystem scope! Must be 'SYSTEM<xyz>' or 'SYS<xyz>'!")
                 return False
-            for sysSettings, innerSys in settings.items():
-                # if (sysSettings.upper() == "RESULTS" and (jobstate.upper() in ["INI", "INIT", "INITIAL"])):
-                #     print(
-                #         f"KeyError: Field '{sysSettings.upper()}' not allowed for 'INITIAL' jobstate!")
-                #     return False
-                # elif (sysSettings.upper() == "RESULTS"):
-                #     for resKey, _ in innerSys.items():
-                #         if (resKey.upper() not in self.__allowedResultsKeys):
-                #             print(
-                #                 f"KeyError: Field '{resKey.upper()}' not allowed for 'RESULTS' scope!")
-                #             return False
+            for sysSettings, _ in settings.items():
                 if (sysSettings.upper() not in self.__allowedInnerKeys):
                     print(
                         f"KeyError: Field '{sysSettings.upper()}' not allowed in settings scope! Check manual!")
@@ -135,17 +99,7 @@ class JobFormatChecker():
                     print(
                         f"KeyError: Field '{system.upper()}' not allowed in activesystem scope! Must be 'SYSTEM<xyz>' or 'SYS<xyz>'!")
                     return False
-                for sysSettings, innerSys in settings.items():
-                    # if (sysSettings.upper() == "RESULTS" and (jobstate.upper() in ["INI", "INIT", "INITIAL"])):
-                    #     print(
-                    #         f"KeyError: Field '{sysSettings.upper()}' not allowed for 'INITIAL' jobstate!")
-                    #     return False
-                    # elif (sysSettings.upper() == "RESULTS"):
-                    #     for resKey, _ in innerSys.items():
-                    #         if (resKey.upper() not in self.__allowedResultsKeys):
-                    #             print(
-                    #                 f"KeyError: Field '{resKey.upper()}' not allowed for 'RESULTS' scope!")
-                    #             return False
+                for sysSettings, _ in settings.items():
                     if (sysSettings.upper() not in self.__allowedInnerKeys):
                         print(
                             f"KeyError: Field '{sysSettings.upper()}' not allowed in settings scope! Check manual!")

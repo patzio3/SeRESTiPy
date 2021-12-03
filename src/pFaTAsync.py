@@ -34,7 +34,7 @@ async def postFDEAsync(wholeSettings, taskID, slaveHosts):
             )
             for iTask in range(len(wholeSettings))
         ]
-        for response in await asyncio.gather(*tasks):
+        for _ in await asyncio.gather(*tasks):
             pass
 
 
@@ -50,7 +50,6 @@ def getFDE(activeSystemID, slaveHost):
         print(ans)
         if (ans["STATE: "] == "IDLE"):
             _ = getResponse.json()
-            # _ = requests.delete(slaveHost + "api/"+str(activeSystemID))
             break
         time.sleep(5.0)
 
@@ -100,12 +99,12 @@ def bundleResults(tasks):
 
     def copyanything(src, dst):
         try:
-          sh.copytree(src, dst)
+            sh.copytree(src, dst)
         except OSError as exc:
-          if exc.errno in (errno.ENOTDIR, errno.EINVAL):
-            sh.copy(src, dst)
-          else:
-            raise
+            if exc.errno in (errno.ENOTDIR, errno.EINVAL):
+                sh.copy(src, dst)
+            else:
+                raise
     for i in range(len(systemnames)):
         dst = os.path.join(path, systemnames[i])
         src = os.path.join(os.getenv('DATABASE_DIR'), ids[i], systemnames[i])
@@ -125,10 +124,9 @@ def perform(wholeSettings, locusts, nCycles):
         if (iCycle > 0):
             load = bundleResults(tasks)
             for i in range(len(taskIDs)):
-              taskIDs[i] += len(systemnames)
+                taskIDs[i] += len(systemnames)
             tasks = [rearrange(wholeSettings.copy(), systemnames[i],
                                taskIDs[i], load) for i in range(len(systemnames))]
-
         # send post requests to slave nodes asynchronously
         loop = asyncio.get_event_loop()
         future = asyncio.ensure_future(postFDEAsync(tasks, taskIDs, locusts,))
@@ -138,8 +136,13 @@ def perform(wholeSettings, locusts, nCycles):
         runInParallel([getFDE(taskIDs[iSystem], locusts[iSystem])
                        for iSystem in range(len(taskIDs))])
 
-    _ = bundleResults(tasks)
+    # clean-up
+    for slaveHost in locusts:
+        _ = [requests.delete(slaveHost + "api/"+str(i))
+             for i in range(len(systemnames) * nCycles)]
+    return bundleResults(tasks)
 
-json = jr.input2json(os.path.join(os.getcwd(),"inp"))[0]
-perform(json, ["http://10.4.137.8:5000/",
-               "http://10.4.137.8:5000/", "http://10.4.137.8:5000/"], 2)
+
+json = jr.input2json(os.path.join(os.getcwd(), "inp"))[0]
+resultsDir = perform(json, ["http://10.4.137.8:5000/",
+                            "http://10.4.137.8:5000/", "http://10.4.137.8:5000/"], 2)
