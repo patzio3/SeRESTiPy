@@ -1,11 +1,11 @@
 import os
 import requests
 import time
+import json
 from multiprocessing import Process
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import JsonResolver as jr
-import time
 import shutil as sh
 import errno
 
@@ -142,5 +142,4 @@ def perform(wholeSettings, locusts, nCycles):
 
 
 json = jr.input2json(os.path.join(os.getcwd(), "inp"))[0]
-resultsDir = perform(json, ["http://10.4.137.8:5000/",
-                            "http://10.4.137.8:5000/", "http://10.4.137.8:5000/"], 2)
+resultsDir = perform(json, ["http://10.223.1.1:5000/", "http://10.223.1.2:5000/","http://10.223.1.3:5000/"], 5)
