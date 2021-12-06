@@ -53,8 +53,14 @@ class ser_api(Resource):
         del jobs[job_id]
         return "", 201
 
+class HomePage(Resource):
+    @app.route("/api/", methods = ["GET"])
+    def homePageHit():
+        return jsonify({"STATE: ": "ONLINE"}), 201
+
 
 api.add_resource(ser_api, "/api/<int:job_id>")
+api.add_resource(HomePage, "/api/")
 
 if __name__ == "__main__":
     app.run(host=socket.gethostbyname(socket.gethostname()), debug=False)

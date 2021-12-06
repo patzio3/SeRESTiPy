@@ -1,0 +1,1 @@
+for i in 01 03 05 ; do cp sbatch_script sbatch_script$i ;  sed -i "s/NODE_ID/$i/g" sbatch_script$i ; sbatch sbatch_script$i ; rm sbatch_script$i ; done

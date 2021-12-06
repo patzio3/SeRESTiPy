@@ -27,7 +27,7 @@ async def postFDEAsync(wholeSettings, taskID, slaveHosts):
             loop.run_in_executor(
                 executor,
                 postRequest,
-                *(wholeSettings[iTask], taskID[iTask], slaveHosts[iTask])
+                *(wholeSettings[iTask], os.path.join(slaveHosts[iTask],"api",str(taskID[iTask])))
             )
             for iTask in range(len(wholeSettings))
         ]
@@ -35,10 +35,21 @@ async def postFDEAsync(wholeSettings, taskID, slaveHosts):
             pass
 
 
-def postRequest(wholeSettings, taskID, slaveHost):
-    _ = requests.post(slaveHost + "api/"+str(taskID),
-                      json=jr.dict2json(wholeSettings))
+def postRequest(wholeSettings, adress):
+    _ = requests.post(adress, json=jr.dict2json(wholeSettings))
 
+def getRequest(adress):
+    _ = (requests.get(adress)).json()
+
+
+def allOnline(hostslist): 
+    adresses = [os.path.join(hostslist[i],"api") for i in range(len(hostslist))]
+    while True:
+        try:
+            runInParallel([getRequest(adress) for adress in adresses])
+            break
+        except:
+            time.sleep(15.0)
 
 def getFDE(activeSystemID, slaveHost):
     while(True):
@@ -48,7 +59,7 @@ def getFDE(activeSystemID, slaveHost):
         if (ans["STATE: "] == "IDLE"):
             _ = getResponse.json()
             break
-        time.sleep(5.0)
+        time.sleep(15.0)
 
 
 def rearrange(wholeSettings, newActName, newTaskId, load=""):
@@ -110,6 +121,8 @@ def bundleResults(tasks):
 
 
 def perform(wholeSettings, locusts, nCycles):
+    session = requests.Session()
+    session.trust_env = False
     systemnames = list(jr.find("NAME", wholeSettings))
     taskIDs = [i for i in range(len(systemnames))]
     tasks = [rearrange(wholeSettings.copy(), systemnames[i], i, "")
@@ -142,4 +155,5 @@ def perform(wholeSettings, locusts, nCycles):
 
 
 json = jr.input2json(os.path.join(os.getcwd(), "inp"))[0]
-resultsDir = perform(json, ["http://10.223.1.1:5000/", "http://10.223.1.2:5000/","http://10.223.1.3:5000/"], 5)
+allOnline(["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"])
+resultsDir = perform(json, ["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"], 5)
