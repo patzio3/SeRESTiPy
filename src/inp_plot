@@ -1,7 +1,8 @@
 +system
 name sys_1
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/1.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -21,7 +22,8 @@ label def2-tzvp
 +system
 name sys_2
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/2.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -41,7 +43,8 @@ label def2-tzvp
 +system
 name sys_3
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/3.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -61,7 +64,8 @@ label def2-tzvp
 +system
 name sys_4
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/4.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -81,7 +85,8 @@ label def2-tzvp
 +system
 name sys_5
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/5.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -101,7 +106,8 @@ label def2-tzvp
 +system
 name sys_6
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/6.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -121,7 +127,8 @@ label def2-tzvp
 +system
 name sys_7
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/7.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -141,7 +148,8 @@ label def2-tzvp
 +system
 name sys_8
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/8.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -161,7 +169,8 @@ label def2-tzvp
 +system
 name sys_9
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/9.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -181,7 +190,8 @@ label def2-tzvp
 +system
 name sys_10
 geometry /WORK/p_esch01/serenitypaper/waterfde/calc/010.xyz/10.xyz
-method dft
+method dft 
+ load /WORK/p_esch01/scratch_calc/LOAD20212223242526272829
 #+scf
 #maxcycles 1000
 #damping static
@@ -198,16 +208,17 @@ label def2-tzvp
 -basis
 -system
 
-+task fde
++task plot
 act sys_1
-env sys_2
-env sys_3
-env sys_4
-env sys_5
-env sys_6
-env sys_7
-env sys_8
-env sys_9
-env sys_10
+act sys_2
+act sys_3
+act sys_4
+act sys_5
+act sys_6
+act sys_7
+act sys_8
+act sys_9
+act sys_10
+density true
 -task
 

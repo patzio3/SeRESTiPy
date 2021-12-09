@@ -121,12 +121,11 @@ def bundleResults(tasks):
 
 
 def perform(wholeSettings, locusts, nCycles):
-    session = requests.Session()
-    session.trust_env = False
     systemnames = list(jr.find("NAME", wholeSettings))
     taskIDs = [i for i in range(len(systemnames))]
     tasks = [rearrange(wholeSettings.copy(), systemnames[i], i, "")
              for i in range(len(systemnames))]
+    batchWise = True if (len(systemnames) > len(locusts)) else False
     for iCycle in range(nCycles):
         print("o--------------------o")
         print("|       Cycle %2i     |" % (iCycle+1))
@@ -135,16 +134,33 @@ def perform(wholeSettings, locusts, nCycles):
             load = bundleResults(tasks)
             for i in range(len(taskIDs)):
                 taskIDs[i] += len(systemnames)
-            tasks = [rearrange(wholeSettings.copy(), systemnames[i],
-                               taskIDs[i], load) for i in range(len(systemnames))]
-        # send post requests to slave nodes asynchronously
-        loop = asyncio.get_event_loop()
-        future = asyncio.ensure_future(postFDEAsync(tasks, taskIDs, locusts,))
-        loop.run_until_complete(future)
-
-        # get results synchronously
-        runInParallel([getFDE(taskIDs[iSystem], locusts[iSystem])
-                       for iSystem in range(len(taskIDs))])
+            tasks = [rearrange(wholeSettings.copy(), systemnames[i], taskIDs[i], load) for i in range(len(systemnames))]
+        if (batchWise):
+            print("Specified less worker nodes than systems! We will send jobs batch-wise!")
+            nBatches = len(systemnames) // len(locusts)
+            rest = len(systemnames) % len(locusts)
+            for iBatch in range(0, nBatches * len(locusts), len(locusts)):
+                batchTasks = tasks[iBatch:(iBatch+len(locusts))]
+                batchIDs = taskIDs[iBatch:(iBatch+len(locusts))]
+                print("Sending batch with tasks ", batchIDs)
+                loop = asyncio.get_event_loop()
+                future = asyncio.ensure_future(postFDEAsync(batchTasks, batchIDs, locusts,))
+                loop.run_until_complete(future)
+                runInParallel([getFDE(batchIDs[iSystem], locusts[iSystem]) for iSystem in range(len(batchIDs))])
+            if (rest > 0):
+                end = -1 * rest
+                batchTasks = tasks[end:]
+                batchIDs = taskIDs[end:]
+                print("Sending batch with tasks ", batchIDs)
+                loop = asyncio.get_event_loop()
+                future = asyncio.ensure_future(postFDEAsync(batchTasks, batchIDs, locusts,))
+                loop.run_until_complete(future)
+                runInParallel([getFDE(batchIDs[iSystem], locusts[iSystem]) for iSystem in range(len(batchIDs))])
+        else:
+            loop = asyncio.get_event_loop()
+            future = asyncio.ensure_future(postFDEAsync(tasks, taskIDs, locusts,))
+            loop.run_until_complete(future)
+            runInParallel([getFDE(taskIDs[iSystem], locusts[iSystem]) for iSystem in range(len(taskIDs))])
 
     resultsPath = bundleResults(tasks)
     # clean-up
@@ -156,4 +172,4 @@ def perform(wholeSettings, locusts, nCycles):
 
 json = jr.input2json(os.path.join(os.getcwd(), "inp"))[0]
 allOnline(["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"])
-resultsDir = perform(json, ["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"], 5)
+resultsDir = perform(json, ["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"], 3)

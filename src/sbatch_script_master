@@ -28,7 +28,7 @@ cd $LOCALTMP
 ############## Running the Task ############
 export DATABASE_DIR="/WORK/p_esch01/scratch_calc"
 source /WORK/p_esch01/progs/serenity_intel/serenity.sh
-python /WORK/p_esch01/progs/restApi/src/pFaTAsync.py > out-MASTER
+/WORK/p_esch01/progs/anaconda3/bin/python  pFaTAsync.py > out-MASTER
 ############## Ending the Task ############
 cd $BACKDIR
 rsync -avu $LOCALTMP/* $BACKDIR/ && rm -rf $LOCALTMP && echo "$LOCALTMP deleted" >>LOCALDIR
