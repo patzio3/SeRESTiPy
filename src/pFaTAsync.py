@@ -172,4 +172,4 @@ def perform(wholeSettings, locusts, nCycles):
 
 json = jr.input2json(os.path.join(os.getcwd(), "inp"))[0]
 allOnline(["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"])
-resultsDir = perform(json, ["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"], 3)
+resultsDir = perform(json, ["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"], 10)
