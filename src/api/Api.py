@@ -5,7 +5,7 @@ import sys
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource, abort
 import multiprocessing as mp
-import TaskHandler as th
+import api.TaskHandler as th
 
 
 app = Flask(__name__)

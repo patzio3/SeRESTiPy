@@ -1,8 +1,9 @@
 import os
 import shutil as su
 
-import SettingsConverter as sc
-import JsonResolver as jr
+import api.SettingsConverter as sc
+import api.JsonResolver as jr
+import client.JsonHelper as jh
 import JobFormatChecker as jc
 import serenipy as spy
 
@@ -27,7 +28,7 @@ class TaskHandler():
 
     def enroll(self, jobstate_list, job_id):
         jobstate_list[job_id] = "RUN"
-        self.__id = list(jr.find("ID", self.__args))[0]
+        self.__id = list(jh.find("ID", self.__args))[0]
         try:
             self.__baseDir = os.path.join(
                 os.getenv('DATABASE_DIR'), str(self.__id))
@@ -35,22 +36,22 @@ class TaskHandler():
                 os.mkdir(self.__baseDir)
         except KeyError as identifier:
             pass
-        actSettingsDict = list(jr.find("ACT", self.__args))[0]
+        actSettingsDict = list(jh.find("ACT", self.__args))[0]
         try:
-            envSettingsDict = list(jr.find("ENV", self.__args))[0]
+            envSettingsDict = list(jh.find("ENV", self.__args))[0]
         except:
             envSettingsDict = {}
-        self.__taskName = list(jr.find("TASK", self.__args))[0]
-        self.__actNames = list(jr.find("NAME", actSettingsDict))
+        self.__taskName = list(jh.find("TASK", self.__args))[0]
+        self.__actNames = list(jh.find("NAME", actSettingsDict))
         self.__actPaths = [os.path.join(self.__baseDir + name)
                            for name in self.__actNames]
-        self.__envNames = list(jr.find("NAME", envSettingsDict))
+        self.__envNames = list(jh.find("NAME", envSettingsDict))
         self.__envPaths = [os.path.join(self.__baseDir + name)
                            for name in self.__envNames]
-        geometries = list(jr.find("GEOMETRY", self.__args))
-        actGeometries = list(jr.find("GEOMETRY", actSettingsDict))
-        envGeometries = list(jr.find("GEOMETRY", envSettingsDict))
-        xyzfiles = list(jr.find("XYZ", self.__args))
+        geometries = list(jh.find("GEOMETRY", self.__args))
+        actGeometries = list(jh.find("GEOMETRY", actSettingsDict))
+        envGeometries = list(jh.find("GEOMETRY", envSettingsDict))
+        xyzfiles = list(jh.find("XYZ", self.__args))
         for i in range(len(xyzfiles)):
             with open(os.path.join(self.__baseDir, geometries[i]), "w") as inp:
                 inp.write(xyzfiles[i])
@@ -61,8 +62,8 @@ class TaskHandler():
                 self.__baseDir, actGeometries[i])
             actSettingsDict[actSystemKeys[i]]["PATH"] = os.path.join(
                 self.__baseDir) + "/"
-            converter = sc.SettingsConverter(jr.dict2json(
-                list(jr.find(actSystemKeys[i], actSettingsDict))[0]))
+            converter = sc.SettingsConverter(jh.dict2json(
+                list(jh.find(actSystemKeys[i], actSettingsDict))[0]))
             self.__actSettings.append(converter.getSerenipySettings())
 
         if (envSettingsDict):
@@ -72,8 +73,8 @@ class TaskHandler():
                     self.__baseDir, envGeometries[i])
                 envSettingsDict[envSystemKeys[i]]["PATH"] = os.path.join(
                     self.__baseDir) + "/"
-                converter = sc.SettingsConverter(jr.dict2json(
-                    list(jr.find(envSystemKeys[i], envSettingsDict))[0]))
+                converter = sc.SettingsConverter(jh.dict2json(
+                    list(jh.find(envSystemKeys[i], envSettingsDict))[0]))
                 self.__envSettings.append(converter.getSerenipySettings())
         for act in self.__actSettings:
             self.__act.append(spy.System(act))

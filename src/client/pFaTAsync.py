@@ -5,7 +5,7 @@ import json
 from multiprocessing import Process
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-import JsonResolver as jr
+import client.JsonHelper as jh
 import shutil as sh
 import errno
 
@@ -36,7 +36,7 @@ async def postFDEAsync(wholeSettings, taskID, slaveHosts):
 
 
 def postRequest(wholeSettings, adress):
-    _ = requests.post(adress, json=jr.dict2json(wholeSettings))
+    _ = requests.post(adress, json=jh.dict2json(wholeSettings))
 
 def getRequest(adress):
     _ = (requests.get(adress)).json()
@@ -64,8 +64,8 @@ def getFDE(activeSystemID, slaveHost):
 
 def rearrange(wholeSettings, newActName, newTaskId, load=""):
     newDict = {}
-    task, act, env = jr.dismemberJson(wholeSettings)
-    if (list(jr.find("NAME", act))[0] == newActName):
+    task, act, env = jh.dismemberJson(wholeSettings)
+    if (list(jh.find("NAME", act))[0] == newActName):
         newDict["TASK"] = task
         newDict["ID"] = newTaskId
         newDict["ACT"] = act
@@ -80,7 +80,7 @@ def rearrange(wholeSettings, newActName, newTaskId, load=""):
     iEnv = 0
     key = list(act.keys())[0]
     for iSys in env.keys():
-        sysname = list(jr.find("NAME", env[iSys]))[0]
+        sysname = list(jh.find("NAME", env[iSys]))[0]
         if (sysname == newActName):
             newDict["ACT"][str(iSys)] = env[iSys]
             newDict["ACT"][str(iSys)]["LOAD"] = load
@@ -100,7 +100,7 @@ def bundleResults(tasks):
     for i in range(len(tasks)):
         name += str(tasks[i]["ID"])
         ids.append(str(tasks[i]["ID"]))
-        systemnames.append(list(jr.find("NAME", tasks[i]["ACT"]))[0])
+        systemnames.append(list(jh.find("NAME", tasks[i]["ACT"]))[0])
     path = os.path.join(os.getenv('DATABASE_DIR'), name)
     if (not os.path.exists(path)):
         os.mkdir(path)
@@ -121,7 +121,7 @@ def bundleResults(tasks):
 
 
 def perform(wholeSettings, locusts, nCycles):
-    systemnames = list(jr.find("NAME", wholeSettings))
+    systemnames = list(jh.find("NAME", wholeSettings))
     taskIDs = [i for i in range(len(systemnames))]
     tasks = [rearrange(wholeSettings.copy(), systemnames[i], i, "")
              for i in range(len(systemnames))]
@@ -170,6 +170,6 @@ def perform(wholeSettings, locusts, nCycles):
     return resultsPath
 
 
-json = jr.input2json(os.path.join(os.getcwd(), "inp"))[0]
+json = jh.input2json(os.path.join(os.getcwd(), "inp"))[0]
 allOnline(["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"])
 resultsDir = perform(json, ["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"], 10)

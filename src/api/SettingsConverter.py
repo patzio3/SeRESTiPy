@@ -1,5 +1,5 @@
 import json
-import JsonResolver as jr
+import api.JsonResolver as jr
 from serenipy import Settings
 
 
