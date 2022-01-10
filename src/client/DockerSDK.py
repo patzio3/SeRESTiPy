@@ -2,8 +2,8 @@ import docker
 import os, sys
 
 
-ncpu = sys.argv[1] if len(sys.argv >= 2) else "4"
-memory = sys.argv[2] if len(sys.argv >= 3) else "48000"
+ncpu = sys.argv[1] if len(sys.argv) >= 2 else "4"
+memory = sys.argv[2] if len(sys.argv) >= 3 else "48000"
 nContainer = int(sys.argv[3]) if len(sys.argv >= 4) else 8
 
 
