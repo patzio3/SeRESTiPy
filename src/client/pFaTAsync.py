@@ -1,11 +1,11 @@
-import os
+import os, sys
 import requests
 import time
 import json
 from multiprocessing import Process
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-import client.JsonHelper as jh
+import JsonHelper as jh
 import shutil as sh
 import errno
 
@@ -27,7 +27,7 @@ async def postFDEAsync(wholeSettings, taskID, slaveHosts):
             loop.run_in_executor(
                 executor,
                 postRequest,
-                *(wholeSettings[iTask], os.path.join(slaveHosts[iTask],"api",str(taskID[iTask])))
+                *(wholeSettings[iTask], os.path.join(slaveHosts[iTask], "api", str(taskID[iTask])))
             )
             for iTask in range(len(wholeSettings))
         ]
@@ -38,28 +38,35 @@ async def postFDEAsync(wholeSettings, taskID, slaveHosts):
 def postRequest(wholeSettings, adress):
     _ = requests.post(adress, json=jh.dict2json(wholeSettings))
 
+
 def getRequest(adress):
     _ = (requests.get(adress)).json()
 
 
-def allOnline(hostslist): 
-    adresses = [os.path.join(hostslist[i],"api") for i in range(len(hostslist))]
-    while True:
-        try:
-            runInParallel([getRequest(adress) for adress in adresses])
+def allOnline(hostslist):
+    addresses = [hostslist[i] + "/api/" for i in range(len(hostslist))]
+    online = [False for i in range(len(hostslist))]
+    while(True):
+        for i, address in enumerate(addresses):            
+            getResponse = requests.get(address)
+            ans = getResponse.json()
+            print(i, address, ans)
+            if (ans == {'STATE: ': 'ONLINE'}):
+                online[i] = True
+        if (all(element == True for element in online)):
             break
-        except:
-            time.sleep(15.0)
+        time.sleep(1.0)
+
 
 def getFDE(activeSystemID, slaveHost):
     while(True):
-        getResponse = requests.get(slaveHost + "api/"+str(activeSystemID))
+        getResponse = requests.get(slaveHost + "/api/"+str(activeSystemID))
         ans = getResponse.json()
-        print(ans)
+        # print(ans)
         if (ans["STATE: "] == "IDLE"):
             _ = getResponse.json()
             break
-        time.sleep(15.0)
+        # time.sleep(1.0)
 
 
 def rearrange(wholeSettings, newActName, newTaskId, load=""):
@@ -101,9 +108,11 @@ def bundleResults(tasks):
         name += str(tasks[i]["ID"])
         ids.append(str(tasks[i]["ID"]))
         systemnames.append(list(jh.find("NAME", tasks[i]["ACT"]))[0])
-    path = os.path.join(os.getenv('DATABASE_DIR'), name)
-    if (not os.path.exists(path)):
-        os.mkdir(path)
+    dockerLoadPath = os.path.join("/home/calc", name)
+    localLoadPath = os.path.join(os.getenv('DATABASE_DIR'), name)
+
+    if (not os.path.exists(localLoadPath)):
+        os.mkdir(localLoadPath)
 
     def copyanything(src, dst):
         try:
@@ -114,10 +123,10 @@ def bundleResults(tasks):
             else:
                 raise
     for i in range(len(systemnames)):
-        dst = os.path.join(path, systemnames[i])
+        dst = os.path.join(localLoadPath, systemnames[i])
         src = os.path.join(os.getenv('DATABASE_DIR'), ids[i], systemnames[i])
         copyanything(src, dst)
-    return path
+    return dockerLoadPath
 
 
 def perform(wholeSettings, locusts, nCycles):
@@ -134,9 +143,11 @@ def perform(wholeSettings, locusts, nCycles):
             load = bundleResults(tasks)
             for i in range(len(taskIDs)):
                 taskIDs[i] += len(systemnames)
-            tasks = [rearrange(wholeSettings.copy(), systemnames[i], taskIDs[i], load) for i in range(len(systemnames))]
+            tasks = [rearrange(wholeSettings.copy(), systemnames[i],
+                               taskIDs[i], load) for i in range(len(systemnames))]
         if (batchWise):
-            print("Specified less worker nodes than systems! We will send jobs batch-wise!")
+            print(
+                "Specified less worker nodes than systems! We will send jobs batch-wise!")
             nBatches = len(systemnames) // len(locusts)
             rest = len(systemnames) % len(locusts)
             for iBatch in range(0, nBatches * len(locusts), len(locusts)):
@@ -144,32 +155,117 @@ def perform(wholeSettings, locusts, nCycles):
                 batchIDs = taskIDs[iBatch:(iBatch+len(locusts))]
                 print("Sending batch with tasks ", batchIDs)
                 loop = asyncio.get_event_loop()
-                future = asyncio.ensure_future(postFDEAsync(batchTasks, batchIDs, locusts,))
+                future = asyncio.ensure_future(
+                    postFDEAsync(batchTasks, batchIDs, locusts,))
                 loop.run_until_complete(future)
-                runInParallel([getFDE(batchIDs[iSystem], locusts[iSystem]) for iSystem in range(len(batchIDs))])
+                runInParallel([getFDE(batchIDs[iSystem], locusts[iSystem])
+                               for iSystem in range(len(batchIDs))])
             if (rest > 0):
                 end = -1 * rest
                 batchTasks = tasks[end:]
                 batchIDs = taskIDs[end:]
                 print("Sending batch with tasks ", batchIDs)
                 loop = asyncio.get_event_loop()
-                future = asyncio.ensure_future(postFDEAsync(batchTasks, batchIDs, locusts,))
+                future = asyncio.ensure_future(
+                    postFDEAsync(batchTasks, batchIDs, locusts,))
                 loop.run_until_complete(future)
-                runInParallel([getFDE(batchIDs[iSystem], locusts[iSystem]) for iSystem in range(len(batchIDs))])
+                runInParallel([getFDE(batchIDs[iSystem], locusts[iSystem])
+                               for iSystem in range(len(batchIDs))])
         else:
             loop = asyncio.get_event_loop()
-            future = asyncio.ensure_future(postFDEAsync(tasks, taskIDs, locusts,))
+            future = asyncio.ensure_future(
+                postFDEAsync(tasks, taskIDs, locusts,))
+            start = time.time()
             loop.run_until_complete(future)
-            runInParallel([getFDE(taskIDs[iSystem], locusts[iSystem]) for iSystem in range(len(taskIDs))])
+            runInParallel([getFDE(taskIDs[iSystem], locusts[iSystem])
+                           for iSystem in range(len(taskIDs))])
+            end = time.time()
+            print("Time taken for cycle: ", end - start, "s")
 
     resultsPath = bundleResults(tasks)
     # clean-up
     for slaveHost in locusts:
-        _ = [requests.delete(slaveHost + "api/"+str(i))
+        _ = [requests.delete(slaveHost + "/api/"+str(i))
              for i in range(len(systemnames) * nCycles)]
     return resultsPath
 
 
-json = jh.input2json(os.path.join(os.getcwd(), "inp"))[0]
-allOnline(["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"])
-resultsDir = perform(json, ["http://10.223.1.1:5000/", "http://10.223.1.3:5000/","http://10.223.1.5:5000/"], 10)
+def determineSettings(nSystems, nCPU = 4, nRAM = 20000):
+    maxRAM = 500000
+    maxCPU = 94
+    if (nCPU != 4):
+        maxWorker = (maxCPU // nCPU)
+    elif (nRAM != 20000):
+        maxWorker = (maxRAM // nRAM)
+    elif (nRAM != 20000 and nCPU != 4):
+        if (nCPU > maxCPU and nRAM > maxRAM):
+            print("Specified settigns are too large!")
+            sys.exit()
+        maxWorker = (maxCPU // nCPU) if ((maxCPU // nCPU) <= maxRAM // nRAM) else (maxRAM // nRAM)
+    nWorkerPerNode = nSystems if (nSystems <= maxWorker) else maxWorker
+    nNodes = (nSystems // nWorkerPerNode) if (nSystems % nWorkerPerNode == 0) else (nSystems // nWorkerPerNode + 1)
+    return nCPU, nRAM, nNodes, nWorkerPerNode
+
+
+
+
+if __name__ == "__main__":
+    print("Cleaning left-overs...")
+    os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc"
+    ips_file = os.path.join(os.getenv('DATABASE_DIR'), "ips_hosts")
+    if (os.path.exists(ips_file)):
+        os.remove(ips_file)
+    out_file = os.path.join(os.getenv('DATABASE_DIR'), "out")
+    if (os.path.exists(out_file)):
+        os.remove(out_file)
+
+    print("Reading input and preparing calculation...")
+    json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
+    nCycles = 3
+    nSystems = len(list(jh.find("NAME", json)))
+    nCPU, nRAM, nNodes, nWorkerPerNode = determineSettings(nSystems, int(sys.argv[2]), int(sys.argv[3]))
+    print("Individual worker specs: CPU "+str(nCPU)+", Memory: "+str(nRAM)+"MB with "+str(nWorkerPerNode)+" Worker(s) per node on "+str(nNodes)+" Node(s)...")
+    print("Submitting worker launcher instances...")
+    for i in range(nNodes):
+        os.system("python PrepareSLURM.py " + str(nWorkerPerNode) + " 4 LYRA2 " + str(nCPU) + " " +  str(nRAM) )
+    print("Wait until all of them are running...")
+    while(True):
+        launcher_running = os.popen(
+            "squeue | grep worker-l").read().split().count('R')
+        launcher_queued = os.popen(
+            "squeue | grep worker-l").read().split().count('Q')
+        if (launcher_queued == 0 and launcher_running == nNodes):
+            break
+    print("All are running! Starting containers and gather ip addresses...")
+    host_addresses = []
+    while(True):
+        if (os.path.exists(ips_file)):
+            break
+    old_time = os.path.getmtime(ips_file)
+    time.sleep(2.0)
+    while(True):
+        new_time = os.path.getmtime(ips_file)
+        if (new_time == old_time):
+            break
+        old_time = new_time
+        time.sleep(2.0)
+    with open(ips_file) as handle:
+        content = handle.readlines()
+        for line in content:
+            host_addresses.append(os.path.join(line.strip()))
+    print("Read addresses\n", host_addresses)
+    base_set = set()
+    for address in host_addresses:
+        base_set.add(address[7:-5])
+    base_addresses = list(base_set)
+    print("Addresses for shutdown endpoint\n", base_addresses)
+    allOnline(host_addresses)
+    print("Starting parallel Freeze-and-Thaw calculation...")
+    # start = time.time()
+    resultsDir = perform(json, host_addresses, nCycles)
+    # end = time.time()
+    # print("Time taken for run: ", end - start, "s")
+
+    print("Everything finished! Shutting down worker containers...")
+    for address in base_addresses:
+        _ = requests.post("http://" + address + ":5000/api/")
