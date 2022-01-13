@@ -23,7 +23,8 @@ class SwarmLauncher():
         	                      mem_limit = memory+"m", 
         	                      mounts = [mount_output, mount_mkl],
         	                      ports = {'5000/tcp': 5000 + i + 1},
-        	                      detach = True)
+        	                      detach = True,
+                                  command = "bash -c 'export LD_LIBRARY_PATH=/usr/qc/intel2020/intelpython3/lib:$LD_LIBRARY_PATH && export LD_PRELOAD=/usr/qc/intel2020/intelpython3/lib/libmkl_core.so:/usr/qc/intel2020/intelpython3/lib/libmkl_sequential.so && serestipy.sh'")
         all_containers = client.containers.list()
         ip_addresses = []
         for index, container in enumerate(all_containers):
@@ -34,8 +35,6 @@ class SwarmLauncher():
             for i in ip_addresses:
                 handle.write(str(i)+"\n")
        
-
-
 app = Flask(__name__)
 api = Api(app)
 class SDKPrune(Resource):
