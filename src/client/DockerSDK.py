@@ -16,11 +16,12 @@ class SwarmLauncher():
             outpath = os.path.join(os.getenv('DATABASE_DIR'))
         	#os.mkdir(outpath)
         	#run with one cpu
-            mount_map = docker.types.Mount("/home/calc", outpath, type = "bind")
-            client.containers.run('pesch01/serestipy:v1.4.2', 
+            mount_output = docker.types.Mount("/home/calc", outpath, type = "bind")
+            mount_mkl = docker.types.Mount("/usr/qc/intel2020", "/usr/qc/intel2020", type = "bind")
+            client.containers.run('pesch01/serestipy:v1.4.2_MKL', 
         	                      cpuset_cpus= ncpu, 
         	                      mem_limit = memory+"m", 
-        	                      mounts = [mount_map],
+        	                      mounts = [mount_output, mount_mkl],
         	                      ports = {'5000/tcp': 5000 + i + 1},
         	                      detach = True)
         all_containers = client.containers.list()

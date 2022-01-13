@@ -191,8 +191,11 @@ def perform(wholeSettings, locusts, nCycles):
 
 
 def determineSettings(nSystems, nCPU = 4, nRAM = 20000):
-    maxRAM = 500000
-    maxCPU = 94
+    # maxRAM = 500000
+    # maxCPU = 94
+
+    maxRAM = 350000
+    maxCPU = 32
     if (nCPU != 4):
         maxWorker = (maxCPU // nCPU)
     elif (nRAM != 20000):
@@ -202,6 +205,8 @@ def determineSettings(nSystems, nCPU = 4, nRAM = 20000):
             print("Specified settigns are too large!")
             sys.exit()
         maxWorker = (maxCPU // nCPU) if ((maxCPU // nCPU) <= maxRAM // nRAM) else (maxRAM // nRAM)
+    else:
+        maxWorker = 8
     nWorkerPerNode = nSystems if (nSystems <= maxWorker) else maxWorker
     nNodes = (nSystems // nWorkerPerNode) if (nSystems % nWorkerPerNode == 0) else (nSystems // nWorkerPerNode + 1)
     return nCPU, nRAM, nNodes, nWorkerPerNode
@@ -227,7 +232,7 @@ if __name__ == "__main__":
     print("Individual worker specs: CPU "+str(nCPU)+", Memory: "+str(nRAM)+"MB with "+str(nWorkerPerNode)+" Worker(s) per node on "+str(nNodes)+" Node(s)...")
     print("Submitting worker launcher instances...")
     for i in range(nNodes):
-        os.system("python PrepareSLURM.py " + str(nWorkerPerNode) + " 4 LYRA2 " + str(nCPU) + " " +  str(nRAM) )
+        os.system("python PrepareSLURM.py " + str(nWorkerPerNode) + " 4 LYRA1 " + str(nCPU) + " " +  str(nRAM) )
     print("Wait until all of them are running...")
     while(True):
         launcher_running = os.popen(
