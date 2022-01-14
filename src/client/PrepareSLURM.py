@@ -13,7 +13,7 @@ if __name__ == "__main__":
     time = sys.argv[2] if len(sys.argv) >= 3 else "4"
     partition = sys.argv[3] if len(sys.argv) >= 4 else "LYRA2"
     ncpu = sys.argv[4] if len(sys.argv) >= 5 else "4"
-    memory = sys.argv[5] if len(sys.argv) >= 6 else "20000"'''  '''
+    memory = sys.argv[5] if len(sys.argv) >= 6 else "20000"
     email = sys.argv[6] if len(sys.argv) >= 7 else ""
     job_file = os.path.join(os.getcwd(), "sbatch_script_swarm" + str(ran))
     with open(job_file, "w") as fh:

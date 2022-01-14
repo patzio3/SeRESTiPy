@@ -8,7 +8,6 @@ import akcluster
 
 
 def perform(hosts_list, json_data):
-    print(json_data)
     communicator = comm.APICommunicator()
     taskIDs = [0]
     start = time.time()
@@ -26,6 +25,5 @@ if __name__ == "__main__":
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
     nSystems = len(list(jh.find("NAME", json)))
     cluster = akcluster.AKCluster()
-    nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(
-        nSystems, int(sys.argv[2]), int(sys.argv[3]))
-    cluster.run(perform, nCPU, nRAM, 1, 1, "LYRA1", json)
+    nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
+    cluster.run(perform, nCPU, nRAM, 1, 1, sys.argv[4], 4 , json)

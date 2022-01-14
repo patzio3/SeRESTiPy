@@ -6,30 +6,21 @@ import APICommunicator as comm
 
 
 class AKCluster():
-    def determineSettings(self, nSystems, nCPU=4, nRAM=20000):
-        # maxRAM = 500000
-        # maxCPU = 94
-
-        maxRAM = 350000
-        maxCPU = 32
-        if (nCPU != 4):
-            maxWorker = (maxCPU // nCPU)
-        elif (nRAM != 20000):
-            maxWorker = (maxRAM // nRAM)
-        elif (nRAM != 20000 and nCPU != 4):
-            if (nCPU > maxCPU and nRAM > maxRAM):
-                print("Specified settigns are too large!")
-                sys.exit()
-            maxWorker = (maxCPU // nCPU) if ((maxCPU // nCPU) <=
-                                             maxRAM // nRAM) else (maxRAM // nRAM)
-        else:
-            maxWorker = 8
+    def determineSettings(self, nSystems, partition, nCPU, nRAM):
+        switcher = {
+            "LYRA1": [32, 350000],
+            "LYRA2": [94, 500000]
+        }
+        maxCPU, maxRAM = switcher.get(partition.upper(),
+                                      "Invalid Partition! Only LYRA1 and LYRA2 possible")
+        maxWorker = (maxCPU // nCPU) if ((maxCPU // nCPU) <=
+                                         maxRAM // nRAM) else (maxRAM // nRAM)
         nWorkerPerNode = nSystems if (nSystems <= maxWorker) else maxWorker
         nNodes = (nSystems // nWorkerPerNode) if (nSystems %
                                                   nWorkerPerNode == 0) else (nSystems // nWorkerPerNode + 1)
         return nCPU, nRAM, nNodes, nWorkerPerNode
 
-    def run(self, func, nCPU, nRAM, nNodes, nWorkerPerNode, partition, *args):
+    def run(self, func, nCPU, nRAM, nNodes, nWorkerPerNode, partition, days, *args):
         communicator = comm.APICommunicator()
         print("Cleaning left-overs...")
         ips_file = os.path.join(os.getenv('DATABASE_DIR'), "ips_hosts")
@@ -43,8 +34,7 @@ class AKCluster():
               str(nWorkerPerNode)+" Worker(s) per node on "+str(nNodes)+" Node(s)...")
         print("Submitting worker launcher instances...")
         for _ in range(nNodes):
-            os.system("python PrepareSLURM.py " + str(nWorkerPerNode) +
-                      " 4 " + partition + " " + str(nCPU) + " " + str(nRAM))
+            os.system("python PrepareSLURM.py " + str(nWorkerPerNode) + " " + str(days) + " " + partition + " " + str(nCPU) + " " + str(nRAM))
         print("Wait until all of them are running...")
         while(True):
             launcher_running = os.popen(

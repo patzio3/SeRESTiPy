@@ -123,7 +123,5 @@ if __name__ == "__main__":
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
     nSystems = len(list(jh.find("NAME", json)))
     cluster = akcluster.AKCluster()
-    nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(
-        nSystems, int(sys.argv[2]), int(sys.argv[3]))
-    cluster.run(perform, nCPU, nRAM, nNodes, nWorkerPerNode,
-                "LYRA1", json, int(sys.argv[4]))
+    nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
+    cluster.run(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))

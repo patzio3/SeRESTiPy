@@ -1,0 +1,9 @@
+ * Serving Flask app "DockerSDK" (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+Deleted Containers:
+6b1229101c33873c4c24d3a018b8a4dc18e9935adaaabd80bf2f8a367dc30e6c
+
+Total reclaimed space: 0B

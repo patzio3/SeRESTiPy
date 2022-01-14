@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH --job-name=worker-launcher
+#SBATCH --output=output.slurm
+#SBATCH --time=4:00:00
+#SBATCH --mem=1
+#SBATCH --exclusive
+#SBATCH --mail-type=failed,end
+#SBATCH --mail-user=
+#SBATCH --ntasks-per-node=1
+#SBATCH --partition LYRA1
+#SBATCH --exclude=lyra02
+LOCALTMP=/scratch/p_esch01/$SLURM_JOB_ID
+export DATABASE_DIR=/WORK/p_esch01/scratch_calc
+BACKDIR=$SLURM_SUBMIT_DIR
+cd $BACKDIR
+if [ ! -e $LOCALTMP ]
+then
+mkdir -p $LOCALTMP
+fi
+rsync -avu * $LOCALTMP/ 
+echo $HOSTNAME:$LOCALTMP > LOCALDIR 
+cd $LOCALTMP 
+sudo -H -u p_esch01 bash -c '/WORK/p_esch01/progs/anaconda3/bin/python3 DockerSDK.py 4 20000 1 > launcher_YSS26NWT66.out 2>error_YSS26NWT66'
+cd $BACKDIR 
+rsync -avu $LOCALTMP/* $BACKDIR/ && rm -rf $LOCALTMP && echo "$LOCALTMP deleted" >>LOCALDIR 
