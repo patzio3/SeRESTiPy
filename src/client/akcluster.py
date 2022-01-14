@@ -1,11 +1,12 @@
-import os, sys
+import os
+import sys
 import time
 import functools
 import APICommunicator as comm
 
 
 class AKCluster():
-    def determineSettings(self, nSystems, nCPU = 4, nRAM = 20000):
+    def determineSettings(self, nSystems, nCPU=4, nRAM=20000):
         # maxRAM = 500000
         # maxCPU = 94
 
@@ -19,11 +20,13 @@ class AKCluster():
             if (nCPU > maxCPU and nRAM > maxRAM):
                 print("Specified settigns are too large!")
                 sys.exit()
-            maxWorker = (maxCPU // nCPU) if ((maxCPU // nCPU) <= maxRAM // nRAM) else (maxRAM // nRAM)
+            maxWorker = (maxCPU // nCPU) if ((maxCPU // nCPU) <=
+                                             maxRAM // nRAM) else (maxRAM // nRAM)
         else:
             maxWorker = 8
         nWorkerPerNode = nSystems if (nSystems <= maxWorker) else maxWorker
-        nNodes = (nSystems // nWorkerPerNode) if (nSystems % nWorkerPerNode == 0) else (nSystems // nWorkerPerNode + 1)
+        nNodes = (nSystems // nWorkerPerNode) if (nSystems %
+                                                  nWorkerPerNode == 0) else (nSystems // nWorkerPerNode + 1)
         return nCPU, nRAM, nNodes, nWorkerPerNode
 
     def run(self, func, nCPU, nRAM, nNodes, nWorkerPerNode, partition, *args):
@@ -35,7 +38,7 @@ class AKCluster():
         out_path = os.path.join(os.getenv('DATABASE_DIR'))
         for file in os.listdir(out_path):
             if (file.startswith("out")):
-                os.remove(os.path.join(out_path,file))
+                os.remove(os.path.join(out_path, file))
         print("Individual worker specs: CPU "+str(nCPU)+", Memory: "+str(nRAM)+"MB with " +
               str(nWorkerPerNode)+" Worker(s) per node on "+str(nNodes)+" Node(s)...")
         print("Submitting worker launcher instances...")
@@ -74,4 +77,5 @@ class AKCluster():
         print("Everything finished! Shutting down worker containers...")
         base_addresses = set()
         _ = [base_addresses.add(i[:-5] + ":5000") for i in host_addresses]
-        _ = communicator.requestEvent("POST", list(base_addresses), ["" for i in range(len(list(base_addresses)))], ['{}' for i in range(len(list(base_addresses)))])
+        _ = communicator.requestEvent("POST", list(base_addresses), ["" for i in range(
+            len(list(base_addresses)))], ['{}' for i in range(len(list(base_addresses)))])

@@ -1,6 +1,7 @@
 import json
 import numpy
 
+
 def dict2json(dct):
     dct = json.dumps(dct)
     return json.loads(dct)
