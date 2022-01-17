@@ -201,13 +201,13 @@ label def2-tzvp
 +task fde
 act sys_1
 env sys_2
-#env sys_3
-#env sys_4
-#env sys_5
-#env sys_6
-#env sys_7
-#env sys_8
-#env sys_9
-#env sys_10
+env sys_3
+env sys_4
+env sys_5
+env sys_6
+env sys_7
+env sys_8
+env sys_9
+env sys_10
 -task
 
