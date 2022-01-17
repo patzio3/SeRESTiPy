@@ -65,7 +65,7 @@ def bundleResults(tasks):
         dst = os.path.join(localLoadPath, systemnames[i])
         src = os.path.join(os.getenv('DATABASE_DIR'), ids[i], systemnames[i])
         copyanything(src, dst)
-    return dockerLoadPath
+    return localLoadPath#dockerLoadPath
 
 
 def perform(hosts_list, json_data, nCycles):
@@ -124,6 +124,7 @@ if __name__ == "__main__":
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
     nSystems = len(list(jh.find("NAME", json)))
-    cluster = serestipy.client.akcluster.AKCluster()
-    nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
-    cluster.run(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))
+    #cluster = serestipy.client.akcluster.AKCluster()
+    perform(["http://128.176.214.100:5000/" for i in range(nSystems)], json, 3)
+    #nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
+    #cluster.run(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))
