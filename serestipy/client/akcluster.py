@@ -22,6 +22,9 @@ class AKCluster():
         return nCPU, nRAM, nNodes, nWorkerPerNode
 
     def runInDocker(self, func, nCPU, nRAM, nNodes, nWorkerPerNode, partition, days, *args):
+        if (partition.upper() == "POOL"):
+            print("Docker is not available on the Pool partition")
+            sys.exit()
         communicator = comm.APICommunicator()
         print("Cleaning left-overs...")
         ips_file = os.path.join(os.getenv('DATABASE_DIR'), "ips_hosts")
