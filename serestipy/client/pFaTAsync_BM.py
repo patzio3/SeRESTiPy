@@ -48,7 +48,6 @@ def bundleResults(tasks):
         name += str(tasks[i]["ID"])
         ids.append(str(tasks[i]["ID"]))
         systemnames.append(list(jh.find("NAME", tasks[i]["ACT"]))[0])
-    dockerLoadPath = os.path.join("/home/calc", name)
     localLoadPath = os.path.join(os.getenv('DATABASE_DIR'), name)
     if (not os.path.exists(localLoadPath)):
         os.mkdir(localLoadPath)
@@ -65,14 +64,14 @@ def bundleResults(tasks):
         dst = os.path.join(localLoadPath, systemnames[i])
         src = os.path.join(os.getenv('DATABASE_DIR'), ids[i], systemnames[i])
         copyanything(src, dst)
-    return localLoadPath#dockerLoadPath
+    return localLoadPath
 
 
 def perform(hosts_list, json_data, nCycles):
     communicator = comm.APICommunicator()
     systemnames = list(jh.find("NAME", json_data))
     taskIDs = [i for i in range(len(systemnames))]
-    tasks = [rearrange(json_data.copy(), systemnames[i], i, "")
+    tasks = [rearrange(json_data.copy(), systemnames[i], taskIDs[i], "")
              for i in range(len(systemnames))]
     batchWise = True if (len(systemnames) > len(hosts_list)) else False
     for iCycle in range(nCycles):
@@ -85,7 +84,6 @@ def perform(hosts_list, json_data, nCycles):
                 taskIDs[i] += len(systemnames)
             tasks = [rearrange(json_data.copy(), systemnames[i],
                                taskIDs[i], load) for i in range(len(systemnames))]
-        print(tasks)
         if (batchWise):
             print(
                 "Specified less worker nodes than systems! We will send jobs batch-wise!")
@@ -124,7 +122,8 @@ if __name__ == "__main__":
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
     nSystems = len(list(jh.find("NAME", json)))
-    #cluster = serestipy.client.akcluster.AKCluster()
-    perform(["http://128.176.214.100:5000/" for i in range(nSystems)], json, 3)
-    #nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
-    #cluster.run(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))
+
+    host_addresses = ["http://128.176.214.100:5000/" for i in range(nSystems)] #, "http://128.176.214.105:5000/"
+    communicator = comm.APICommunicator()
+    communicator.apiEndpointsOnline(host_addresses)
+    perform(host_addresses, json, 3)

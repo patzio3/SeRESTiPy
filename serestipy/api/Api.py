@@ -7,18 +7,15 @@ from flask_restful import Api, Resource, abort
 import multiprocessing as mp
 import serestipy.api.TaskHandler as th
 
-
 app = Flask(__name__)
 api = Api(app)
 jobs = {}
 manager = mp.Manager()
 jobstate_list = manager.dict()
 
-
 def notExist(job_id):
     if job_id not in jobs:
         abort(404, message="Requested job not found!")
-
 
 def exists(job_id):
     if job_id in jobs:
@@ -63,4 +60,5 @@ api.add_resource(ser_api, "/api/<int:job_id>")
 api.add_resource(HomePage, "/api/")
 
 if __name__ == "__main__":
-    app.run(host=socket.gethostbyname(socket.gethostname()), debug=False)
+    from waitress import serve
+    serve(app, host = socket.gethostbyname(socket.gethostname()), port = 5000)

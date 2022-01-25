@@ -24,6 +24,8 @@ if __name__ == "__main__":
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
     nSystems = len(list(jh.find("NAME", json)))
-    cluster = akcluster.AKCluster()
+    # perform(["http://128.176.214.100:5000"], json)
+    cluster = serestipy.client.akcluster.AKCluster()
     nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
-    cluster.run(perform, nCPU, nRAM, 1, 1, sys.argv[4], 4 , json)
+    # cluster.runInDocker(perform, nCPU, nRAM, 1, 1, sys.argv[4], 4 , json)
+    cluster.runBareMetal(perform, nCPU, nRAM, 1, 1, sys.argv[4], 4 , json)

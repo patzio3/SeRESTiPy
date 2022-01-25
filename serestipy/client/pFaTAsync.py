@@ -85,7 +85,6 @@ def perform(hosts_list, json_data, nCycles):
                 taskIDs[i] += len(systemnames)
             tasks = [rearrange(json_data.copy(), systemnames[i],
                                taskIDs[i], load) for i in range(len(systemnames))]
-        print(tasks)
         if (batchWise):
             print(
                 "Specified less worker nodes than systems! We will send jobs batch-wise!")
@@ -126,4 +125,4 @@ if __name__ == "__main__":
     nSystems = len(list(jh.find("NAME", json)))
     cluster = serestipy.client.akcluster.AKCluster()
     nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
-    cluster.run(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))
+    cluster.runInDocker(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))

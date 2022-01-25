@@ -61,3 +61,4 @@ class APICommunicator():
             ans = self.requestEvent("GET", hosts_list, resource_id_list)
             if (all(element == {'STATE: ': 'IDLE'} for element in ans)):
                 break
+            #time.sleep(5.0)

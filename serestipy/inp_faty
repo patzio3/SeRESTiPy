@@ -201,14 +201,14 @@ label def2-tzvp
 +task fat
 act sys_1
 act sys_2
-act sys_3
-act sys_4
-act sys_5
-act sys_6
-act sys_7
-act sys_8
-act sys_9
-act sys_10
+#act sys_3
+#act sys_4
+#act sys_5
+#act sys_6
+#act sys_7
+#act sys_8
+#act sys_9
+#act sys_10
 maxcycles 3
 +EMB
 naddxcfunc BLYP

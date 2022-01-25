@@ -9,6 +9,8 @@ json = jh.input2json(os.path.join(os.getcwd(), "/WORK/p_esch01/progs/restApi/ser
 communicator = comm.APICommunicator()
 
 communicator.requestEvent("POST", ["http://128.176.214.100:5000/"], [0], [json])
+communicator.resourcesFinished(["http://128.176.214.100:5000/"], [0])
+communicator.requestEvent("DELETE", ["http://128.176.214.100:5000/"], [0], [json])
 
 # print(jh.dismemberJson(json)[0],"\n\n")
 # print(jh.dismemberJson(json)[1],"\n\n")
