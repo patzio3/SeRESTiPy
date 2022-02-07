@@ -20,7 +20,7 @@ def perform(hosts_list, json_data):
 
 
 if __name__ == "__main__":
-    os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc"
+    os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc/test"
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
     nSystems = len(list(jh.find("NAME", json)))

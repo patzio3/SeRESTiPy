@@ -12,6 +12,7 @@ class SwarmLauncher():
         ncpu = sys.argv[1] if len(sys.argv) >= 2 else "4"
         memory = sys.argv[2] if len(sys.argv) >= 3 else "20000"
         nContainer = int(sys.argv[3]) if len(sys.argv) >= 4 else 24
+        startPort = int(sys.argv[4]) if len(sys.argv) >= 5 else 5000
         client = docker.from_env()
         # client.login(username = os.getenv("DOCKERHUB_USERNAME"), password = os.getenv("DOCKERHUB_PASSWORD"))
         for i in range(nContainer):
@@ -26,7 +27,7 @@ class SwarmLauncher():
                                   cpuset_cpus=ncpu,
                                   mem_limit=memory+"m",
                                   mounts=[mount_output, mount_mkl],
-                                  ports={'5000/tcp': 5000 + i + 1},
+                                  ports={'5000/tcp': startPort + i + 1},
                                   detach=True,
                                   command="bash -c 'export LD_LIBRARY_PATH=/usr/qc/intel2020/intelpython3/lib:$LD_LIBRARY_PATH && export LD_PRELOAD=/usr/qc/intel2020/intelpython3/lib/libmkl_core.so:/usr/qc/intel2020/intelpython3/lib/libmkl_sequential.so && serestipy.sh'")
         all_containers = client.containers.list()

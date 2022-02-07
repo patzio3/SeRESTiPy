@@ -89,20 +89,34 @@ class TaskHandler():
 
         for setting in self.__actSettings:
             if (jr.resolveSCFMode(setting.scfMode).upper() == "UNRESTRICTED"):
-                mode = jr.resolveSCFMode(setting.scfMode).upper()
+                self.__scfmode = jr.resolveSCFMode(setting.scfMode).upper()
             elif (jr.resolveSCFMode(setting.scfMode).upper() == "RESTRICTED"):
-                mode = jr.resolveSCFMode(setting.scfMode).upper()
-        self.__serenityTaskObject = jr.resolveTask(mode, self.__taskName, self.__act, self.__env, taskSettingsDict)
+                self.__scfmode = jr.resolveSCFMode(setting.scfMode).upper()
+        self.__serenityTaskObject = jr.resolveTask(self.__scfmode, self.__taskName, self.__act, self.__env, taskSettingsDict)
 
+    def perform(self, jobstate_list, job_id, results_list):  
+        def getDensMatrix(system):
+            if (self.__scfmode == "UNRESTRICTED"):
+                return [jh.array2json(system.getElectronicStructure_U().alphaDens()), jh.array2json(system.getElectronicStructure_U().betaDens())]
+            else:
+                return [jh.array2json(system.getElectronicStructure_R().totalDens())]
+        def getCoeffs(system):
+            if (self.__scfmode == "UNRESTRICTED"):
+                return [jh.array2json(system.getElectronicStructure_U().alphaCoeff()), jh.array2json(system.getElectronicStructure_U().betaCoeff())]
+            else:
+                return [jh.array2json(system.getElectronicStructure_R().coeff())]
+        def getEnergy(system):
+            return system.getEnergy()
 
-        self.__serenityTaskSettings = self.__serenityTaskObject.settings
-
-    def perform(self, jobstate_list, job_id):        
         parent = os.getcwd()
         os.chdir(self.__baseDir)
         start = time.time()
         self.__serenityTaskObject.run()
         end = time.time()
+        results_list[job_id] = { "DMAT" : { str(key):getDensMatrix(system) for key,system in enumerate(self.__act) },
+                                 "COEF" : { str(key):getCoeffs(system) for key,system in enumerate(self.__act) },
+                                 "ENERGY" : { str(key):getEnergy(system) for key,system in enumerate(self.__act) }
+                                }
         spy.printTimes()
         print("Time taken for ENTIRE run", end - start, "s")
         os.chdir(parent)
@@ -112,5 +126,15 @@ class TaskHandler():
         if (os.path.exists(self.__baseDir)):
             su.rmtree(self.__baseDir)
 
-    def getSettings(self):
-        return self.__serenityTaskSettings
+    def getResults(self,job_id,results_list,type):
+        switcher = {
+        "DENSITYMATRIX" : results_list[job_id]["DMAT"],
+        "COEFFICIENTMATRIX" : results_list[job_id]["COEF"],
+        "COEFFICIENTS" : results_list[job_id]["COEF"],
+        "ENERGY": results_list[job_id]["ENERGY"]
+        }
+        return switcher.get(type.upper(), "Invalid Result type!")
+
+
+    # def getSettings(self):
+        # return self.__serenityTaskSettings

@@ -23,7 +23,7 @@ class AKCluster():
 
     def runInDocker(self, func, nCPU, nRAM, nNodes, nWorkerPerNode, partition, days, *args):
         if (partition.upper() == "POOL"):
-            print("Docker is not available on the Pool partition")
+            print("Docker is not available on the Pool partition!!! Stopping run...")
             sys.exit()
         communicator = comm.APICommunicator()
         print("Cleaning left-overs...")
@@ -37,8 +37,10 @@ class AKCluster():
         print("Individual worker specs: CPU "+str(nCPU)+", Memory: "+str(nRAM)+"MB with " +
               str(nWorkerPerNode)+" Worker(s) per node on "+str(nNodes)+" Node(s)...")
         print("Submitting worker launcher instances...")
+        port = 5000
         for _ in range(nNodes):
-            os.system("python PrepareSLURMDocker.py " + str(nWorkerPerNode) + " " + str(days) + " " + partition + " " + str(nCPU) + " " + str(nRAM))
+            os.system("python /WORK/p_esch01/progs/restApi/serestipy/client/PrepareSLURMDocker.py " + str(nWorkerPerNode) + " " + str(days) + " " + partition + " " + str(nCPU) + " " + str(nRAM) + " lol " + str(port))
+            port += 1000
         print("Wait until all of them are running...")
         while(True):
             launcher_running = os.popen(
@@ -90,8 +92,10 @@ class AKCluster():
         print("Individual worker specs: CPU "+str(nCPU)+", Memory: "+str(nRAM)+"MB with " +
               str(nWorkerPerNode)+" Worker(s) per node on "+str(nNodes)+" Node(s)...")
         print("Submitting Api instances...")
+        port = 5000
         for _ in range(nNodes):
-            os.system("python PrepareSLURMBareMetal.py " + str(nWorkerPerNode) + " " + str(days) + " " + partition + " " + str(nCPU) + " " + str(nRAM))
+            os.system("python /WORK/p_esch01/progs/restApi/serestipy/client/PrepareSLURMBareMetal.py " + str(nWorkerPerNode) + " " + str(days) + " " + partition + " " + str(nCPU) + " " + str(nRAM) + " lol " + str(port))
+            port += 1
         print("Wait until all of them are running...")
         while(True):
             launcher_running = os.popen(

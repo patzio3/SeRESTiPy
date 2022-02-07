@@ -3,6 +3,7 @@ import sys
 import time
 import json
 import errno
+import numpy as np
 import shutil as sh
 import serestipy.client.JsonHelper as jh
 import serestipy.client.APICommunicator as comm
@@ -71,7 +72,7 @@ def perform(hosts_list, json_data, nCycles):
     communicator = comm.APICommunicator()
     systemnames = list(jh.find("NAME", json_data))
     taskIDs = [i for i in range(len(systemnames))]
-    tasks = [rearrange(json_data.copy(), systemnames[i], taskIDs[i], "")
+    tasks = [rearrange(json_data.copy(), systemnames[i], i, "")
              for i in range(len(systemnames))]
     batchWise = True if (len(systemnames) > len(hosts_list)) else False
     for iCycle in range(nCycles):
@@ -110,6 +111,26 @@ def perform(hosts_list, json_data, nCycles):
             communicator.resourcesFinished(hosts_list, taskIDs)
             end = time.time()
             print("Time taken for cycle: ", end - start, "s")
+            results_resources_list = [str(taskIDs[i]) + "/results/" for i in range(len(taskIDs))]
+            payloads = [{"TYPE":"DENSITYMATRIX"} for i in range(len(taskIDs))]
+            results_dict_list = communicator.requestEvent("GET", hosts_list, results_resources_list, payloads)
+            newDensityMatrices = [jh.json2array(results_dict_list[i]['0'][0]) for i in range(len(taskIDs))]
+        
+        if (iCycle == 0):
+            oldDensityMatrices = newDensityMatrices.copy()
+        else:
+            converged = [False for i in range(len(systemnames))]
+            print("Check for convergence")
+            print("---------------------")
+            for i in range(len(oldDensityMatrices)):
+                converged[i] = True if (np.sqrt(np.mean(np.square(oldDensityMatrices[i] - newDensityMatrices[i]))) <= 1e-5) else False
+                print(converged[i], np.sqrt(np.mean(np.square(oldDensityMatrices[i] - newDensityMatrices[i]))))
+            if (all(converged)):
+                print("Convergence Reached!")
+                break
+            oldDensityMatrices = newDensityMatrices.copy()
+
+        
     # clean-up
     _ = bundleResults(tasks)
     for i in range(len(hosts_list)):
@@ -118,12 +139,12 @@ def perform(hosts_list, json_data, nCycles):
 
 
 if __name__ == "__main__":
-    os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc"
+    os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc/test"
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
+    print(json)
     nSystems = len(list(jh.find("NAME", json)))
-
-    host_addresses = ["http://128.176.214.100:5000/" for i in range(nSystems)] #, "http://128.176.214.105:5000/"
-    communicator = comm.APICommunicator()
-    communicator.apiEndpointsOnline(host_addresses)
-    perform(host_addresses, json, 3)
+    # perform(["http://128.176.214.100:5000" for i in range(nSystems)], json, 10)
+    #cluster = serestipy.client.akcluster.AKCluster()
+    #nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
+    #cluster.runBareMetal(perform, nCPU, nRAM, nSystems, 1, sys.argv[4], 4 ,json, int(sys.argv[5]))

@@ -8,8 +8,12 @@ json = jh.input2json(os.path.join(os.getcwd(), "/WORK/p_esch01/progs/restApi/ser
 
 communicator = comm.APICommunicator()
 
-communicator.requestEvent("POST", ["http://128.176.214.100:5000/"], [0], [json])
-communicator.resourcesFinished(["http://128.176.214.100:5000/"], [0])
+communicator.requestEvent("POST", ["http://128.176.214.100:5000"], [0], [json])
+communicator.resourcesFinished(["http://128.176.214.100:5000"], [0])
+res = communicator.requestEvent("GET", ["http://128.176.214.100:5000"], ["0/results/"], [{"TYPE" : "DENSITYMATRIX"}])
+print(jh.json2array(res[0]["0"][0]))
+res = communicator.requestEvent("GET", ["http://128.176.214.100:5000"], ["0/results/"], [{"TYPE" : "COEFFICIENTS"}])
+print(jh.json2array(res[0]["0"][0]))
 communicator.requestEvent("DELETE", ["http://128.176.214.100:5000/"], [0], [json])
 
 # print(jh.dismemberJson(json)[0],"\n\n")

@@ -12,6 +12,8 @@ api = Api(app)
 jobs = {}
 manager = mp.Manager()
 jobstate_list = manager.dict()
+res_manager = mp.Manager()
+results_list = manager.dict()
 
 def notExist(job_id):
     if job_id not in jobs:
@@ -31,7 +33,7 @@ class ser_api(Resource):
         if (task.jsonValid()):
             jobs[job_id] = task
             task.enroll(jobstate_list, job_id)
-            p = mp.Process(target=task.perform, args=(jobstate_list, job_id,))
+            p = mp.Process(target=task.perform, args=(jobstate_list, job_id,results_list,))
             p.daemon = True
             p.start()
             return jsonify({"Job posted id: ": str(job_id)}), 201
@@ -55,10 +57,18 @@ class HomePage(Resource):
     def homePageHit():
         return jsonify({"STATE: ": "ONLINE"}), 201
 
+class ResultsPage(Resource):
+    @app.route("/api/<int:job_id>/results/", methods=["GET"])
+    def res_request(job_id):
+        notExist(job_id)
+        content = request.get_json(force=True)
+        results = jobs[job_id].getResults(job_id,results_list,content["TYPE"])
+        return jsonify(results), 201
 
 api.add_resource(ser_api, "/api/<int:job_id>")
+api.add_resource(ResultsPage, "/api/<int:job_id>/results/")
 api.add_resource(HomePage, "/api/")
 
 if __name__ == "__main__":
     from waitress import serve
-    serve(app, host = socket.gethostbyname(socket.gethostname()), port = 5000)
+    serve(app, host = socket.gethostbyname(socket.gethostname()), port = sys.argv[1])

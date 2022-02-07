@@ -9,13 +9,19 @@ from concurrent.futures import ThreadPoolExecutor
 
 class APICommunicator():
     def __postRequest(self, host_address, resource_id, json_data):
-        return requests.post(host_address + "/api/" + str(resource_id), json=jh.dict2json(json_data))
+        session = requests.Session()
+        session.trust_env = False
+        return session.post(host_address + "/api/" + str(resource_id), json=jh.dict2json(json_data))
 
     def __getRequest(self, host_address, resource_id, json_data):
-        return (requests.get(host_address + "/api/" + str(resource_id))).json()
+        session = requests.Session()
+        session.trust_env = False
+        return (session.get(host_address + "/api/" + str(resource_id), json = json_data)).json()
 
     def __deleteRequest(self, host_address, resource_id, json_data):
-        return requests.delete(host_address + "/api/" + str(resource_id))
+        session = requests.Session()
+        session.trust_env = False
+        return session.delete(host_address + "/api/" + str(resource_id))
 
     async def __asyncRequestWrapper(self, request_type, hosts_list, resource_id_list, json_data_list=['{}']):
         return_values = []
@@ -37,9 +43,11 @@ class APICommunicator():
                 for iTask in range(len(hosts_list))
             ]
             for val in await asyncio.gather(*tasks):
-                return_values.append(val)
+                if (isinstance(val,dict) or isinstance(val,list)):
+                    return_values.append(val.copy())
+                else:
+                    return_values.append(val)
         return return_values
-
     def requestEvent(self, request_type, hosts_list, resource_id_list, json_data_list=['{}']):
         if (json_data_list == ['{}'] and len(hosts_list) > 1):
             json_data_list = ['{}' for i in range(len(hosts_list))]
@@ -50,15 +58,22 @@ class APICommunicator():
 
     def apiEndpointsOnline(self, hosts_list):
         while(True):
-            ans = self.requestEvent("GET", hosts_list, [
+            ans = [{}]
+            try:
+                ans = self.requestEvent("GET", hosts_list, [
                                     "" for i in range(len(hosts_list))])
+            except:
+                pass
             if (all(element == {'STATE: ': 'ONLINE'} for element in ans)):
                 break
             time.sleep(1.0)
 
     def resourcesFinished(self, hosts_list, resource_id_list):
         while(True):
-            ans = self.requestEvent("GET", hosts_list, resource_id_list)
+            ans = [{}]
+            try:
+                ans = self.requestEvent("GET", hosts_list, resource_id_list)
+            except:
+                pass            
             if (all(element == {'STATE: ': 'IDLE'} for element in ans)):
                 break
-            #time.sleep(5.0)
