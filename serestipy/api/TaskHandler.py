@@ -1,3 +1,22 @@
+#!/usr/bin/env  python3
+#@file   TaskHandler.py
+#
+#@date   Feb 9, 2022
+#@author Patrick Eschenbach
+#@copyright \n
+# This file is part of the program SeRESTiPy.\n\n
+# SeRESTiPy is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.\n\n
+# SeRESTiPy is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.\n\n
+# You should have received a copy of the GNU Lesser General
+# Public License along with SeRESTiPy.
+# If not, see <http://www.gnu.org/licenses/>.\n
+
 import os
 import shutil as su
 import time
@@ -8,7 +27,10 @@ import serestipy.client.JsonHelper as jh
 import serestipy.api.JobFormatChecker as jc
 import serenipy as spy
 
-
+## @class TaskHandler
+#   This class accepts a JSON input file and prepares
+#   serenipy objects to run a serenity calculation.
+#   @param args: Provided JSON input
 class TaskHandler():
     def __init__(self, args):
         self.__args = args
@@ -23,10 +45,17 @@ class TaskHandler():
         self.__actPaths = []
         self.__envPaths = []
 
+    ## @brief Checks whether the JSON input has the correct.
+    #   format.
+    #   @return Whether this is True or False 
     def jsonValid(self):
         checker = jc.JobFormatChecker(self.__args)
         return checker.run()
 
+    ## @brief Prepares the Serenity Settings and Task for the run.
+    #   @param job_id: The job_id URI that is provided by the API.
+    #   @param jobstate_list: A list of the jobstate which is shared
+    #                         between multiple processes.
     def enroll(self, jobstate_list, job_id):
         jobstate_list[job_id] = "RUN"
         self.__id = list(jh.find("ID", self.__args))[0]
@@ -94,6 +123,12 @@ class TaskHandler():
                 self.__scfmode = jr.resolveSCFMode(setting.scfMode).upper()
         self.__serenityTaskObject = jr.resolveTask(self.__scfmode, self.__taskName, self.__act, self.__env, taskSettingsDict)
 
+    ## @brief Performs the Serenity Calculation and stores the results.
+    #   @param job_id: The job_id URI that is provided by the API.
+    #   @param jobstate_list: A list of the jobstate which is shared
+    #                         between multiple processes.
+    #   @param results_list: A list of the calculation results which is shared
+    #                         between multiple processes.
     def perform(self, jobstate_list, job_id, results_list):  
         def getDensMatrix(system):
             if (self.__scfmode == "UNRESTRICTED"):
@@ -107,7 +142,6 @@ class TaskHandler():
                 return [jh.array2json(system.getElectronicStructure_R().coeff())]
         def getEnergy(system):
             return system.getEnergy()
-
         parent = os.getcwd()
         os.chdir(self.__baseDir)
         start = time.time()
@@ -122,10 +156,19 @@ class TaskHandler():
         os.chdir(parent)
         jobstate_list[job_id] = "IDLE"
 
+    ## @brief Cleans up the file-system tree.
     def cleanUp(self):
         if (os.path.exists(self.__baseDir)):
             su.rmtree(self.__baseDir)
 
+    ## @brief Converts the results into JSON format and passes them to the Api.
+    #         Therefore, a user can receive those results
+    #   @param job_id: The job_id URI that is provided by the API.
+    #   @param type: The type of results needed
+    #   @param results_list: A list of the calculation results which is shared
+    #                         between multiple processes.
+    #   @return JSON object containing density and coefficient matrix as well as
+    #           the total energy
     def getResults(self,job_id,results_list,type):
         switcher = {
         "DENSITYMATRIX" : results_list[job_id]["DMAT"],
@@ -134,7 +177,3 @@ class TaskHandler():
         "ENERGY": results_list[job_id]["ENERGY"]
         }
         return switcher.get(type.upper(), "Invalid Result type!")
-
-
-    # def getSettings(self):
-        # return self.__serenityTaskSettings

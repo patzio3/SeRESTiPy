@@ -1,5 +1,23 @@
-import serenipy as spy
+#!/usr/bin/env  python3
+#@file   JsonResolver.py
+#
+#@date   Feb 9, 2022
+#@author Patrick Eschenbach
+#@copyright \n
+# This file is part of the program SeRESTiPy.\n\n
+# SeRESTiPy is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.\n\n
+# SeRESTiPy is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.\n\n
+# You should have received a copy of the GNU Lesser General
+# Public License along with SeRESTiPy.
+# If not, see <http://www.gnu.org/licenses/>.\n
 
+import serenipy as spy
 
 def resolveSCFMode(argument):
     switcher = {
@@ -15,6 +33,8 @@ def resolveElectronicStructureTheory(argument):
     switcher = {
         "HF": spy.HF,
         "DFT": spy.DFT,
+        spy.HF : "HF",
+        spy.DFT : "DFT"
     }
     return switcher.get(argument, "Invalid electronic structure theory!")
 
@@ -25,7 +45,13 @@ def resolveDispersionCorrection(argument):
         "D3": spy.DFT_DISPERSION_CORRECTIONS.D3,
         "D3ABC": spy.DFT_DISPERSION_CORRECTIONS.D3ABC,
         "D3BJ": spy.DFT_DISPERSION_CORRECTIONS.D3BJ,
-        "D3BJABC": spy.DFT_DISPERSION_CORRECTIONS.D3BJABC
+        "D3BJABC": spy.DFT_DISPERSION_CORRECTIONS.D3BJABC,
+        spy.DFT_DISPERSION_CORRECTIONS.NONE : "NONE",
+        spy.DFT_DISPERSION_CORRECTIONS.D3 : "D3",
+        spy.DFT_DISPERSION_CORRECTIONS.D3ABC : "D3ABC",
+        spy.DFT_DISPERSION_CORRECTIONS.D3BJ : "D3BJ",
+        spy.DFT_DISPERSION_CORRECTIONS.D3BJABC : "D3BJABC"
+
     }
     return switcher.get(argument, "Invalid dispersion correction!")
 
@@ -40,7 +66,16 @@ def resolveInitialGuess(argument):
         "ATOM_SCF": spy.INITIAL_GUESSES.ATOM_SCF,
         "ATOMSCF": spy.INITIAL_GUESSES.ATOM_SCF,
         "ATOM_SCF_INPLACE": spy.INITIAL_GUESSES.ATOM_SCF_INPLACE,
-        "SAP": spy.INITIAL_GUESSES.SAP
+        "SAP": spy.INITIAL_GUESSES.SAP,
+        spy.INITIAL_GUESSES.H_CORE : "HCORE",
+        spy.INITIAL_GUESSES.H_CORE : "H_CORE",
+        spy.INITIAL_GUESSES.EHT : "EHT",
+        spy.INITIAL_GUESSES.ATOM_DENS : "ATOM_DENS",
+        spy.INITIAL_GUESSES.ATOM_DENS : "ATOMDENS",
+        spy.INITIAL_GUESSES.ATOM_SCF : "ATOM_SCF",
+        spy.INITIAL_GUESSES.ATOM_SCF : "ATOMSCF",
+        spy.INITIAL_GUESSES.ATOM_SCF_INPLACE : "ATOM_SCF_INPLACE",
+        spy.INITIAL_GUESSES.SAP : "SAP"
     }
     return switcher.get(argument, "Invalid initial guess!")
 
@@ -51,7 +86,12 @@ def resolveBasisPurpose(argument):
         "AUX_COULOMB": spy.BASIS_PURPOSES.AUX_COULOMB,
         "MINBAS": spy.BASIS_PURPOSES.MINBAS,
         "HUECKEL": spy.BASIS_PURPOSES.HUECKEL,
-        "AUX_CORREL": spy.BASIS_PURPOSES.AUX_CORREL
+        "AUX_CORREL": spy.BASIS_PURPOSES.AUX_CORREL,
+        spy.BASIS_PURPOSES.DEFAULT : "DEFAULT",
+        spy.BASIS_PURPOSES.AUX_COULOMB : "AUX_COULOMB",
+        spy.BASIS_PURPOSES.MINBAS : "MINBAS",
+        spy.BASIS_PURPOSES.HUECKEL : "HUECKEL",
+        spy.BASIS_PURPOSES.AUX_CORREL : "AUX_CORREL"
     }
     return switcher.get(argument, "Invalid BASIS_PURPOSE!")
 
@@ -62,14 +102,20 @@ def resolveRadialGridType(argument):
         "HANDY": spy.RADIAL_GRID_TYPES.HANDY,
         "AHLRICHS": spy.RADIAL_GRID_TYPES.AHLRICHS,
         "KNOWLES": spy.RADIAL_GRID_TYPES.KNOWLES,
-        "EQUI": spy.RADIAL_GRID_TYPES.EQUI
+        "EQUI": spy.RADIAL_GRID_TYPES.EQUI,
+        spy.RADIAL_GRID_TYPES.BECKE : "BECKE",
+        spy.RADIAL_GRID_TYPES.HANDY : "HANDY",
+        spy.RADIAL_GRID_TYPES.AHLRICHS : "AHLRICHS",
+        spy.RADIAL_GRID_TYPES.KNOWLES : "KNOWLES",
+        spy.RADIAL_GRID_TYPES.EQUI : "EQUI"
     }
     return switcher.get(argument, "Invalid RADIAL_GRID_TYPE!")
 
 
 def resolveSphericalGridType(argument):
     switcher = {
-        "LEBEDEV": spy.SPHERICAL_GRID_TYPES.LEBEDEV
+        "LEBEDEV": spy.SPHERICAL_GRID_TYPES.LEBEDEV,
+        spy.SPHERICAL_GRID_TYPES.LEBEDEV : "LEBEDEV"
     }
     return switcher.get(argument, "Invalid SPHERICAL_GRID_TYPE!")
 
@@ -77,7 +123,9 @@ def resolveSphericalGridType(argument):
 def resolveGridType(argument):
     switcher = {
         "BECKE": spy.GRID_TYPES.BECKE,
-        "VORONOI": spy.GRID_TYPES.VORONOI
+        "VORONOI": spy.GRID_TYPES.VORONOI,
+        spy.GRID_TYPES.BECKE : "BECKE",
+        spy.GRID_TYPES.VORONOI : "VORONOI"
     }
     return switcher.get(argument, "Invalid GRID_TYPE!")
 
@@ -86,7 +134,10 @@ def resolveGridPurpose(argument):
     switcher = {
         "DEFAULT": spy.GRID_PURPOSES.DEFAULT,
         "SMALL": spy.GRID_PURPOSES.SMALL,
-        "PLOT": spy.GRID_PURPOSES.PLOT
+        "PLOT": spy.GRID_PURPOSES.PLOT,
+        spy.GRID_PURPOSES.DEFAULT : "DEFAULT",
+        spy.GRID_PURPOSES.SMALL : "SMALL",
+        spy.GRID_PURPOSES.PLOT : "PLOT"
     }
     return switcher.get(argument, "Invalid GRID_PURPOSE!")
 
@@ -94,7 +145,9 @@ def resolveGridPurpose(argument):
 def resolveOptimizationAlgorithm(argument):
     switcher = {
         "SD": spy.OPTIMIZATION_ALGORITHMS.SD,
-        "BFGS": spy.OPTIMIZATION_ALGORITHMS.BFGS
+        "BFGS": spy.OPTIMIZATION_ALGORITHMS.BFGS,
+        spy.OPTIMIZATION_ALGORITHMS.SD : "SD",
+        spy.OPTIMIZATION_ALGORITHMS.BFGS : "BFGS"
     }
     return switcher.get(argument, "Invalid OPTIMIZATION_ALGORITHM!")
 
@@ -211,6 +264,7 @@ def resolveDamping(argument):
 
 
 def resolveTask(scfmode, task, act=[], env=[], args={}):
+    #RESTRICTED
     if (scfmode.upper() == "RESTRICTED"):
         if (task.upper() in ["SCF", "SCFTASK"]):
             return spy.ScfTask_R(act[0])
@@ -234,7 +288,6 @@ def resolveTask(scfmode, task, act=[], env=[], args={}):
                 serenityTaskObject.settings.embedding.naddXCFunc = resolveFunctional(args["EMB"]["NADDXCFUNC"]) if "NADDXCFUNC" in args["EMB"] else spy.XCFUNCTIONALS.PW91
                 serenityTaskObject.settings.embedding.naddKinFunc = resolveKinFunctional(args["EMB"]["NADDKINFUNC"]) if "NADDKINFUNC" in args["EMB"] else spy.KINFUNCTIONALS.PW91K
             return serenityTaskObject
-
         elif (task.upper() in ["GEOMETRYOPTIMIZATIONTASK", "GEOOPT", "OPT"]):
             return spy.GeometryOptimizationTask_R(act, env)
         elif (task.upper() in ["GRADIENTTASK", "GRADIENT", "GRAD"]):
@@ -247,6 +300,7 @@ def resolveTask(scfmode, task, act=[], env=[], args={}):
             return spy.MultipoleMomentTask(act)
         elif (task.upper() in ["PLOTTASK", "PLOT", "CUBEFILETASK", "CUBE"]):
             return spy.PlotTask_R(act, env)
+    #UNRESTRICTED
     elif (scfmode.upper() == "UNRESTRICTED"):
         if (task.upper() in ["SCF", "SCFTASK"]):
             return spy.ScfTask_U(act[0])

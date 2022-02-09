@@ -1,9 +1,31 @@
+#!/usr/bin/env  python3
+#@file   JobFormatChecker.py
+#
+#@date   Feb 9, 2022
+#@author Patrick Eschenbach
+#@copyright \n
+# This file is part of the program SeRESTiPy.\n\n
+# SeRESTiPy is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.\n\n
+# SeRESTiPy is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.\n\n
+# You should have received a copy of the GNU Lesser General
+# Public License along with SeRESTiPy.
+# If not, see <http://www.gnu.org/licenses/>.\n
+
+
+## @class JobFormatChecker
+#   This class accepts a JSON input file and checks
+#   whether the Keys and Values have the correct format.
+#   Additionally it checks whether needed values are missing.
 class JobFormatChecker():
     def __init__(self, json):
         self.__json = json
-        self.__allowedOuterKeys = ["JOBSTATE",
-                                   "STATE",
-                                   "TASK",
+        self.__allowedOuterKeys = ["TASK",
                                    "ID",
                                    "ACTIVESYSTEMSETTINGS",
                                    "ACTSETTINGS",
@@ -32,6 +54,7 @@ class JobFormatChecker():
                                    "PATH"
                                    ]
 
+    ## @brief Runs the check.
     def run(self):
         actSettingsDict = ""
         envSettingsDict = ""

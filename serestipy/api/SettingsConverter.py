@@ -1,12 +1,31 @@
+#!/usr/bin/env  python3
+#@file   SettingsConverter.py
+#
+#@date   Feb 9, 2022
+#@author Patrick Eschenbach
+#@copyright \n
+# This file is part of the program SeRESTiPy.\n\n
+# SeRESTiPy is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.\n\n
+# SeRESTiPy is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.\n\n
+# You should have received a copy of the GNU Lesser General
+# Public License along with SeRESTiPy.
+# If not, see <http://www.gnu.org/licenses/>.\n
+
 import json
 import serestipy.api.JsonResolver as jr
 from serenipy import Settings
 
-
+## @class SettingsConverter
+#   This class accepts a JSON input file and converts it
+#   to serenity settings objects. It can return the settings 
+#   in both formats.
 class SettingsConverter():
-    # +-------------+
-    # | Constructor |
-    # +-------------+
     def __init__(self, jsonSettings):
         self.__jsonSettings = jsonSettings
         # o----------o
@@ -200,18 +219,21 @@ class SettingsConverter():
                     elif (innerinner.upper() == "NAMEOUTPUT"):
                         self.__sereniypySettings.efield.nameOutput = self.__jsonSettings[
                             outer][innerinner]
-    # +------------------+
-    # | Member functions |
-    # +------------------+
 
+    ## @brief Provides the settings in JSON format
+    #  @return the settings in JSON format
     def getJsonSettings(self):
         return self.__jsonSettings
 
+    ## @brief Provides the serenity settings objects
+    #  @return the serenity settings objects
     def getSerenipySettings(self):
         return self.__sereniypySettings
 
+    ## @brief Sets the settings in JSON format
     def setJsonSettings(self, json):
         self.__jsonSettings = json
 
+    ## @brief Sets the serenity settings objects
     def setSerenipySettings(self, serSettings):
         self.__sereniypySettings = serSettings
