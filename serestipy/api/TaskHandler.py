@@ -24,7 +24,7 @@ import time
 import serestipy.api.SettingsConverter as sc
 import serestipy.api.JsonResolver as jr
 import serestipy.client.JsonHelper as jh
-import serestipy.api.JobFormatChecker as jc
+
 import serenipy as spy
 
 ## @class TaskHandler
@@ -38,19 +38,8 @@ class TaskHandler():
         self.__taskName = ""
         self.__act = []
         self.__env = []
-        self.__actNames = []
-        self.__envNames = []
         self.__actSettings = []
         self.__envSettings = []
-        self.__actPaths = []
-        self.__envPaths = []
-
-    ## @brief Checks whether the JSON input has the correct.
-    #   format.
-    #   @return Whether this is True or False 
-    def jsonValid(self):
-        checker = jc.JobFormatChecker(self.__args)
-        return checker.run()
 
     ## @brief Prepares the Serenity Settings and Task for the run.
     #   @param job_id: The job_id URI that is provided by the API.
@@ -76,12 +65,6 @@ class TaskHandler():
         except:
             taskSettingsDict = {}
         self.__taskName = list(jh.find("TASK", self.__args))[0]
-        self.__actNames = list(jh.find("NAME", actSettingsDict))
-        self.__actPaths = [os.path.join(self.__baseDir + name)
-                           for name in self.__actNames]
-        self.__envNames = list(jh.find("NAME", envSettingsDict))
-        self.__envPaths = [os.path.join(self.__baseDir + name)
-                           for name in self.__envNames]
         geometries = list(jh.find("GEOMETRY", self.__args))
         actGeometries = list(jh.find("GEOMETRY", actSettingsDict))
         envGeometries = list(jh.find("GEOMETRY", envSettingsDict))

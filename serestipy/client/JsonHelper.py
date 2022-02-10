@@ -175,15 +175,12 @@ def input2json(filename):
         for setting in tasks[iTask].keys():
             if (setting == "ACT" or setting == "ENV" or setting == "TASK"):
                 continue
-            
-            # print(setting, wholeSettings, tasks[iTask][setting])
             wholeSettings["TASK_SETTINGS"][setting] = tasks[iTask][setting]
-        
         wholeSettings["ID"] = iTask
         wholeSettings["ACT"] = actSettings
         wholeSettings["ENV"] = envSettings
         taskJsons.append(wholeSettings)
-    return dict2json(taskJsons)
+    return dict2json(taskJsons)[0]
 
 
 def dismemberJson(json):

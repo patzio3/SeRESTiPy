@@ -54,8 +54,43 @@ class JobFormatChecker():
                                    "PATH"
                                    ]
 
+    ## @brief Makes all strings in JSON uppercase.
+    #         It uses recursion
+    #   @param oldDict: The old dictionary
+    #   @param newDict: The new dictionary with 
+    #                   upper case key:value pairs
+    def __upperCase(self, oldDict, newDict):
+        for k, v in oldDict.items():
+            if (isinstance(v,dict)):
+                newDict[k] = {}
+                self.__upperCase(v, newDict[k])
+            else:
+                newDict[k.upper()] = v.upper() if isinstance(v, str) else v
+
+    ## @brief Checks doubly occuring keys
+    #   @param oldDict: The old dictionary
+    #   @param newDict: The new dictionary with 
+    #                   upper case key:value pairs
+    def __checkDoubles(self, oldDict):
+        for _, v in oldDict.items():
+            if (isinstance(v,dict)):
+                self.__checkDoubles(v)
+            else:
+                seen = set()
+                dupes = [x.upper() for x in oldDict.keys() if x.upper() in seen or seen.add(x.upper())]
+                if (len(dupes) > 0):
+                    return True
+
     ## @brief Runs the check.
     def run(self):
+        # print(self.__json)
+        if (self.__checkDoubles(self.__json)):
+            print(f"KeyError: Double Keys found!")
+            return False
+
+        newDict = dict()
+        self.__upperCase(self.__json, newDict)
+        self.__json = newDict.copy()
         actSettingsDict = ""
         envSettingsDict = ""
         # check if only allowed outer keys are present

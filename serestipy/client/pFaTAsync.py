@@ -5,7 +5,7 @@ import json
 import errno
 import shutil as sh
 import serestipy.client.JsonHelper as jh
-import serestipy.client.APICommunicator as comm
+from serestipy.client.APICommunicator import APICommunicator
 import serestipy.client.akcluster 
 
 
@@ -48,7 +48,7 @@ def bundleResults(tasks):
         name += str(tasks[i]["ID"])
         ids.append(str(tasks[i]["ID"]))
         systemnames.append(list(jh.find("NAME", tasks[i]["ACT"]))[0])
-    dockerLoadPath = os.path.join("/home/calc", name)
+    #dockerLoadPath = os.path.join("/home/calc", name)
     localLoadPath = os.path.join(os.getenv('DATABASE_DIR'), name)
     if (not os.path.exists(localLoadPath)):
         os.mkdir(localLoadPath)
@@ -65,11 +65,11 @@ def bundleResults(tasks):
         dst = os.path.join(localLoadPath, systemnames[i])
         src = os.path.join(os.getenv('DATABASE_DIR'), ids[i], systemnames[i])
         copyanything(src, dst)
-    return dockerLoadPath
+    return localLoadPath#dockerLoadPath
 
 
 def perform(hosts_list, json_data, nCycles):
-    communicator = comm.APICommunicator()
+    communicator = APICommunicator.getInstance()
     systemnames = list(jh.find("NAME", json_data))
     taskIDs = [i for i in range(len(systemnames))]
     tasks = [rearrange(json_data.copy(), systemnames[i], i, "")
@@ -80,7 +80,10 @@ def perform(hosts_list, json_data, nCycles):
         print("|       Cycle %2i     |" % (iCycle+1))
         print("o--------------------o")
         if (iCycle > 0):
+            start = time.time()
             load = bundleResults(tasks)
+            end = time.time()
+            print("Time for rearranging directories: ", end - start, "s")
             for i in range(len(taskIDs)):
                 taskIDs[i] += len(systemnames)
             tasks = [rearrange(json_data.copy(), systemnames[i],
@@ -113,16 +116,20 @@ def perform(hosts_list, json_data, nCycles):
             print("Time taken for cycle: ", end - start, "s")
     # clean-up
     _ = bundleResults(tasks)
-    for i in range(len(hosts_list)):
-        _ = communicator.requestEvent("DELETE", [hosts_list[i] for j in range(
+    unique_hosts = list(set(hosts_list))
+    for i in range(len(unique_hosts)):
+        _ = communicator.requestEvent("DELETE", [unique_hosts[i] for j in range(
             len(systemnames) * nCycles)], list(range(len(systemnames) * nCycles)))
 
 
 if __name__ == "__main__":
-    os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc"
+    os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc/test"
     print("Reading input and preparing calculation...")
-    json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
+    json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))
     nSystems = len(list(jh.find("NAME", json)))
-    cluster = serestipy.client.akcluster.AKCluster()
-    nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
-    cluster.runInDocker(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))
+    hostname = "http://128.176.214.100:5000"
+    perform([hostname for i in range(nSystems)], json, 2)
+
+    # cluster = serestipy.client.akcluster.AKCluster()
+    # nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
+    # cluster.runInDocker(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))

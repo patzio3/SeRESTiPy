@@ -25,6 +25,7 @@ from flask import Flask, request, jsonify
 from flask_restful import Api, Resource, abort
 import multiprocessing as mp
 import serestipy.api.TaskHandler as th
+import serestipy.api.JobFormatChecker as jc
 
 app = Flask(__name__)
 api = Api(app)
@@ -46,17 +47,21 @@ class ser_api(Resource):
     @app.route("/api/<int:job_id>", methods=["POST"])
     def parse_request(job_id):
         exists(job_id)
-        content = request.get_json(force=True)
-        task = th.TaskHandler(content)
-        if (task.jsonValid()):
+        content = request.get_json(force = True)
+        if (not isinstance(content,dict)):
+            return jsonify({"Job not posted": "JSON invalid"}), 201
+        checker = jc.JobFormatChecker(content)
+        valid = checker.run()
+        if (valid):
+            task = th.TaskHandler(content)
             jobs[job_id] = task
             task.enroll(jobstate_list, job_id)
             p = mp.Process(target=task.perform, args=(jobstate_list, job_id,results_list,))
             p.daemon = True
             p.start()
-            return jsonify({"Job posted id: ": str(job_id)}), 201
+            return jsonify({"Job posted": str(job_id)}), 201
         else:
-            return jsonify({"Job not posted id: ": "invalid"}), 201
+            return jsonify({"Job not posted": "JSON invalid"}), 201
 
     @app.route("/api/<int:job_id>", methods=["GET"])
     def get_request(job_id):
@@ -68,7 +73,7 @@ class ser_api(Resource):
         notExist(job_id)
         jobs[job_id].cleanUp()
         del jobs[job_id]
-        return "", 201
+        return jsonify({"Job deleted": str(job_id)}), 201
 
 class HomePage(Resource):
     @app.route("/api/", methods = ["GET"])
