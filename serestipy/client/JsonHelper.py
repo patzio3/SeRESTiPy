@@ -149,7 +149,10 @@ def input2json(filename):
                 tasks[iTask]["ENV"][iEnv] = values[1]
                 iEnv += 1
             else:
-                tasks[iTask][values[0].upper()] = values[1].upper()
+                tmp = values[1].upper()
+                tmp2 = tmp.replace("{","")
+                tmp3 = tmp2.replace("}","")
+                tasks[iTask][values[0].upper()] = tmp3
         if (embeddingblock):
             tasks[iTask]["EMB"][values[0].upper()] = values[1].upper()
     taskJsons = []
@@ -180,7 +183,7 @@ def input2json(filename):
         wholeSettings["ACT"] = actSettings
         wholeSettings["ENV"] = envSettings
         taskJsons.append(wholeSettings)
-    return dict2json(taskJsons)[0]
+    return dict2json(taskJsons)
 
 
 def dismemberJson(json):

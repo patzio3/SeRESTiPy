@@ -18,6 +18,7 @@
 # If not, see <http://www.gnu.org/licenses/>.\n
 
 import serenipy as spy
+import numpy as np
 
 def resolveSCFMode(argument):
     switcher = {
@@ -262,6 +263,39 @@ def resolveDamping(argument):
     }
     return switcher.get(argument, "Invalid DAMPING_ALGORITHM!")
 
+def resolveResponseAlgorithm(argument):
+    switcher = {
+        "SYMMETRIC": spy.RESPONSE_ALGORITHM.SYMMETRIC,
+        "SYMMETRIZED": spy.RESPONSE_ALGORITHM.SYMMETRIZED,
+        "SYMPLECTIC": spy.RESPONSE_ALGORITHM.SYMPLECTIC
+    }
+    return switcher.get(argument, "Invalid RESPONSE_ALGORITHM!")
+
+def resolveLRSCFType(argument):
+    switcher = {
+        "ISOLATED": spy.LRSCF_TYPE.ISOLATED,
+        "UNCOUPLED": spy.LRSCF_TYPE.UNCOUPLED,
+        "COUPLED": spy.LRSCF_TYPE.COUPLED
+    }
+    return switcher.get(argument, "Invalid LRSCF_TYPE!")
+
+def resolveGauge(argument):
+    switcher = {
+        "LENGTH": spy.GAUGE.LENGTH,
+        "VELOCITY": spy.GAUGE.VELOCITY
+    }
+    return switcher.get(argument, "Invalid GAUGE!")
+
+def resolveLRMethod(argument):
+    switcher = {
+        "TDA": spy.LR_METHOD.TDA,
+        "TDDFT": spy.LR_METHOD.TDDFT,
+        "CC2": spy.LR_METHOD.CC2,
+        "CISDINF": spy.LR_METHOD.CISDINF,
+        "CISD": spy.LR_METHOD.CISD,
+        "ADC2": spy.LR_METHOD.ADC2
+    }
+    return switcher.get(argument, "Invalid RESPONSE_ALGORITHM!")
 
 def resolveTask(scfmode, task, act=[], env=[], args={}):
     #RESTRICTED
@@ -300,6 +334,56 @@ def resolveTask(scfmode, task, act=[], env=[], args={}):
             return spy.MultipoleMomentTask(act)
         elif (task.upper() in ["PLOTTASK", "PLOT", "CUBEFILETASK", "CUBE"]):
             return spy.PlotTask_R(act, env)
+        elif (task.upper() in ["LRSCF", "LRSCFTASK"]):
+            serenityTaskObject = spy.LRSCFTask_R(act, env)
+            if (args):
+                serenityTaskObject.settings.nEigen = int(args["NEIGEN"]) if "NEIGEN" in args else 4
+                serenityTaskObject.settings.conv = float(args["CONV"]) if "CONV" in args else 1.0e-5
+                serenityTaskObject.settings.maxCycles = int(args["MAXCYCLES"]) if "MAXCYCLES" in args else 50
+                serenityTaskObject.settings.maxSubspaceDimension = int(args["MAXSUBSPACEDIMENSION"]) if "MAXSUBSPACEDIMENSION" in args else int(1e+9)
+                serenityTaskObject.settings.dominantThresh = float(args["DOMINANTTHRESH"]) if "DOMINANTTHRESH" in args else 0.85
+                serenityTaskObject.settings.analysis = str(args["ANALYSIS"]) if "ANALYSIS" in args else True
+                serenityTaskObject.settings.besleyAtoms = int(args["BESLEYATOMS"]) if "BESLEYATOMS" in args else 0
+                serenityTaskObject.settings.besleyCutoff = np.array(args["BESLEYCUTOFF"]) if "BESLEYCUTOFF" in args else np.array([])
+                serenityTaskObject.settings.excludeProjection = str(args["EXCLUDEPROJECTION"]) if "EXCLUDEPROJECTION   " in args else False
+                serenityTaskObject.settings.uncoupledSubspace = np.array(args["UNCOUPLEDSUBSPACE"]) if "UNCOUPLEDSUBSPACE" in args else np.array([])
+                serenityTaskObject.settings.fullFDEc = str(args["FULLFDEC"]) if "FULLFDEC   " in args else False
+                serenityTaskObject.settings.gaugeOrigin = np.array(args["GAUGEORIGIN"]) if "GAUGEORIGIN" in args else np.array([np.Inf, np.Inf, np.Inf])
+                serenityTaskObject.settings.frequencies = np.array(args["FREQUENCIES"]) if "FREQUENCIES" in args else np.array([])
+                serenityTaskObject.settings.frequencyRange = np.array(args["GREQUENCYRANGE"]) if "GREQUENCYRANGE" in args else np.array([])
+                serenityTaskObject.settings.damping = float(args["DAMPING"]) if "DAMPING" in args else 0.0
+                serenityTaskObject.settings.couplingPattern = np.array(args["COUPLINGPATTERN"]) if "COUPLINGPATTERN" in args else np.array([])
+                serenityTaskObject.settings.saveResponseMatrix = str(args["SAVERESPONSEMATRIX"]) if "SAVERESPONSEMATRIX" in args else False
+                serenityTaskObject.settings.diis = str(args["DIIS"]) if "DIIS" in args else True
+                serenityTaskObject.settings.diisStore = int(args["DIISSTORE"]) if "DIISSTORE" in args else 50
+                serenityTaskObject.settings.preopt = float(args["PREOPT"]) if "PREOPT" in args else 1.0e-3
+                serenityTaskObject.settings.ccprops = str(args["CCPROPS"]) if "CCPROPS" in args else False
+                serenityTaskObject.settings.sss = float(args["SSS"]) if "SSS" in args else 1.0
+                serenityTaskObject.settings.oss = float(args["OSS"]) if "OSS" in args else 1.0
+                serenityTaskObject.settings.nafThresh = float(args["NAFTHRESH"]) if "NAFTHRESH" in args else 0.0
+                serenityTaskObject.settings.samedensity = np.array(args["SAMEDENSITY"]) if "SAMEDENSITY" in args else np.array([])
+                serenityTaskObject.settings.subsystemgrid = np.array([int(args["SUBSYSTEMGRID"])]) if "SUBSYSTEMGRID" in args else np.array([])
+                serenityTaskObject.settings.rpaScreening = str(args["RPASCREENING"]) if "RPASCREENING" in args else False
+                serenityTaskObject.settings.transitionCharges = True #bool(args["TRANISITIONCHARGES"]) if "TRANISITIONCHARGES" in args else False
+                serenityTaskObject.settings.partialResponseConstruction = str(args["PARTIALRESPONSECONSTRUCTION"]) if "PARTIALRESPONSECONSTRUCTION" in args else False
+                serenityTaskObject.settings.grimme = str(args["GRIMME"]) if "GRIMME" in args else False
+                serenityTaskObject.settings.adaptivePrescreening = str(args["ADAPTIVESCREENING"]) if "ADAPTIVESCREENING" in args else True
+                serenityTaskObject.settings.algorithm = resolveResponseAlgorithm(args["ALGORITHM"]) if "ALGORITHM" in args else spy.RESPONSE_ALGORITHM.SYMMETRIC
+                serenityTaskObject.settings.func = resolveFunctional(args["FUNC"]) if "FUNC" in args else spy.XCFUNCTIONALS.NONE
+                serenityTaskObject.settings.loadType = resolveLRSCFType(args["LOADTYPE"]) if "LOADTYPE" in args else spy.LRSCF_TYPE.UNCOUPLED
+                serenityTaskObject.settings.gauge = resolveGauge(args["GAUGE"]) if "GAUGE" in args else spy.GAUGE.LENGTH
+                serenityTaskObject.settings.method = resolveLRMethod(args["METHOD"]) if "METHOD" in args else spy.LR_METHOD.TDDFT
+                serenityTaskObject.settings.densFitJ = resolveDensityFitting(args["DENSFITJ"]) if "DENSFITJ" in args else spy.DENS_FITS.RI
+                serenityTaskObject.settings.densFitK = resolveDensityFitting(args["DENSFITK"]) if "DENSFITK" in args else spy.DENS_FITS.NONE
+                serenityTaskObject.settings.densFitLRK = resolveDensityFitting(args["DENSFITLRK"]) if "DENSFITLRK" in args else spy.DENS_FITS.NONE
+                serenityTaskObject.settings.densFitCache = resolveDensityFitting(args["DENSFITCACHE"]) if "DENSFITCACHE" in args else spy.DENS_FITS.RI
+                #Look for proper grid settings passing
+                serenityTaskObject.settings.grid.smallGridAccuracy = int(args["SMALLGRIDACCURACY"]) if "SMALLGRIDACCURACY" in args else 4
+                serenityTaskObject.settings.grid.accuracy = int(args["ACCURACY"]) if "ACCURACY" in args else 4
+                serenityTaskObject.settings.embedding.embeddingMode = resolveKinEmbeddingMode(args["EMB"]["EMBEDDINGMODE"]) if "EMBEDDINGMODE" in args["EMB"] else spy.KIN_EMBEDDING_MODES.NADDFUNC
+                serenityTaskObject.settings.embedding.naddXCFunc = resolveFunctional(args["EMB"]["NADDXCFUNC"]) if "NADDXCFUNC" in args["EMB"] else spy.XCFUNCTIONALS.PW91
+                serenityTaskObject.settings.embedding.naddKinFunc = resolveKinFunctional(args["EMB"]["NADDKINFUNC"]) if "NADDKINFUNC" in args["EMB"] else spy.KINFUNCTIONALS.PW91K
+            return serenityTaskObject
     #UNRESTRICTED
     elif (scfmode.upper() == "UNRESTRICTED"):
         if (task.upper() in ["SCF", "SCFTASK"]):
@@ -336,5 +420,55 @@ def resolveTask(scfmode, task, act=[], env=[], args={}):
             return spy.MultipoleMomentTask(act)
         elif (task.upper() in ["PLOTTASK", "PLOT", "CUBEFILETASK", "CUBE"]):
             return spy.PlotTask_U(act, env)
+        elif (task.upper() in ["LRSCF", "LRSCFTASK"]):
+            serenityTaskObject = spy.LRSCFTask_U(act, env)
+            if (args):
+                serenityTaskObject.settings.nEigen = int(args["NEIGEN"]) if "NEIGEN" in args else 4
+                serenityTaskObject.settings.conv = float(args["CONV"]) if "CONV" in args else 1.0e-5
+                serenityTaskObject.settings.maxCycles = int(args["MAXCYCLES"]) if "MAXCYCLES" in args else 50
+                serenityTaskObject.settings.maxSubspaceDimension = int(args["MAXSUBSPACEDIMENSION"]) if "MAXSUBSPACEDIMENSION" in args else int(1e+9)
+                serenityTaskObject.settings.dominantThresh = float(args["DOMINANTTHRESH"]) if "DOMINANTTHRESH" in args else 0.85
+                serenityTaskObject.settings.analysis = str(args["ANALYSIS"]) if "ANALYSIS" in args else True
+                serenityTaskObject.settings.besleyAtoms = int(args["BESLEYATOMS"]) if "BESLEYATOMS" in args else 0
+                serenityTaskObject.settings.besleyCutoff = np.array(args["BESLEYCUTOFF"]) if "BESLEYCUTOFF" in args else np.array([])
+                serenityTaskObject.settings.excludeProjection = str(args["EXCLUDEPROJECTION"]) if "EXCLUDEPROJECTION   " in args else False
+                serenityTaskObject.settings.uncoupledSubspace = np.array(args["UNCOUPLEDSUBSPACE"]) if "UNCOUPLEDSUBSPACE" in args else np.array([])
+                serenityTaskObject.settings.fullFDEc = str(args["FULLFDEC"]) if "FULLFDEC   " in args else False
+                serenityTaskObject.settings.gaugeOrigin = np.array(args["GAUGEORIGIN"]) if "GAUGEORIGIN" in args else np.array([np.Inf, np.Inf, np.Inf])
+                serenityTaskObject.settings.frequencies = np.array(args["FREQUENCIES"]) if "FREQUENCIES" in args else np.array([])
+                serenityTaskObject.settings.frequencyRange = np.array(args["GREQUENCYRANGE"]) if "GREQUENCYRANGE" in args else np.array([])
+                serenityTaskObject.settings.damping = float(args["DAMPING"]) if "DAMPING" in args else 0.0
+                serenityTaskObject.settings.couplingPattern = np.array(args["COUPLINGPATTERN"]) if "COUPLINGPATTERN" in args else np.array([])
+                serenityTaskObject.settings.saveResponseMatrix = str(args["SAVERESPONSEMATRIX"]) if "SAVERESPONSEMATRIX" in args else False
+                serenityTaskObject.settings.diis = str(args["DIIS"]) if "DIIS" in args else True
+                serenityTaskObject.settings.diisStore = int(args["DIISSTORE"]) if "DIISSTORE" in args else 50
+                serenityTaskObject.settings.preopt = float(args["PREOPT"]) if "PREOPT" in args else 1.0e-3
+                serenityTaskObject.settings.ccprops = str(args["CCPROPS"]) if "CCPROPS" in args else False
+                serenityTaskObject.settings.sss = float(args["SSS"]) if "SSS" in args else 1.0
+                serenityTaskObject.settings.oss = float(args["OSS"]) if "OSS" in args else 1.0
+                serenityTaskObject.settings.nafThresh = float(args["NAFTHRESH"]) if "NAFTHRESH" in args else 0.0
+                serenityTaskObject.settings.samedensity = np.array(args["SAMEDENSITY"]) if "SAMEDENSITY" in args else np.array([])
+                serenityTaskObject.settings.subsystemgrid = np.array([int(args["SUBSYSTEMGRID"])]) if "SUBSYSTEMGRID" in args else np.array([])
+                serenityTaskObject.settings.rpaScreening = str(args["RPASCREENING"]) if "RPASCREENING" in args else False
+                serenityTaskObject.settings.transitionCharges = str(args["TRANISITIONCHARGES"]) if "TRANISITIONCHARGES" in args else False
+                serenityTaskObject.settings.partialResponseConstruction = str(args["PARTIALRESPONSECONSTRUCTION"]) if "PARTIALRESPONSECONSTRUCTION" in args else False
+                serenityTaskObject.settings.grimme = str(args["GRIMME"]) if "GRIMME" in args else False
+                serenityTaskObject.settings.adaptivePrescreening = str(args["ADAPTIVESCREENING"]) if "ADAPTIVESCREENING" in args else True
+                serenityTaskObject.settings.algorithm = resolveResponseAlgorithm(args["ALGORITHM"]) if "ALGORITHM" in args else spy.RESPONSE_ALGORITHM.SYMMETRIC
+                serenityTaskObject.settings.func = resolveFunctional(args["FUNC"]) if "FUNC" in args else spy.XCFUNCTIONALS.NONE
+                serenityTaskObject.settings.loadType = resolveLRSCFType(args["LOADTYPE"]) if "LOADTYPE" in args else spy.LRSCF_TYPE.UNCOUPLED
+                serenityTaskObject.settings.gauge = resolveGauge(args["GAUGE"]) if "GAUGE" in args else spy.GAUGE.LENGTH
+                serenityTaskObject.settings.method = resolveLRMethod(args["METHOD"]) if "METHOD" in args else spy.LR_METHOD.TDDFT
+                serenityTaskObject.settings.densFitJ = resolveDensityFitting(args["DENSFITJ"]) if "DENSFITJ" in args else spy.DENS_FITS.RI
+                serenityTaskObject.settings.densFitK = resolveDensityFitting(args["DENSFITK"]) if "DENSFITK" in args else spy.DENS_FITS.NONE
+                serenityTaskObject.settings.densFitLRK = resolveDensityFitting(args["DENSFITLRK"]) if "DENSFITLRK" in args else spy.DENS_FITS.NONE
+                serenityTaskObject.settings.densFitCache = resolveDensityFitting(args["DENSFITCACHE"]) if "DENSFITCACHE" in args else spy.DENS_FITS.RI
+                #Look for proper grid settings passing
+                serenityTaskObject.settings.grid.smallGridAccuracy = int(args["SMALLGRIDACCURACY"]) if "SMALLGRIDACCURACY" in args else 4
+                serenityTaskObject.settings.grid.accuracy = int(args["ACCURACY"]) if "ACCURACY" in args else 4
+                serenityTaskObject.settings.embedding.embeddingMode = resolveKinEmbeddingMode(args["EMB"]["EMBEDDINGMODE"]) if "EMBEDDINGMODE" in args["EMB"] else spy.KIN_EMBEDDING_MODES.NADDFUNC
+                serenityTaskObject.settings.embedding.naddXCFunc = resolveFunctional(args["EMB"]["NADDXCFUNC"]) if "NADDXCFUNC" in args["EMB"] else spy.XCFUNCTIONALS.PW91
+                serenityTaskObject.settings.embedding.naddKinFunc = resolveKinFunctional(args["EMB"]["NADDKINFUNC"]) if "NADDKINFUNC" in args["EMB"] else spy.KINFUNCTIONALS.PW91K
+            return serenityTaskObject
 
 
