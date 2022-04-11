@@ -140,7 +140,9 @@ class JobFormatChecker():
                 try:
                     envSettingsDict = self.__json["ENV"]
                 except KeyError as errorThree:
-                    pass
+                    ...
+                finally:
+                    ...
         # check settings of active systems
         for system, settings in actSettingsDict.items():
             if (system[0:6].upper() not in self.__allowedSystemKeys and system[0:3].upper() not in self.__allowedSystemKeys):

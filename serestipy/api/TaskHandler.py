@@ -53,8 +53,8 @@ class TaskHandler():
                 os.getenv('DATABASE_DIR'), str(self.__id))
             if (not os.path.exists(self.__baseDir)):
                 os.mkdir(self.__baseDir)
-        except ValueError:
-            raise
+        except:
+            print("DATABASE_DIR environment variable not set!")
         
         actSettingsDict = list(jh.find("ACT", self.__args))[0]
         try:
