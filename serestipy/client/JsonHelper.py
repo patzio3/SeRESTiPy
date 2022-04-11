@@ -129,6 +129,10 @@ def input2json(filename):
                     systems[iSys][values[0].upper()] = str(iSys)+".xyz"
                 elif (values[0].upper() == "NAME"):
                     systems[iSys]["NAME"] = values[1]
+                elif (values[0].upper() == "CHARGE"):
+                    systems[iSys]["CHARGE"] = int(values[1])
+                elif (values[0].upper() == "SPIN"):
+                    systems[iSys]["SPIN"] = int(values[1])
                 else:
                     systems[iSys][values[0].upper()] = values[1].upper()
         if (dftblock):

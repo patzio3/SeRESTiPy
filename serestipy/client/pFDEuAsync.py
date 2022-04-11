@@ -7,38 +7,48 @@ import numpy as np
 import shutil as sh
 import serestipy.client.JsonHelper as jh
 from serestipy.client.APICommunicator import APICommunicator
-import serestipy.client.akcluster 
+import serestipy.client.akcluster
 
 
-def rearrange(wholeSettings, newActName, newTaskId, load=""):
-    newDict = {}
+def rearrange(wholeSettings, systemNames, oldTaskID, newTaskIDs, iAct, load="/WORK/p_esch01/scratch_calc/test"):
     task, tasksettings, act, env = jh.dismemberJson(wholeSettings)
-    if (list(jh.find("NAME", act))[0] == newActName):
-        newDict["TASK"] = task
-        newDict["TASK_SETTINGS"] = tasksettings
-        newDict["ID"] = newTaskId
-        newDict["ACT"] = act
-        newDict["ENV"] = env
-        newDict["ACT"][list(act.keys())[0]]["LOAD"] = load
-        return newDict
+    allSysSettings = dict(act, **env)
+    newDict = {}
     newDict["TASK"] = task
     newDict["TASK_SETTINGS"] = tasksettings
-    newDict["ID"] = newTaskId
     newDict["ACT"] = {}
     newDict["ENV"] = {}
-    iEnv = 0
-    key = list(act.keys())[0]
+    allKeys = list(allSysSettings.keys())
+    for iSys in range(len(systemNames)):
+        if (iSys == iAct):
+            newDict["ID"] = str(newTaskIDs[iAct])
+            newDict["ACT"][allKeys[0]] = list(jh.find(str(allKeys[iSys]), allSysSettings))[0]
+            if (not load == ""):
+                newDict["ACT"][allKeys[0]]["LOAD"] = os.path.join(load, str(oldTaskID[iSys]))
+        else:
+            newDict["ENV"][str(allKeys[iSys])] = list(jh.find(str(allKeys[iSys]), allSysSettings))[0]
+            newDict["ENV"][str(allKeys[iSys])]["WRITETODISK"] = False
+            if (not load == ""):
+                newDict["ENV"][str(allKeys[iSys])]["LOAD"] = os.path.join(load, str(oldTaskID[iSys]))
+    return newDict.copy()
+
+
+def initialscf(wholeSettings, newActName, newTaskId):
+    newDict = {}
+    _, _, act, env = jh.dismemberJson(wholeSettings)
+    if (list(jh.find("NAME", act))[0] == newActName):
+        newDict["TASK"] = "SCF"
+        newDict["ID"] = newTaskId
+        newDict["ACT"] = act
+        return newDict
+    newDict["TASK"] = "SCF"
+    newDict["ID"] = newTaskId
+    newDict["ACT"] = {}
+    _ = list(act.keys())[0]
     for iSys in env.keys():
         sysname = list(jh.find("NAME", env[iSys]))[0]
         if (sysname == newActName):
             newDict["ACT"][str(iSys)] = env[iSys]
-            newDict["ACT"][str(iSys)]["LOAD"] = load
-        else:
-            newDict["ENV"][str(iSys)] = env[iSys]
-            newDict["ENV"][str(iSys)]["LOAD"] = load
-        iEnv += 1
-    newDict["ENV"]["SYS"+str(iEnv+1)] = act[key]
-    newDict["ENV"]["SYS"+str(iEnv+1)]["LOAD"] = load
     return newDict.copy()
 
 
@@ -47,9 +57,9 @@ def bundleResults(tasks):
     ids = []
     systemnames = []
     for i in range(len(tasks)):
-        name += str(tasks[i]["ID"])
         ids.append(str(tasks[i]["ID"]))
         systemnames.append(list(jh.find("NAME", tasks[i]["ACT"]))[0])
+    name += str(tasks[-1]["ID"])
     localLoadPath = os.path.join(os.getenv('DATABASE_DIR'), name)
     if (not os.path.exists(localLoadPath)):
         os.mkdir(localLoadPath)
@@ -74,22 +84,41 @@ def perform(hosts_list, json_data, nCycles):
     communicator = APICommunicator.getInstance()
     systemnames = list(jh.find("NAME", json_data[0]))
     taskIDs = [i for i in range(len(systemnames))]
-    tasks = [rearrange(json_data[0].copy(), systemnames[i], i, "")
+    tasks = [initialscf(json_data[0].copy(), systemnames[i], i)
              for i in range(len(systemnames))]
-    batchWise = True if (len(systemnames) > len(hosts_list)) else False
+    #
+    # parallel SCF runs
+    #
+    print("o------------------------o")
+    print("| Send isolated SCF runs |")
+    print("o------------------------o")
+    start = time.time()
+    communicator.requestEvent("POST", hosts_list, taskIDs, tasks)
+    communicator.resourcesFinished(hosts_list, taskIDs)
+    end = time.time()
+    print("Time taken for initial SCFs: ", end - start, "s")
+
     #
     # parallel FAT runs
     #
+    newTaskIDs = []
+    for i in range(len(taskIDs)):
+        newTaskIDs.append(taskIDs[i] + len(systemnames))
+    tasks = [rearrange(json_data[0].copy(), systemnames, taskIDs, newTaskIDs, i)
+             for i in range(len(systemnames))]
+    taskIDs = newTaskIDs.copy()
+    batchWise = True if (len(systemnames) > len(hosts_list)) else False
+
     for iCycle in range(nCycles):
         print("o--------------------o")
         print("|       Cycle %2i     |" % (iCycle+1))
         print("o--------------------o")
         if (iCycle > 0):
-            load = bundleResults(tasks)
+            newTaskIDs = []
             for i in range(len(taskIDs)):
-                taskIDs[i] += len(systemnames)
-            tasks = [rearrange(json_data.copy(), systemnames[i],
-                               taskIDs[i], load) for i in range(len(systemnames))]
+                newTaskIDs.append(taskIDs[i] + len(systemnames))
+            tasks = [rearrange(json_data[0].copy(), systemnames, taskIDs, newTaskIDs, i) for i in range(len(systemnames))]
+            taskIDs = newTaskIDs.copy()
         if (batchWise):
             print(
                 "Specified less worker nodes than systems! We will send jobs batch-wise!")
@@ -116,11 +145,14 @@ def perform(hosts_list, json_data, nCycles):
             communicator.resourcesFinished(hosts_list, taskIDs)
             end = time.time()
             print("Time taken for cycle: ", end - start, "s")
-            results_resources_list = [str(taskIDs[i]) + "/results/" for i in range(len(taskIDs))]
-            payloads = [{"TYPE":"DENSITYMATRIX"} for i in range(len(taskIDs))]
-            results_dict_list = communicator.requestEvent("GET", hosts_list, results_resources_list, payloads)
-            newDensityMatrices = [jh.json2array(results_dict_list[i]['0'][0]) for i in range(len(taskIDs))]
-        
+            results_resources_list = [
+                str(taskIDs[i]) + "/results/" for i in range(len(taskIDs))]
+            payloads = [{"TYPE": "DENSITYMATRIX"} for i in range(len(taskIDs))]
+            results_dict_list = communicator.requestEvent(
+                "GET", hosts_list, results_resources_list, payloads)
+            newDensityMatrices = [jh.json2array(
+                results_dict_list[i]['0'][0]) for i in range(len(taskIDs))]
+
         if (iCycle == 0):
             oldDensityMatrices = newDensityMatrices.copy()
         else:
@@ -128,20 +160,26 @@ def perform(hosts_list, json_data, nCycles):
             print("Check for convergence")
             print("---------------------")
             for i in range(len(oldDensityMatrices)):
-                converged[i] = True if (np.sqrt(np.mean(np.square(oldDensityMatrices[i] - newDensityMatrices[i]))) <= 1e-5) else False
-                print(converged[i], np.sqrt(np.mean(np.square(oldDensityMatrices[i] - newDensityMatrices[i]))))
+                converged[i] = True if (np.sqrt(np.mean(
+                    np.square(oldDensityMatrices[i] - newDensityMatrices[i]))) <= 1e-5) else False
+                print(converged[i], np.sqrt(
+                    np.mean(np.square(oldDensityMatrices[i] - newDensityMatrices[i]))))
             if (all(converged)):
                 print("Convergence Reached!")
                 break
-            oldDensityMatrices = newDensityMatrices.copy()        
-    pfatLoad = bundleResults(tasks)
+            oldDensityMatrices = newDensityMatrices.copy()
 
     #
     # parallel FDEu runs
     #
+    print("o-------------------------o")
+    print("| Send parallel FDEu runs |")
+    print("o-------------------------o")
+    newTaskIDs = []
     for i in range(len(taskIDs)):
-        taskIDs[i] += len(systemnames)
-    tasks = [rearrange(json_data[1].copy(), systemnames[i], taskIDs[i], pfatLoad) for i in range(len(systemnames))]  
+        newTaskIDs.append(taskIDs[i] + len(systemnames))
+    tasks = [rearrange(json_data[1].copy(), systemnames, taskIDs, newTaskIDs, i) for i in range(len(systemnames))]
+    taskIDs = newTaskIDs.copy()
     start = time.time()
     communicator.requestEvent("POST", hosts_list, taskIDs, tasks)
     communicator.resourcesFinished(hosts_list, taskIDs)
@@ -149,26 +187,26 @@ def perform(hosts_list, json_data, nCycles):
     print("Time taken for FDEu runs: ", end - start, "s")
     end_entire = time.time()
     print("Time taken for ENTIRE run: ", end_entire - start_entire, "s")
-
     finalLoad = bundleResults(tasks)
-    os.chdir(finalLoad)
     systemString = ""
     for item in systemnames:
         systemString += item + " "
-    os.system("python /scratch/p_esch01/programs/serenity/tools/couple.py "+str(len(systemnames))+" "+systemString)
-    # clean-up
-    for i in range(len(hosts_list)):
-        try:
-            _ = communicator.requestEvent("DELETE", [hosts_list[i] for j in range(len(systemnames) * (iCycle + 2))] , list(range(len(systemnames) * (iCycle + 2)))) 
-        except:
-            pass
+    os.chdir(finalLoad)
+    os.system("python /WORK/p_esch01/progs/restApi/serestipy/client/couple.py "+ \
+              str(len(systemnames))+" "+systemString)
+    ## clean-up
+    #for i in range(len(hosts_list)):
+    #    try:
+    #        _ = communicator.requestEvent("DELETE", [hosts_list[i] for j in range(len(systemnames) * (iCycle + 3))] , list(range(len(systemnames) * (iCycle + 3))))
+    #    except:
+    #        pass
+
 
 if __name__ == "__main__":
     os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc/test"
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))
     nSystems = len(list(jh.find("NAME", json[0])))
-    perform(["http://128.176.214.100:5000" for i in range(nSystems)], json, 5)
-    #cluster = serestipy.client.akcluster.AKCluster()
-    #nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
-    #cluster.runBareMetal(perform, nCPU, nRAM, nSystems, 1, sys.argv[4], 4 ,json, int(sys.argv[5]))
+    # perform(["http://128.176.214.100:5000" for i in range(nSystems)], json, 8)
+    cluster = serestipy.client.akcluster.AKCluster()
+    cluster.runBareMetal(perform, 2, 20000, nSystems, 1, "LYRA2,LYRA1", 7 , json, 10)

@@ -71,6 +71,7 @@ class APICommunicator():
                     return_values.append(val.copy())
                 else:
                     return_values.append(val)
+        print(list(zip(hosts_list, resource_id_list, return_values)))
         return return_values
 
     def requestEvent(self, request_type, hosts_list, resource_id_list=[''], json_data_list=['{}']):
@@ -103,3 +104,4 @@ class APICommunicator():
                 pass            
             if (all(element == {'STATE: ': 'IDLE'} for element in ans)):
                 break
+            time.sleep(60.0)

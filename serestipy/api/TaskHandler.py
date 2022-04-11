@@ -47,14 +47,15 @@ class TaskHandler():
     #                         between multiple processes.
     def enroll(self, jobstate_list, job_id):
         jobstate_list[job_id] = "RUN"
-        self.__id = list(jh.find("ID", self.__args))[0]
         try:
+            self.__id = int(list(jh.find("ID", self.__args))[0])
             self.__baseDir = os.path.join(
                 os.getenv('DATABASE_DIR'), str(self.__id))
             if (not os.path.exists(self.__baseDir)):
                 os.mkdir(self.__baseDir)
-        except KeyError as identifier:
-            pass
+        except ValueError:
+            raise
+        
         actSettingsDict = list(jh.find("ACT", self.__args))[0]
         try:
             envSettingsDict = list(jh.find("ENV", self.__args))[0]
@@ -105,6 +106,7 @@ class TaskHandler():
             elif (jr.resolveSCFMode(setting.scfMode).upper() == "RESTRICTED"):
                 self.__scfmode = jr.resolveSCFMode(setting.scfMode).upper()
         self.__serenityTaskObject = jr.resolveTask(self.__scfmode, self.__taskName, self.__act, self.__env, taskSettingsDict)
+        return True
 
     ## @brief Performs the Serenity Calculation and stores the results.
     #   @param job_id: The job_id URI that is provided by the API.

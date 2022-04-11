@@ -49,19 +49,24 @@ class ser_api(Resource):
         exists(job_id)
         content = request.get_json(force = True)
         if (not isinstance(content,dict)):
-            return jsonify({"Job not posted": "JSON invalid"}), 201
+            return jsonify({"Job not posted": "JSON invalid"}), 400
         checker = jc.JobFormatChecker(content)
         valid = checker.run()
         if (valid):
             task = th.TaskHandler(content)
             jobs[job_id] = task
-            task.enroll(jobstate_list, job_id)
-            p = mp.Process(target=task.perform, args=(jobstate_list, job_id,results_list,))
-            p.daemon = True
-            p.start()
-            return jsonify({"Job posted": str(job_id)}), 201
+            enrolled = task.enroll(jobstate_list, job_id)
+            if (enrolled):
+                p = mp.Process(target=task.perform, args=(jobstate_list, job_id,results_list,))
+                p.daemon = True
+                p.start()
+                return jsonify({"Job posted": str(job_id)}), 201
+            else:
+                jobs[job_id].cleanUp()
+                del jobs[job_id]
+                return jsonify({"Job not posted": "JSON invalid"}), 400    
         else:
-            return jsonify({"Job not posted": "JSON invalid"}), 201
+            return jsonify({"Job not posted": "JSON invalid"}), 400
 
     @app.route("/api/<int:job_id>", methods=["GET"])
     def get_request(job_id):
@@ -85,9 +90,12 @@ class ResultsPage(Resource):
     def res_request(job_id):
         notExist(job_id)
         content = request.get_json(force=True)
-        results = jobs[job_id].getResults(job_id,results_list,content["TYPE"])
-        return jsonify(results), 201
-
+        try:
+            results = jobs[job_id].getResults(job_id,results_list,content["TYPE"])
+            return jsonify(results), 201
+        except:
+            return jsonify({"Info not yielded": "JSON invalid"}), 400
+        
 api.add_resource(ser_api, "/api/<int:job_id>")
 api.add_resource(ResultsPage, "/api/<int:job_id>/results/")
 api.add_resource(HomePage, "/api/")

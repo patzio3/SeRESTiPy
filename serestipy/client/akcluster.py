@@ -2,7 +2,7 @@ import os
 import sys
 import time
 import functools
-import APICommunicator as comm
+from serestipy.client.APICommunicator import APICommunicator
 
 
 class AKCluster():
@@ -10,7 +10,7 @@ class AKCluster():
         switcher = {
             "LYRA1": [32, 350000],
             "LYRA2": [94, 500000],
-            "POOL" : [8,32000]
+            "POOL" : [8, 32000]
         }
         maxCPU, maxRAM = switcher.get(partition.upper(),
                                       "Invalid Partition! Only LYRA1 and LYRA2 possible")
@@ -25,7 +25,7 @@ class AKCluster():
         if (partition.upper() == "POOL"):
             print("Docker is not available on the Pool partition!!! Stopping run...")
             sys.exit()
-        communicator = comm.APICommunicator()
+        communicator = APICommunicator.getInstance()
         print("Cleaning left-overs...")
         ips_file = os.path.join(os.getenv('DATABASE_DIR'), "ips_hosts")
         if (os.path.exists(ips_file)):
@@ -67,7 +67,7 @@ class AKCluster():
             for line in content:
                 host_addresses.append(os.path.join(line.strip()))
         print("Read addresses\n", host_addresses)
-        communicator.apiEndpointsOnline(host_addresses)
+        communicator.endpointsOnline(host_addresses)
         print("Starting calculation...")
         func(host_addresses, *args)
         print("Everything finished! Shutting down worker containers...")
@@ -77,15 +77,13 @@ class AKCluster():
             len(list(base_addresses)))], ['{}' for i in range(len(list(base_addresses)))])
 
     def runBareMetal(self, func, nCPU, nRAM, nNodes, nWorkerPerNode, partition, days, *args):
-        communicator = comm.APICommunicator()
+        communicator = APICommunicator.getInstance()
         print("Cleaning left-overs...")
-        ips_file = os.path.join(os.getenv('DATABASE_DIR'), "ip_addresses.txt")
-        slurm_job_id_file = os.path.join(os.getenv('DATABASE_DIR'), "slurm_job_ids.txt")
-        if (os.path.exists(ips_file)):
-            os.remove(ips_file)
-        if (os.path.exists(slurm_job_id_file)):
-            os.remove(slurm_job_id_file)
         out_path = os.path.join(os.getenv('DATABASE_DIR'))
+        if (not os.path.exists(os.path.join(out_path, "IPS"))):
+            os.mkdir(os.path.join(out_path, "IPS"))
+        if (not os.path.exists(os.path.join(out_path, "JOBIDS"))):
+            os.mkdir(os.path.join(out_path, "JOBIDS"))
         for file in os.listdir(out_path):
             if (file.startswith("out")):
                 os.remove(os.path.join(out_path, file))
@@ -105,28 +103,19 @@ class AKCluster():
             if (launcher_queued == 0 and launcher_running == nNodes):
                 break
         print("All are running! Gather ip addresses...")
-        while(True):
-            if (os.path.exists(ips_file)):
-                break
-        old_time = os.path.getmtime(ips_file)
-        time.sleep(1.0)
-        while(True):
-            new_time = os.path.getmtime(ips_file)
-            if (new_time == old_time):
-                break
-            old_time = new_time
-            time.sleep(1.0)
+        time.sleep(10)
         host_addresses = []
-        with open(ips_file) as handle:
-            content = handle.readlines()
-            for line in content:
-                host_addresses.append(os.path.join(line.strip()))
+        for _ , _ , files in os.walk(os.path.join(out_path,"IPS")):
+            for filename in files:
+                host_addresses.append("http://" + filename)
+        slurm_jobs = []
+        for _ , _ , files in os.walk(os.path.join(out_path,"JOBIDS")):
+            for filename in files:
+                slurm_jobs.append(filename)
         print("Read addresses\n", host_addresses)
-        communicator.apiEndpointsOnline(host_addresses)
+        communicator.endpointsOnline(host_addresses)
         print("Starting calculation...")
         func(host_addresses, *args)
-        print("Everything finished! Shutting down Api instances...")       
-        with open(slurm_job_id_file) as handle:
-            content = handle.readlines()
-            for line in content:
-                os.system(f"scancel {line}")
+        print("Everything finished! Shutting down Api instances...")
+        for line in slurm_jobs:
+            os.system(f"scancel {line}")

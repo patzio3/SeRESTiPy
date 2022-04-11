@@ -37,6 +37,8 @@ class SettingsConverter():
                 self.__sereniypySettings.name = self.__jsonSettings[outer]
             elif (outer.upper() == "LOAD"):
                 self.__sereniypySettings.load = self.__jsonSettings[outer]
+            elif (outer.upper() == "WRITETODISK"):
+                self.__sereniypySettings.writeToDisk = self.__jsonSettings[outer]
             elif (outer.upper() == "CHARGE"):
                 self.__sereniypySettings.charge = self.__jsonSettings[outer]
             elif (outer.upper() == "SPIN"):
@@ -170,11 +172,11 @@ class SettingsConverter():
                         self.__sereniypySettings.grid.blocksize = self.__jsonSettings[
                             outer][innerinner]
                     elif (innerinner.upper() == "ACCURACY"):
-                        self.__sereniypySettings.grid.accuracy = self.__jsonSettings[
-                            outer][innerinner]
+                        self.__sereniypySettings.grid.accuracy = int(self.__jsonSettings[
+                            outer][innerinner])
                     elif (innerinner.upper() == "SMALLGRIDACCURACY"):
-                        self.__sereniypySettings.grid.smallGridAccuracy = self.__jsonSettings[
-                            outer][innerinner]
+                        self.__sereniypySettings.grid.smallGridAccuracy = int(self.__jsonSettings[
+                            outer][innerinner])
                     elif (innerinner.upper() == "BLOCKAVETHRESHOLD"):
                         self.__sereniypySettings.grid.blockAveThreshold = self.__jsonSettings[
                             outer][innerinner]

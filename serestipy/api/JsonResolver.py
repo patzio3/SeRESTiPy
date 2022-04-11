@@ -309,6 +309,7 @@ def resolveTask(scfmode, task, act=[], env=[], args={}):
                 serenityTaskObject.settings.embedding.embeddingMode = resolveKinEmbeddingMode(args["EMB"]["EMBEDDINGMODE"]) if "EMBEDDINGMODE" in args["EMB"] else spy.KIN_EMBEDDING_MODES.NADDFUNC
                 serenityTaskObject.settings.embedding.naddXCFunc = resolveFunctional(args["EMB"]["NADDXCFUNC"]) if "NADDXCFUNC" in args["EMB"] else spy.XCFUNCTIONALS.PW91
                 serenityTaskObject.settings.embedding.naddKinFunc = resolveKinFunctional(args["EMB"]["NADDKINFUNC"]) if "NADDKINFUNC" in args["EMB"] else spy.KINFUNCTIONALS.PW91K
+                serenityTaskObject.settings.gridCutOff = int(args["GRIDCUTOFF"]) if "GRIDCUTOFF" in args else -1
             return serenityTaskObject
         elif (task.upper() in ["CC", "COUPLEDCLUSTERTASK"]):
             return spy.CoupledClusterTask_R(act[0])
@@ -395,6 +396,7 @@ def resolveTask(scfmode, task, act=[], env=[], args={}):
                 serenityTaskObject.settings.embedding.embeddingMode = resolveKinEmbeddingMode(args["EMB"]["EMBEDDINGMODE"]) if "EMBEDDINGMODE" in args["EMB"] else spy.KIN_EMBEDDING_MODES.NADDFUNC
                 serenityTaskObject.settings.embedding.naddXCFunc = resolveFunctional(args["EMB"]["NADDXCFUNC"]) if "NADDXCFUNC" in args["EMB"] else spy.XCFUNCTIONALS.PW91
                 serenityTaskObject.settings.embedding.naddKinFunc = resolveKinFunctional(args["EMB"]["NADDKINFUNC"]) if "NADDKINFUNC" in args["EMB"] else spy.KINFUNCTIONALS.PW91K
+                serenityTaskObject.settings.gridCutOff = int(args["GRIDCUTOFF"]) if "GRIDCUTOFF" in args else -1
             return serenityTaskObject
         elif (task.upper() in ["CC", "COUPLEDCLUSTERTASK"]):
             return spy.CoupledClusterTask_U(act[0])
