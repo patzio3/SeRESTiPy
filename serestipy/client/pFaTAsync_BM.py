@@ -48,7 +48,8 @@ def bundleResults(tasks):
         ids.append(str(tasks[i]["ID"]))
         systemnames.append(list(jh.find("NAME", tasks[i]["ACT"]))[0])
     localLoadPath = os.path.join(os.getenv('DATABASE_DIR'), name)
-    if (not os.path.exists(localLoadPath)):
+    if (os.path.exists(localLoadPath)):
+        sh.rmtree(localLoadPath)
         os.mkdir(localLoadPath)
 
     def copyanything(src, dst):
@@ -140,7 +141,7 @@ def perform(hosts_list, json_data, nCycles):
 
 
 if __name__ == "__main__":
-    os.environ["DATABASE_DIR"] = "/home/patrick/sciebo/projects/cooperations/yanai/zn2/pbediab/1_fat/calc"
+    # os.environ["DATABASE_DIR"] = "/home/patrick/sciebo/projects/cooperations/yanai/zn2/pbediab/1_fat/calc"
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
     nSystems = len(list(jh.find("NAME", json)))

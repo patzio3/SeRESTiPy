@@ -76,8 +76,8 @@ class SettingsConverter():
                         self.__sereniypySettings.scf.initialguess = jr.resolveInitialGuess(
                             self.__jsonSettings[outer][innerinner].upper())
                     elif (innerinner.upper() == "MAXCYCLES"):
-                        self.__sereniypySettings.scf.maxCycles = self.__jsonSettings[
-                            outer][innerinner]
+                        self.__sereniypySettings.scf.maxCycles = int(self.__jsonSettings[
+                            outer][innerinner])
                     elif (innerinner.upper() == "WRITERESTART"):
                         self.__sereniypySettings.scf.writeRestart = self.__jsonSettings[
                             outer][innerinner]

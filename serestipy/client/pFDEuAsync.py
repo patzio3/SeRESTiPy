@@ -10,7 +10,7 @@ from serestipy.client.APICommunicator import APICommunicator
 import serestipy.client.akcluster
 
 
-def rearrange(wholeSettings, systemNames, oldTaskID, newTaskIDs, iAct, load="/WORK/p_esch01/scratch_calc/test"):
+def rearrange(wholeSettings, systemNames, oldTaskID, newTaskIDs, iAct, load = os.getenv('DATABASE_DIR')):
     task, tasksettings, act, env = jh.dismemberJson(wholeSettings)
     allSysSettings = dict(act, **env)
     newDict = {}
@@ -27,7 +27,7 @@ def rearrange(wholeSettings, systemNames, oldTaskID, newTaskIDs, iAct, load="/WO
                 newDict["ACT"][allKeys[0]]["LOAD"] = os.path.join(load, str(oldTaskID[iSys]))
         else:
             newDict["ENV"][str(allKeys[iSys])] = list(jh.find(str(allKeys[iSys]), allSysSettings))[0]
-            newDict["ENV"][str(allKeys[iSys])]["WRITETODISK"] = False
+            # newDict["ENV"][str(allKeys[iSys])]["WRITETODISK"] = False
             if (not load == ""):
                 newDict["ENV"][str(allKeys[iSys])]["LOAD"] = os.path.join(load, str(oldTaskID[iSys]))
     return newDict.copy()
@@ -61,7 +61,8 @@ def bundleResults(tasks):
         systemnames.append(list(jh.find("NAME", tasks[i]["ACT"]))[0])
     name += str(tasks[-1]["ID"])
     localLoadPath = os.path.join(os.getenv('DATABASE_DIR'), name)
-    if (not os.path.exists(localLoadPath)):
+    if (os.path.exists(localLoadPath)):
+        sh.rmtree(localLoadPath)
         os.mkdir(localLoadPath)
 
     def copyanything(src, dst):
@@ -192,21 +193,21 @@ def perform(hosts_list, json_data, nCycles):
     for item in systemnames:
         systemString += item + " "
     os.chdir(finalLoad)
-    os.system("python /WORK/p_esch01/progs/restApi/serestipy/client/couple.py "+ \
+    os.system("python /home/patrick/Programs/restApi/serestipy/client/couple.py "+ \
               str(len(systemnames))+" "+systemString)
-    ## clean-up
-    #for i in range(len(hosts_list)):
-    #    try:
-    #        _ = communicator.requestEvent("DELETE", [hosts_list[i] for j in range(len(systemnames) * (iCycle + 3))] , list(range(len(systemnames) * (iCycle + 3))))
-    #    except:
-    #        pass
+    # clean-up
+    for i in range(len(hosts_list)):
+        try:
+            _ = communicator.requestEvent("DELETE", [hosts_list[i] for j in range(
+                len(systemnames) * nCycles)], list(range(len(systemnames) * nCycles)))
+        except:
+            pass
 
 
 if __name__ == "__main__":
-    os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc/test"
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))
     nSystems = len(list(jh.find("NAME", json[0])))
-    # perform(["http://128.176.214.100:5000" for i in range(nSystems)], json, 8)
-    cluster = serestipy.client.akcluster.AKCluster()
-    cluster.runBareMetal(perform, 2, 20000, nSystems, 1, "LYRA2,LYRA1", 7 , json, 10)
+    perform(["http://127.0.1.1:5000" for i in range(nSystems)], json, 20)
+    # cluster = serestipy.client.akcluster.AKCluster()
+    # cluster.runBareMetal(perform, 2, 20000, nSystems, 1, "LYRA2,LYRA1", 7 , json, 10)

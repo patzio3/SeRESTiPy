@@ -33,7 +33,6 @@ import serenipy as spy
 #   @param args: Provided JSON input
 class TaskHandler():
     def __init__(self, args):
-        print(args)
         self.__args = args
         self.__id = ""
         self.__taskName = ""

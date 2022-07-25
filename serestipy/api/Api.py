@@ -18,8 +18,6 @@
 # If not, see <http://www.gnu.org/licenses/>.\n
 
 import socket
-import codecs
-import random
 import sys
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource, abort
