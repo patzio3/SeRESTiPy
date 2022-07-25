@@ -6,9 +6,7 @@ import errno
 import numpy as np
 import shutil as sh
 import serestipy.client.JsonHelper as jh
-import serestipy.client.APICommunicator as comm
-import serestipy.client.akcluster 
-
+from serestipy.client.APICommunicator import APICommunicator
 
 def rearrange(wholeSettings, newActName, newTaskId, load=""):
     newDict = {}
@@ -69,7 +67,7 @@ def bundleResults(tasks):
 
 
 def perform(hosts_list, json_data, nCycles):
-    communicator = comm.APICommunicator()
+    communicator = APICommunicator.getInstance()
     systemnames = list(jh.find("NAME", json_data))
     taskIDs = [i for i in range(len(systemnames))]
     tasks = [rearrange(json_data.copy(), systemnames[i], i, "")
@@ -134,17 +132,19 @@ def perform(hosts_list, json_data, nCycles):
     # clean-up
     _ = bundleResults(tasks)
     for i in range(len(hosts_list)):
-        _ = communicator.requestEvent("DELETE", [hosts_list[i] for j in range(
-            len(systemnames) * nCycles)], list(range(len(systemnames) * nCycles)))
+        try:
+            _ = communicator.requestEvent("DELETE", [hosts_list[i] for j in range(
+                len(systemnames) * nCycles)], list(range(len(systemnames) * nCycles)))
+        except:
+            pass
 
 
 if __name__ == "__main__":
-    os.environ["DATABASE_DIR"] = "/WORK/p_esch01/scratch_calc/test"
+    os.environ["DATABASE_DIR"] = "/home/patrick/sciebo/projects/cooperations/yanai/zn2/pbediab/1_fat/calc"
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))[0]
-    print(json)
     nSystems = len(list(jh.find("NAME", json)))
-    # perform(["http://128.176.214.100:5000" for i in range(nSystems)], json, 10)
+    perform(["http://127.0.1.1:5000" for i in range(nSystems)], json, 20)
     #cluster = serestipy.client.akcluster.AKCluster()
     #nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
     #cluster.runBareMetal(perform, nCPU, nRAM, nSystems, 1, sys.argv[4], 4 ,json, int(sys.argv[5]))

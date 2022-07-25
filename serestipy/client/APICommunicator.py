@@ -1,10 +1,27 @@
-import os
+#!/usr/bin/env  python3
+#@file   APICommunicator.py
+#
+#@date   Feb 9, 2022
+#@author Patrick Eschenbach
+#@copyright \n
+# This file is part of the program SeRESTiPy.\n\n
+# SeRESTiPy is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as
+# published by the Free Software Foundation, either version 3 of
+# the License, or (at your option) any later version.\n\n
+# SeRESTiPy is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.\n\n
+# You should have received a copy of the GNU Lesser General
+# Public License along with SeRESTiPy.
+# If not, see <http://www.gnu.org/licenses/>.\n
+
 import requests
 import time
-from multiprocessing import Process
 import asyncio
-import serestipy.client.JsonHelper as jh
 from concurrent.futures import ThreadPoolExecutor
+import serestipy.client.JsonHelper as jh
 from serestipy.client.Singleton import Singleton
 
 @Singleton
@@ -55,7 +72,7 @@ class APICommunicator():
         try:
             method = switcher[request_type.upper()]
         except KeyError:
-            raise KeyError("Invalid HTTP request type! Allowed: POST, PUT, PATCH, GET, DELETE")
+            print("Invalid HTTP request type! Allowed: POST, PUT, PATCH, GET, DELETE")
         with ThreadPoolExecutor(max_workers=int(len(hosts_list))) as executor:
             loop = asyncio.get_event_loop()
             tasks = [
@@ -71,7 +88,6 @@ class APICommunicator():
                     return_values.append(val.copy())
                 else:
                     return_values.append(val)
-        print(list(zip(hosts_list, resource_id_list, return_values)))
         return return_values
 
     def requestEvent(self, request_type, hosts_list, resource_id_list=[''], json_data_list=['{}']):
@@ -104,4 +120,4 @@ class APICommunicator():
                 pass            
             if (all(element == {'STATE: ': 'IDLE'} for element in ans)):
                 break
-            time.sleep(60.0)
+            time.sleep(5.0)

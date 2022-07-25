@@ -102,4 +102,5 @@ api.add_resource(HomePage, "/api/")
 
 if __name__ == "__main__":
     from waitress import serve
+    print(socket.gethostbyname(socket.gethostname()))
     serve(app, host = socket.gethostbyname(socket.gethostname()), port = int(sys.argv[1]))

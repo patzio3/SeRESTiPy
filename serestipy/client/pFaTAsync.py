@@ -48,7 +48,7 @@ def bundleResults(tasks):
         name += str(tasks[i]["ID"])
         ids.append(str(tasks[i]["ID"]))
         systemnames.append(list(jh.find("NAME", tasks[i]["ACT"]))[0])
-    #dockerLoadPath = os.path.join("/home/calc", name)
+    dockerLoadPath = os.path.join("/home/calc", name)
     localLoadPath = os.path.join(os.getenv('DATABASE_DIR'), name)
     if (not os.path.exists(localLoadPath)):
         os.mkdir(localLoadPath)
@@ -65,7 +65,7 @@ def bundleResults(tasks):
         dst = os.path.join(localLoadPath, systemnames[i])
         src = os.path.join(os.getenv('DATABASE_DIR'), ids[i], systemnames[i])
         copyanything(src, dst)
-    return localLoadPath#dockerLoadPath
+    return dockerLoadPath
 
 
 def perform(hosts_list, json_data, nCycles):
@@ -127,9 +127,6 @@ if __name__ == "__main__":
     print("Reading input and preparing calculation...")
     json = jh.input2json(os.path.join(os.getcwd(), sys.argv[1]))
     nSystems = len(list(jh.find("NAME", json)))
-    hostname = "http://128.176.214.100:5000"
-    perform([hostname for i in range(nSystems)], json, 2)
-
-    # cluster = serestipy.client.akcluster.AKCluster()
-    # nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
-    # cluster.runInDocker(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))
+    cluster = serestipy.client.akcluster.AKCluster()
+    nCPU, nRAM, nNodes, nWorkerPerNode = cluster.determineSettings(nSystems, sys.argv[4], int(sys.argv[2]), int(sys.argv[3]))
+    cluster.runInDocker(perform, nCPU, nRAM, nNodes, nWorkerPerNode, sys.argv[4], 4 ,json, int(sys.argv[5]))

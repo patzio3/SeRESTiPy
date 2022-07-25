@@ -1,0 +1,14 @@
+#blacklist all
+*
+
+#Whitelist directories
+!serestipy/
+!serestipy/api/
+!serestipy/client/
+
+#whitelist 
+!*.py
+!.gitignore
+!requirements.txt
+
+
