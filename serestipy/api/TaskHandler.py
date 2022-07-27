@@ -80,6 +80,7 @@ class TaskHandler():
                 self.__baseDir, actGeometries[i])
             actSettingsDict[actSystemKeys[i]]["PATH"] = os.path.join(
                 self.__baseDir) + "/"
+            actSettingsDict[actSystemKeys[i]]["SAVEONDISK"] = True
             converter = sc.SettingsConverter(jh.dict2json(
                 list(jh.find(actSystemKeys[i], actSettingsDict))[0]))
             self.__actSettings.append(converter.getSerenipySettings())
@@ -91,6 +92,7 @@ class TaskHandler():
                     self.__baseDir, envGeometries[i])
                 envSettingsDict[envSystemKeys[i]]["PATH"] = os.path.join(
                     self.__baseDir) + "/"
+                envSettingsDict[envSystemKeys[i]]["SAVEONDISK"] = False
                 converter = sc.SettingsConverter(jh.dict2json(
                     list(jh.find(envSystemKeys[i], envSettingsDict))[0]))
                 self.__envSettings.append(converter.getSerenipySettings())

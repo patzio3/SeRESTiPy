@@ -52,7 +52,7 @@ class JobFormatChecker():
                                    "EFIELD",
                                    "LOAD",
                                    "PATH",
-                                   "WRITETODISK"
+                                   "SAVEONDISK"
                                    ]
 
     ## @brief Makes all strings in JSON uppercase.

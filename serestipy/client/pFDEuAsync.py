@@ -10,7 +10,7 @@ from serestipy.client.APICommunicator import APICommunicator
 import serestipy.client.akcluster
 
 
-def rearrange(wholeSettings, systemNames, oldTaskID, newTaskIDs, iAct, load = os.getenv('DATABASE_DIR')):
+def rearrange(wholeSettings, systemNames, oldTaskID, newTaskIDs, iAct, load = os.getenv('DATABASE_DIR'), saveall = False):
     task, tasksettings, act, env = jh.dismemberJson(wholeSettings)
     allSysSettings = dict(act, **env)
     newDict = {}
@@ -23,11 +23,13 @@ def rearrange(wholeSettings, systemNames, oldTaskID, newTaskIDs, iAct, load = os
         if (iSys == iAct):
             newDict["ID"] = str(newTaskIDs[iAct])
             newDict["ACT"][allKeys[0]] = list(jh.find(str(allKeys[iSys]), allSysSettings))[0]
+            newDict["ACT"][allKeys[0]]["SAVEONDISK"] = True
             if (not load == ""):
                 newDict["ACT"][allKeys[0]]["LOAD"] = os.path.join(load, str(oldTaskID[iSys]))
         else:
             newDict["ENV"][str(allKeys[iSys])] = list(jh.find(str(allKeys[iSys]), allSysSettings))[0]
-            # newDict["ENV"][str(allKeys[iSys])]["WRITETODISK"] = False
+            if (not saveall):
+                newDict["ENV"][str(allKeys[iSys])]["SAVEONDISK"] = False
             if (not load == ""):
                 newDict["ENV"][str(allKeys[iSys])]["LOAD"] = os.path.join(load, str(oldTaskID[iSys]))
     return newDict.copy()
@@ -179,7 +181,7 @@ def perform(hosts_list, json_data, nCycles):
     newTaskIDs = []
     for i in range(len(taskIDs)):
         newTaskIDs.append(taskIDs[i] + len(systemnames))
-    tasks = [rearrange(json_data[1].copy(), systemnames, taskIDs, newTaskIDs, i) for i in range(len(systemnames))]
+    tasks = [rearrange(json_data[1].copy(), systemnames, taskIDs, newTaskIDs, i, saveall = True) for i in range(len(systemnames))]
     taskIDs = newTaskIDs.copy()
     start = time.time()
     communicator.requestEvent("POST", hosts_list, taskIDs, tasks)

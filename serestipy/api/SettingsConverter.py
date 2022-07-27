@@ -37,8 +37,8 @@ class SettingsConverter():
                 self.__sereniypySettings.name = self.__jsonSettings[outer]
             elif (outer.upper() == "LOAD"):
                 self.__sereniypySettings.load = self.__jsonSettings[outer]
-            elif (outer.upper() == "WRITETODISK"):
-                self.__sereniypySettings.writeToDisk = self.__jsonSettings[outer]
+            elif (outer.upper() == "SAVEONDISK"):
+                self.__sereniypySettings.saveOnDisk = self.__jsonSettings[outer]
             elif (outer.upper() == "CHARGE"):
                 self.__sereniypySettings.charge = self.__jsonSettings[outer]
             elif (outer.upper() == "SPIN"):
