@@ -1,4 +1,4 @@
-![](doc/SerenityLogo.png)
+![](doc/serestipy.png)
 
 **Table of Contents** 
 - [Synopsis](#synopsis)
