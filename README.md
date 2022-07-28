@@ -41,7 +41,7 @@ Please read the following instructions carefully.
 
 ### Prerequisites
 The code has been tested and used on Anaconda Python version 3.7
-Older Python versions are known to be insufficient.
+older Python versions are known to be insufficient.
   
 The following programs/python libraries must be available on your system:
  - Serenity compiled with Pybind11 Python bindings (see https://github.com/qcserenity/serenity for installation details)
