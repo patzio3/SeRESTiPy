@@ -16,25 +16,27 @@
 # Public License along with Serenity.
 # If not, see <http://www.gnu.org/licenses/>.\n
 
-#################################################################################################
-###                                                                                           ###
-### This script accepts Löwdin transition charges of an arbitrary                             ###
-### number of subsystems and excitations computed beforehand and                              ###
-### couples those excitations based on the transition charges.                                ###
-### Analytical couplings from subsystem TDA can also be included.                             ###
-###                                                                                           ###
-### Usage:                                                                                    ###
-### -------                                                                                   ###
-### python couple.py <N_subsystems> <sys1> <sys2> .. <sysN> <N_analyticalCouplings> <12> <23> ###
-###                                                                                           ###
-### Here, N_subsystems are coupled named sys1, sys2, ... Further, N_analyticalCouplings       ###
-### analytical couplings between the subsystems 1 and 2 as well as 2 and 3 are included.      ###
-### These are read from disk just like the transition                                         ###
-### charges. IMPORTANT: In all (FDEu) tasks set the transitionCharges keyword to true and     ###
-### in all (FDEc) tasks for analytical couplings set the saveResponseMatrix keyword to true.  ###
-### Otherwise, this script will fail because it won't be able to find everything it needs.    ###
-###                                                                                           ###
-#################################################################################################
+###########################################################################################################################################
+###########################################################################################################################################
+###                                                                                                                                     ###
+### This script accepts Löwdin transition charges of an arbitrary                                                                       ###
+### number of subsystems and excitations computed beforehand and                                                                        ###
+### couples those excitations based on the transition charges.                                                                          ###
+### Analytical couplings from subsystem TDA can also be included.                                                                       ###
+###                                                                                                                                     ###
+### Usage:                                                                                                                              ###
+### -------                                                                                                                             ###
+### python couple.py <N_subsystems> <sys1> <sys2> .. <sysN> <N_löwdinchargeCouplings> <12> <23> .. <N_analyticalCouplings> <12> <23> .. ###
+###                                                                                                                                     ###
+### Here, N_subsystems are coupled named sys1, sys2, ... Further, N_analyticalCouplings                                                 ###
+### analytical couplings between the subsystems 1 and 2 as well as 2 and 3 are included.                                                ###
+### These are read from disk just like the transition                                                                                   ###
+### charges. IMPORTANT: In all (FDEu) tasks set the transitionCharges keyword to true and                                               ###
+### in all (FDEc) tasks for analytical couplings set the saveResponseMatrix keyword to true.                                            ###
+### Otherwise, this script will fail because it won't be able to find everything it needs.                                              ###
+###                                                                                                                                     ###
+###########################################################################################################################################
+###########################################################################################################################################
 import sys
 import numpy as np
 import time
@@ -56,6 +58,8 @@ def distance(atom1, atom2):
   return np.sqrt((x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2)
 
 nSubsystems = int(sys.argv[1])
+nFDECouplings = 0
+nTCCouplings = 0
 names = sys.argv[2:2 + nSubsystems]
 print("\n Number of systems      : ", nSubsystems)
 print(" ----------------------------")
@@ -97,10 +101,10 @@ for I in range(nSubsystems):
 # 2. Insert requested blocks with loaded sTDA couplings.
 couplings = []
 if (len(sys.argv) > 2 + nSubsystems):
-  nCouplings = int(sys.argv[2 + nSubsystems])
-  print("\n Including %2i analytical coupling(s) from sTDA:"%(nCouplings))
+  nFDECouplings = int(sys.argv[2 + nSubsystems])
+  print("\n Including %5i TDA couplings from FDEc:"%(nFDECouplings))
   print(" ------------------------------------------------")
-  for iCoupling in range(nCouplings):
+  for iCoupling in range(nFDECouplings):
     coupling = int(sys.argv[3 + nSubsystems + iCoupling])
     I = coupling // 10 - 1
     J = coupling % 10 - 1
@@ -124,7 +128,7 @@ if (len(sys.argv) > 2 + nSubsystems):
         H[nEigen[0:I].sum() + iEigen][nEigen[0:J].sum() + jEigen] = IJ[iEigen, jEigen]
         H[nEigen[0:J].sum() + jEigen][nEigen[0:I].sum() + iEigen] = JI[jEigen, iEigen]
 else:
-  print("\n No analytical couplings from sTDA will be included.")
+  print("\n No TDA couplings from FDEc will be included.")
 
 # To parallelize, must define function to return coupling for one exciton pair.
 def getCoupling(ij):
@@ -156,8 +160,16 @@ def getCoupling(ij):
 
 # Determine composite index of coupling to be calculated.
 coupling_indices = []
-for I in range(nSubsystems):
-  for J in range(I + 1, nSubsystems):
+if (len(sys.argv) > 2 + nSubsystems + 1 + nFDECouplings):
+  nTCCouplings = int(sys.argv[2 + nSubsystems + 1 + nFDECouplings])
+  print("\n Including %5i charge couplings:"%(nTCCouplings))
+  print(" ------------------------------------------------")
+  for iCoupling in range(nTCCouplings):
+    coupling = int(sys.argv[3 + nSubsystems + 1 + nFDECouplings + iCoupling])
+    I = coupling // 10 - 1
+    J = coupling % 10 - 1
+    
+    print("  %3i.   %-16s <---> %16s"%(iCoupling+1, names[I], names[J]))
     # Skip if already present.
     if ((I, J) in couplings):
       continue
@@ -167,9 +179,11 @@ for I in range(nSubsystems):
         i = nEigen[0:I].sum() + iEigen
         j = nEigen[0:J].sum() + jEigen
         coupling_indices.append(i * nEigen.sum() + j)
+else:
+  print("\n No transition-charge couplings will be included.")
 
 n_threads = multiprocessing.cpu_count()
-print(" Number of threads used: ", n_threads)
+print("\n\n Number of threads used: ", n_threads)
 print(" Number of couplings to be calculated: ", len(coupling_indices))
 
 # Calculate couplings.
@@ -228,12 +242,12 @@ for I in range(nSubsystems):
     nToExcitation[n] = iEigen
     n += 1
 
-if (nEigen.sum() < 17):
+if (nEigen.sum() < 10000):
   print("\n  Coupling Matrix / eV:")
   print(" -----------------------")
   for iEigen in range(nEigen.sum()):
     for jEigen in range(nEigen.sum()):
-      print("%12.3e"%(H[iEigen, jEigen] * HARTREE_TO_EV), end="")
+      print("%12.3e"%(abs(H[iEigen, jEigen]) * HARTREE_TO_EV), end="")
     print("")
 
 print("---------------------------------------------------------------------------------------")
