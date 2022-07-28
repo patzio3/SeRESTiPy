@@ -40,12 +40,12 @@ https://github.com/qcserestipy/serestipy
 Please read the following instructions carefully.
 
 ### Prerequisites
-The code has been tested and used on Anaconda Python version 3.7
+The code has been tested and used on Anaconda Python v3.7
 older Python versions are known to be insufficient.
   
 The following programs/python libraries must be available on your system:
  - Serenity compiled with Pybind11 Python bindings (see https://github.com/qcserenity/serenity for installation details)
- - Anaconda Python 3.7
+ - Anaconda Python v3.7
  - Flask v2.0.3
  - Waitress v2.0.0
  - Requests v2.27.1
