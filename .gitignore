@@ -5,10 +5,11 @@
 !serestipy/
 !serestipy/api/
 !serestipy/client/
+!docs/
 
 #whitelist 
 !*.py
+!*.png
+!README.md
 !.gitignore
 !requirements.txt
-
-
