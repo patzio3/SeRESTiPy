@@ -5,7 +5,7 @@
 !serestipy/
 !serestipy/api/
 !serestipy/client/
-!docs/
+!doc/
 
 #whitelist 
 !*.py
