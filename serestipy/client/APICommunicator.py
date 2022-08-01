@@ -26,41 +26,44 @@ from serestipy.client.Singleton import Singleton
 
 @Singleton
 class APICommunicator():
-    def __processResponse(self, response):
+    def __processResponse(self, response, host_address, resource_id, debug):
         response.raise_for_status()
-        return response.json()
+        if (debug):
+            return response.json(), host_address, resource_id
+        else:
+            return [response.json()]
 
-    def __postRequest(self, host_address, resource_id, json_data):
+    def __postRequest(self, host_address, resource_id, json_data, debug):
         session = requests.Session()
         session.trust_env = False
         response = session.post(host_address + "/api/" + str(resource_id), json=jh.dict2json(json_data))
-        return self.__processResponse(response)
+        return self.__processResponse(response, host_address, resource_id, debug)
 
-    def __putRequest(self, host_address, resource_id, json_data):
+    def __putRequest(self, host_address, resource_id, json_data, debug):
         session = requests.Session()
         session.trust_env = False
         response = session.put(host_address + "/api/" + str(resource_id), json=jh.dict2json(json_data))
-        return self.__processResponse(response)
+        return self.__processResponse(response, host_address, resource_id, debug)
 
-    def __patchRequest(self, host_address, resource_id, json_data):
+    def __patchRequest(self, host_address, resource_id, json_data, debug):
         session = requests.Session()
         session.trust_env = False
         response = session.patch(host_address + "/api/" + str(resource_id), json=jh.dict2json(json_data))
-        return self.__processResponse(response)
+        return self.__processResponse(response, host_address, resource_id, debug)
 
-    def __getRequest(self, host_address, resource_id, json_data):
+    def __getRequest(self, host_address, resource_id, json_data, debug):
         session = requests.Session()
         session.trust_env = False
         response = session.get(host_address + "/api/" + str(resource_id), json = json_data)
-        return self.__processResponse(response)
+        return self.__processResponse(response, host_address, resource_id, debug)
 
-    def __deleteRequest(self, host_address, resource_id, json_data):
+    def __deleteRequest(self, host_address, resource_id, json_data, debug):
         session = requests.Session()
         session.trust_env = False
         response = session.delete(host_address + "/api/" + str(resource_id))
-        return self.__processResponse(response)
+        return self.__processResponse(response, host_address, resource_id, debug)
 
-    async def __asyncRequestWrapper(self, request_type, hosts_list, resource_id_list, json_data_list=['{}']):
+    async def __asyncRequestWrapper(self, request_type, hosts_list, resource_id_list, debug, json_data_list=['{}']):
         return_values = []
         switcher = {
             "POST": self.__postRequest,
@@ -79,43 +82,45 @@ class APICommunicator():
                 loop.run_in_executor(
                     executor,
                     method,
-                    *(hosts_list[iTask], resource_id_list[iTask], json_data_list[iTask])
+                    *(hosts_list[iTask], resource_id_list[iTask], json_data_list[iTask], debug)
                 )
                 for iTask in range(len(hosts_list))
             ]
             for val in await asyncio.gather(*tasks):
-                if (isinstance(val,dict) or isinstance(val,list)):
-                    return_values.append(val.copy())
+                if (debug):
+                    print(val)
+                if (isinstance(val[0],dict) or isinstance(val[0],list)):
+                    return_values.append(val[0].copy())
                 else:
-                    return_values.append(val)
+                    return_values.append(val[0])
         return return_values
 
-    def requestEvent(self, request_type, hosts_list, resource_id_list=[''], json_data_list=['{}']):
+    def requestEvent(self, request_type, hosts_list, resource_id_list=[''], json_data_list=['{}'], debug = False):
         if (json_data_list == ['{}'] and len(hosts_list) > 1):
             json_data_list = ['{}' for i in range(len(hosts_list))] 
         if (resource_id_list == [''] and len(hosts_list) > 1):
             resource_id_list = ['' for i in range(len(hosts_list))]
         loop = asyncio.get_event_loop()
         future = asyncio.ensure_future(
-            self.__asyncRequestWrapper(request_type, hosts_list, resource_id_list, json_data_list))
+            self.__asyncRequestWrapper(request_type, hosts_list, resource_id_list, debug, json_data_list))
         return loop.run_until_complete(future)
 
-    def endpointsOnline(self, hosts_list):
+    def endpointsOnline(self, hosts_list, debug = False):
         while(True):
             ans = []
             try:
-                ans = self.requestEvent("GET", hosts_list)
+                ans = self.requestEvent("GET", hosts_list, debug = debug)
             except:
                 pass
             if (all(element == {'STATE: ': 'ONLINE'} for element in ans)):
                 break
             time.sleep(1.0)
 
-    def resourcesFinished(self, hosts_list, resource_id_list):
+    def resourcesFinished(self, hosts_list, resource_id_list, debug = False):
         while(True):
             ans = []
             try:
-                ans = self.requestEvent("GET", hosts_list, resource_id_list)
+                ans = self.requestEvent("GET", hosts_list, resource_id_list, debug = debug)
             except:
                 pass            
             if (all(element == {'STATE: ': 'IDLE'} for element in ans)):

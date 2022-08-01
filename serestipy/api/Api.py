@@ -70,6 +70,7 @@ class ser_api(Resource):
     def get_request(job_id):
         notExist(job_id)
         return jsonify({"STATE: ": jobstate_list[job_id]}), 201
+        # return jsonify({"STATE: ": jobs[job_id].getJobState()}), 201
 
     @app.route("/api/<int:job_id>", methods=["DELETE"])
     def delete_request(job_id):

@@ -366,7 +366,8 @@ def resolveTask(scfmode, task, act=[], env=[], args={}):
                 serenityTaskObject.settings.samedensity = np.array(args["SAMEDENSITY"]) if "SAMEDENSITY" in args else np.array([])
                 serenityTaskObject.settings.subsystemgrid = np.array([int(args["SUBSYSTEMGRID"])]) if "SUBSYSTEMGRID" in args else np.array([])
                 serenityTaskObject.settings.rpaScreening = bool(args["RPASCREENING"]) if "RPASCREENING" in args else False
-                serenityTaskObject.settings.transitionCharges = bool(args["TRANISITIONCHARGES"]) if "TRANISITIONCHARGES" in args else False
+                serenityTaskObject.settings.transitionCharges = True #bool(args["TRANISITIONCHARGES"]) if "TRANISITIONCHARGES" in args else False
+                print(serenityTaskObject.settings.transitionCharges)
                 serenityTaskObject.settings.partialResponseConstruction = bool(args["PARTIALRESPONSECONSTRUCTION"]) if "PARTIALRESPONSECONSTRUCTION" in args else False
                 serenityTaskObject.settings.grimme = bool(args["GRIMME"]) if "GRIMME" in args else False
                 serenityTaskObject.settings.adaptivePrescreening = bool(args["ADAPTIVESCREENING"]) if "ADAPTIVESCREENING" in args else True

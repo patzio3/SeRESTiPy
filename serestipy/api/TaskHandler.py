@@ -19,7 +19,7 @@
 
 import os
 import shutil as su
-import time
+import time, sys
 
 import serestipy.api.SettingsConverter as sc
 import serestipy.api.JsonResolver as jr
@@ -40,13 +40,11 @@ class TaskHandler():
         self.__env = []
         self.__actSettings = []
         self.__envSettings = []
-
     ## @brief Prepares the Serenity Settings and Task for the run.
     #   @param job_id: The job_id URI that is provided by the API.
     #   @param jobstate_list: A list of the jobstate which is shared
     #                         between multiple processes.
     def enroll(self, jobstate_list, job_id):
-        jobstate_list[job_id] = "RUN"
         try:
             self.__id = int(list(jh.find("ID", self.__args))[0])
             self.__baseDir = os.path.join(
@@ -110,6 +108,10 @@ class TaskHandler():
             else:
                 return False
         self.__serenityTaskObject = jr.resolveTask(self.__scfmode, self.__taskName, self.__act, self.__env, taskSettingsDict)
+        print("SETTING TO RUN: ",self.__id)
+        jobstate_list[job_id] = "RUN"
+        # with open(os.path.join(self.__baseDir,"runstate"), "w") as handle:
+        #     handle.write("RUN")
         return True
 
     ## @brief Performs the Serenity Calculation and stores the results.
@@ -118,7 +120,7 @@ class TaskHandler():
     #                         between multiple processes.
     #   @param results_list: A list of the calculation results which is shared
     #                         between multiple processes.
-    def perform(self, jobstate_list, job_id, results_list):  
+    def perform(self, jobstate_list, job_id, results_list):
         def getDensMatrix(system):
             if (self.__scfmode == "UNRESTRICTED"):
                 return [jh.array2json(system.getElectronicStructure_U().alphaDens()), jh.array2json(system.getElectronicStructure_U().betaDens())]
@@ -133,17 +135,34 @@ class TaskHandler():
             return system.getEnergy()
         parent = os.getcwd()
         os.chdir(self.__baseDir)
-        start = time.time()
-        self.__serenityTaskObject.run()
-        end = time.time()
-        results_list[job_id] = { "DMAT" : { str(key):getDensMatrix(system) for key,system in enumerate(self.__act) },
-                                 "COEF" : { str(key):getCoeffs(system) for key,system in enumerate(self.__act) },
-                                 "ENERGY" : { str(key):getEnergy(system) for key,system in enumerate(self.__act) }
-                                }
-        spy.printTimes()
-        print("Time taken for ENTIRE run", end - start, "s")
-        os.chdir(parent)
-        jobstate_list[job_id] = "IDLE"
+        
+        try:
+            start = time.time()
+            print("RUN SERENITY: ",self.__id)
+            self.__serenityTaskObject.run()
+            print("FINISH SERENITY: ",self.__id)
+            end = time.time()
+            results_list[job_id] = { "DMAT" : { str(key):getDensMatrix(system) for key,system in enumerate(self.__act) },
+                                     "COEF" : { str(key):getCoeffs(system) for key,system in enumerate(self.__act) },
+                                     "ENERGY" : { str(key):getEnergy(system) for key,system in enumerate(self.__act) }
+                                    }
+            spy.printTimes()
+            print("Time taken for ENTIRE run", end - start, "s")
+            os.chdir(parent)
+            print("SETTING TO IDLE: ",self.__id)
+            jobstate_list[job_id] = "IDLE"
+            # with open(os.path.join(self.__baseDir,"runstate"), "w") as handle:
+            #     handle.write("IDLE")
+        except:
+            print("Serenity Task crashed!")
+            jobstate_list[job_id] = "IDLE"
+            # with open(os.path.join(self.__baseDir,"runstate"), "w") as handle:
+            #     handle.write("IDLE")
+
+    # def getJobState(self):
+    #     with open(os.path.join(self.__baseDir,"runstate"), "r") as handle:
+    #         return handle.readline()
+
 
     ## @brief Cleans up the file-system tree.
     def cleanUp(self):
